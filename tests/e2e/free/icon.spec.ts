@@ -357,6 +357,65 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( boxes[ 1 ].width / boxes[ 1 ].height ).toBeCloseTo( 1, 1 );
 	} );
 
+	test( 'an inline icon inside a button is independent of the button\'s own icon', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// Two things went wrong here at once. The button's custom properties inherit, so the inline
+		// icon was sized and shaped by the button's icon; and the link was a flex container, which
+		// made the label and the inline icon flex items spaced by the icon gap. Both are ways of
+		// letting the pseudo-element's settings escape onto content that is not the pseudo-element.
+		const inline =
+			`Buy <img class="wp-block-masked-icon-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: inline,
+						maskedIconUrl: PIXEL,
+						maskedIconSize: '3em',
+						maskedIconGap: '3em',
+						maskedIconRatio: '1/1',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const measured = await page
+			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.evaluate( ( link ) => {
+				const icon = link.querySelector(
+					'.wp-block-masked-icon-icon__inline'
+				) as HTMLElement;
+				const box = icon.getBoundingClientRect();
+				const after = window.getComputedStyle( link, '::after' );
+
+				return {
+					display: window.getComputedStyle( link ).display,
+					inlineWidth: box.width,
+					inlineHeight: box.height,
+					buttonIconHeight: parseFloat( after.height ),
+				};
+			} );
+
+		// The button's icon is 3em; the inline one keeps its own 1em default.
+		expect( measured.buttonIconHeight ).toBeCloseTo( measured.inlineHeight * 3, 0 );
+		// ...and its own 2:1 proportions, not the button icon's 1:1.
+		expect( measured.inlineWidth / measured.inlineHeight ).toBeCloseTo( 2, 1 );
+		// The label and anything inline in it stay text, not flex items spaced by the icon gap.
+		expect( measured.display ).not.toContain( 'flex' );
+	} );
+
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {

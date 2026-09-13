@@ -52,6 +52,14 @@
 // currentColor silhouette, not the artwork - and replaced content is clipped to the content box,
 // so pushing the image far outside it hides it while the box, and its proportions, stay.
 img.wp-block-masked-icon-icon__inline {
+	// An inline icon can sit inside something that already has an icon of its own - a button, most
+	// obviously - and custom properties inherit. Without this reset it would be masked, sized and
+	// shaped by the host's icon rather than its own. Only --masked-icon-image is written on the
+	// element itself, and an inline style beats this rule, so the element's own value still wins.
+	--masked-icon-image: none;
+	--masked-icon-size: 1em;
+	--masked-icon-fit: contain;
+
 	display: inline-block;
 	// Sits on the text baseline the way a glyph would, matching the block's mark.
 	vertical-align: -0.125em;
@@ -73,69 +81,83 @@ img.wp-block-masked-icon-icon__inline {
 
 // An icon added to a core Button, rendered as a pseudo-element so the native button markup,
 // styles and colours are left exactly as WordPress produced them.
-.wp-block-button.has-masked-icon .wp-block-button__link {
-	display: inline-flex;
-	align-items: center;
-	gap: var( --masked-icon-gap, 0.5em );
+//
+// Laid out in the ordinary text flow, not by making the link a flex container. Flex would turn
+// everything inside the button into a flex item - the label, a bold run, and an inline masked icon
+// somebody put in the text - spacing them all by the icon gap and lining them up by the icon's
+// rules. That is exactly the kind of change to the native button this plugin exists not to make.
+// A margin does the same job for the one element that needs it.
+@mixin masked-icon-pseudo {
+	content: "";
+	display: inline-block;
+	// Sits on the text baseline like a glyph, same as the block's mark and the inline icon.
+	vertical-align: -0.125em;
+	// A pseudo-element has no image of its own to be measured from, so the proportions arrive as a
+	// custom property written when the icon was picked. Without one this is a square and `contain`
+	// letterboxes a tall or wide icon inside it - correct, but padded.
+	height: var( --masked-icon-size, 1em );
+	width: auto;
+	aspect-ratio: var( --masked-icon-ratio, 1 );
 
-	&::after {
-		content: "";
-		flex: none;
-		// A pseudo-element has no image of its own to be measured from, so the proportions arrive
-		// as a custom property written when the icon was picked. Without one this is a square and
-		// `contain` letterboxes a tall or wide icon inside it - correct, but padded.
-		height: var( --masked-icon-size, 1em );
-		width: auto;
-		aspect-ratio: var( --masked-icon-ratio, 1 );
-
-		@include masked-icon-surface;
-	}
+	@include masked-icon-surface;
 }
 
-.wp-block-button.has-masked-icon.is-icon-before .wp-block-button__link {
-	flex-direction: row-reverse;
+.wp-block-button.has-masked-icon:not( .is-icon-before ) .wp-block-button__link::after {
+	@include masked-icon-pseudo;
+
+	margin-inline-start: var( --masked-icon-gap, 0.5em );
+}
+
+.wp-block-button.has-masked-icon.is-icon-before .wp-block-button__link::before {
+	@include masked-icon-pseudo;
+
+	margin-inline-end: var( --masked-icon-gap, 0.5em );
 }
 
 // Hover animations for the button icon.
 //
 // `is-icon-animated` on its own means the slide, which is both the default and what posts saved
 // before the animation list existed carry - so nothing that already exists has to be re-saved.
-// Every other animation adds `is-icon-anim-*` next to it.
-//
-// Those rules deliberately come last. The slide needs a direction-aware rule for
-// `is-icon-before`, which makes it one class more specific than a plain animation rule would be;
-// matching that specificity and relying on source order is simpler to read than inflating every
-// selector to out-specify it.
-.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
+// Every other animation adds `is-icon-anim-*` next to it and is one class more specific, which is
+// what lets it replace the slide.
+.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after,
+.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::before {
 	transition: transform 0.2s ease;
 }
 
+// The slide moves the icon away from the text, so which way depends on the side it is on - which
+// here is simply which pseudo-element exists.
 .wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after {
 	transform: translateX( 0.25em );
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-before .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::before {
 	transform: translateX( -0.25em );
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-rotate .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-rotate .wp-block-button__link:hover::after,
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-rotate .wp-block-button__link:hover::before {
 	transform: rotate( 45deg );
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin .wp-block-button__link:hover::after,
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin .wp-block-button__link:hover::before {
 	transform: rotate( 360deg );
 	transition-duration: 0.5s;
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-grow .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-grow .wp-block-button__link:hover::after,
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-grow .wp-block-button__link:hover::before {
 	transform: scale( 1.25 );
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-bounce .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-bounce .wp-block-button__link:hover::after,
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-bounce .wp-block-button__link:hover::before {
 	animation: masked-icon-bounce 0.6s ease infinite;
 }
 
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-wiggle .wp-block-button__link:hover::after {
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-wiggle .wp-block-button__link:hover::after,
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-wiggle .wp-block-button__link:hover::before {
 	animation: masked-icon-wiggle 0.4s ease infinite;
 }
 
@@ -171,11 +193,13 @@ img.wp-block-masked-icon-icon__inline {
 // animation rule above it, and adding classes to the selector until it does would have to be
 // redone the next time somebody adds an animation.
 @media ( prefers-reduced-motion: reduce ) {
-	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after,
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::before {
 		transition: none !important;
 	}
 
-	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after {
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after,
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::before {
 		transform: none !important;
 		animation: none !important;
 	}
