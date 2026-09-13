@@ -307,6 +307,56 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( box.width / box.height ).toBeCloseTo( 2, 1 );
 	} );
 
+	test( 'a button icon keeps the proportions of the image, and stays square without them', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The button icon is a pseudo-element, so it cannot measure an image of its own the way the
+		// inline one does - the proportions have to be carried by a custom property. The second
+		// button here has none, which is what every button saved before this existed looks like.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Wide',
+						maskedIconUrl: WIDE_PIXEL,
+						maskedIconRatio: '2/1',
+					},
+				},
+				{
+					name: 'core/button',
+					attributes: { text: 'Unmeasured', maskedIconUrl: WIDE_PIXEL },
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const boxes = await page
+			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.evaluateAll( ( links ) =>
+				links.map( ( link ) => {
+					const style = window.getComputedStyle( link, '::after' );
+
+					return {
+						width: parseFloat( style.width ),
+						height: parseFloat( style.height ),
+					};
+				} )
+			);
+
+		expect( boxes ).toHaveLength( 2 );
+		expect( boxes[ 0 ].height ).toBeGreaterThan( 0 );
+		expect( boxes[ 0 ].width / boxes[ 0 ].height ).toBeCloseTo( 2, 1 );
+		expect( boxes[ 1 ].width / boxes[ 1 ].height ).toBeCloseTo( 1, 1 );
+	} );
+
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {

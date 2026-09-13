@@ -35,6 +35,8 @@ interface ButtonIconAttributes {
 	maskedIconId: number;
 	maskedIconPosition: string;
 	maskedIconSize: string;
+	/** The image's own proportions, as a CSS ratio - "800/1028". Empty when they are unknown. */
+	maskedIconRatio: string;
 	maskedIconGap: string;
 	maskedIconAnimation: string;
 	/** Pre-0.2 "slide on hover" toggle, still read so older buttons keep working. */
@@ -71,10 +73,34 @@ const DEFAULTS: ButtonIconAttributes = {
 	maskedIconId: 0,
 	maskedIconPosition: 'after',
 	maskedIconSize: '1em',
+	maskedIconRatio: '',
 	maskedIconGap: '0.5em',
 	maskedIconAnimation: '',
 	maskedIconAnimate: false,
 };
+
+interface SelectedMedia {
+	id: number;
+	url: string;
+	width?: number;
+	height?: number;
+}
+
+/**
+ * The image's proportions, as a CSS ratio the stylesheet can hand to aspect-ratio.
+ *
+ * The icon on a button is a pseudo-element, so unlike the inline icon it has no image of its own
+ * to be measured from - the dimensions have to come from the media library at the moment the icon
+ * is chosen. Anything the library cannot measure, such as an SVG without intrinsic dimensions,
+ * returns nothing and the stylesheet falls back to a square.
+ */
+function ratioOf( media: SelectedMedia ): string {
+	if ( ! media.width || ! media.height ) {
+		return '';
+	}
+
+	return `${ media.width }/${ media.height }`;
+}
 
 /**
  * The animation to use, whichever attribute carries it.
@@ -108,6 +134,7 @@ addFilter(
 				maskedIconId: { type: 'number', default: DEFAULTS.maskedIconId },
 				maskedIconPosition: { type: 'string', default: DEFAULTS.maskedIconPosition },
 				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
+				maskedIconRatio: { type: 'string', default: DEFAULTS.maskedIconRatio },
 				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
 				maskedIconAnimation: { type: 'string', default: DEFAULTS.maskedIconAnimation },
 				maskedIconAnimate: { type: 'boolean', default: DEFAULTS.maskedIconAnimate },
@@ -144,6 +171,15 @@ function iconProps( attributes: Attributes ) {
 		'--masked-icon-gap': ( attributes.maskedIconGap as string ) || DEFAULTS.maskedIconGap,
 	};
 
+	// Only written when the media library knew the dimensions, so a button saved before this
+	// existed - or one masked with an SVG that reports no size - keeps exactly the markup it had
+	// and falls back to the square box.
+	const ratio = ( attributes.maskedIconRatio as string ) || '';
+
+	if ( ratio ) {
+		style[ '--masked-icon-ratio' ] = ratio;
+	}
+
 	return { className, style };
 }
 
@@ -170,10 +206,11 @@ const withIconControls = createHigherOrderComponent(
 								<MediaUpload
 									allowedTypes={ [ 'image' ] }
 									value={ attributes.maskedIconId as number }
-									onSelect={ ( media: { id: number; url: string } ) =>
+									onSelect={ ( media: SelectedMedia ) =>
 										setAttributes( {
 											maskedIconUrl: media.url,
 											maskedIconId: media.id,
+											maskedIconRatio: ratioOf( media ),
 										} )
 									}
 									render={ ( { open }: { open: () => void } ) => (

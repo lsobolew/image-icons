@@ -80,9 +80,13 @@ img.wp-block-masked-icon-icon__inline {
 
 	&::after {
 		content: "";
-		width: var( --masked-icon-size, 1em );
-		height: var( --masked-icon-size, 1em );
 		flex: none;
+		// A pseudo-element has no image of its own to be measured from, so the proportions arrive
+		// as a custom property written when the icon was picked. Without one this is a square and
+		// `contain` letterboxes a tall or wide icon inside it - correct, but padded.
+		height: var( --masked-icon-size, 1em );
+		width: auto;
+		aspect-ratio: var( --masked-icon-ratio, 1 );
 
 		@include masked-icon-surface;
 	}
