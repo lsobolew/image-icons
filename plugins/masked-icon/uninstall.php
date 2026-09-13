@@ -25,15 +25,15 @@ function masked_icon_uninstall_site(): void {
 }
 
 if ( is_multisite() ) {
-	$site_ids = get_sites(
+	$masked_icon_site_ids = get_sites(
 		array(
 			'fields' => 'ids',
 			'number' => 0,
 		)
 	);
 
-	foreach ( $site_ids as $site_id ) {
-		switch_to_blog( (int) $site_id );
+	foreach ( $masked_icon_site_ids as $masked_icon_site_id ) {
+		switch_to_blog( (int) $masked_icon_site_id );
 		masked_icon_uninstall_site();
 		restore_current_blog();
 	}

@@ -12,19 +12,18 @@ namespace Sobolewski\MaskedIcon\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Loads translations from languages/ (plugins hosted on WordPress.org also receive community
- * translations automatically).
+ * Deliberately does nothing.
+ *
+ * Since WordPress 4.6 a plugin hosted on WordPress.org gets its translations loaded automatically,
+ * and calling load_plugin_textdomain() yourself is flagged by Plugin Check. The class stays so the
+ * boot sequence has something to call, and so a fork distributed outside the directory - where the
+ * call *is* still needed - has an obvious place to put it back.
  */
 final class I18n {
 
 	/**
-	 * Registers the text domain.
+	 * Nothing to do: WordPress.org ships the translations.
 	 */
 	public function load(): void {
-		load_plugin_textdomain(
-			'masked-icon',
-			false,
-			dirname( MASKED_ICON_BASENAME ) . '/languages'
-		);
 	}
 }

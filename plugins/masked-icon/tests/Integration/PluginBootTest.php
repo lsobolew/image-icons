@@ -25,9 +25,7 @@ final class PluginBootTest extends WP_UnitTestCase {
 	public function test_configured_modules_are_registered(): void {
 		$ids = array_keys( Plugin::instance()->modules() );
 
-		$this->assertContains( 'settings', $ids );
-		$this->assertContains( 'content-type', $ids );
-		$this->assertContains( 'rest', $ids );
+		$this->assertContains( 'blocks', $ids );
 	}
 
 	/**

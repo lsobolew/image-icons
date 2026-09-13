@@ -13,10 +13,6 @@ parameters:
 		- vendor/php-stubs/wordpress-stubs
 	treatPhpDocTypesAsCertain: false
 	ignoreErrors:
-		# WP-CLI is optional at runtime; the module guards every call with defined( 'WP_CLI' ).
-		-
-			message: '#WP_CLI#'
-			path: src/Modules/Cli/*
 		# Every module receives the Plugin instance through the same constructor, by contract.
 		# Modules that do not need it yet still keep the reference, so adding logic later never
 		# means changing a signature - PHPStan sees that as a write-only property.

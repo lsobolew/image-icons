@@ -1,6 +1,6 @@
 <?php
 /**
- * Integration tests for how block markup survives KSES.
+ * The plugin's central guarantee: its markup survives being saved by a non-privileged user.
  *
  * @package Sobolewski\MaskedIcon
  */
@@ -12,82 +12,85 @@ namespace Sobolewski\MaskedIcon\Tests\Integration;
 use WP_UnitTestCase;
 
 /**
- * Block markup has to survive being saved by a user without `unfiltered_html`.
+ * WordPress runs post content through wp_kses_post() for every user without `unfiltered_html`.
+ * On a single site that is authors and contributors; **on multisite it is everyone except the
+ * super admin**, a site administrator included.
  *
- * WordPress runs post content through wp_kses_post() for anyone lacking that capability. On a
- * single site that means authors and contributors; **on multisite it means everybody except the
- * super admin**, a regular site administrator included. So the author of a plugin, testing as an
- * administrator on their own machine, never sees what their users get.
+ * That filter strips `mask-image` and `-webkit-mask-image` from style attributes. An icon plugin
+ * that writes the mask directly into the style attribute therefore works perfectly for its author,
+ * who is an administrator on their own machine, and silently renders a blank box for a client's
+ * editor. Worse, for a static block the rewritten markup no longer matches what save() produces,
+ * so the editor reports the block as invalid the next time the post is opened.
  *
- * For a static block this is not merely cosmetic. KSES rewrites the stored markup, the markup then
- * no longer matches what save() produces, and the editor reports the block as invalid the next
- * time somebody opens the post.
- *
- * Measured behaviour (WordPress 7.x), worth knowing before designing block output:
- *
- *   survives    class, data-* attributes, CSS custom properties (`--x: url(…)` included),
- *               background-color, width/height, display
- *   stripped    <script>, mask-image, -webkit-mask-image, behavior:
- *
- * That last row is why an icon built on `mask-image` has to put the URL in a custom property and
- * let a stylesheet consume it, rather than writing mask-image into the style attribute.
+ * This plugin avoids that by carrying the mask in CSS custom properties, which survive, and
+ * resolving them in a stylesheet. These tests are what keep that promise honest - they fail the
+ * moment somebody moves a mask declaration back into the markup.
  */
 final class KsesCompatibilityTest extends WP_UnitTestCase {
 
 	/**
-	 * Markup as each block's save() writes it.
+	 * Markup exactly as the block's save() writes it.
+	 */
+	private const ICON_MARKUP = '<!-- wp:masked-icon/icon {"url":"https://example.com/arrow.png","size":"1.5em","label":"Next"} -->' .
+		'<span class="wp-block-masked-icon-icon" style="--masked-icon-image:url(https://example.com/arrow.png);--masked-icon-size:1.5em" role="img" aria-label="Next"></span>' .
+		'<!-- /wp:masked-icon/icon -->';
+
+	/**
+	 * A core Button carrying an icon, as the editor extension saves it.
+	 */
+	private const BUTTON_MARKUP = '<!-- wp:buttons --><div class="wp-block-buttons">' .
+		'<!-- wp:button {"maskedIconUrl":"https://example.com/arrow.png"} -->' .
+		'<div class="wp-block-button has-masked-icon is-icon-after" style="--masked-icon-image:url(https://example.com/arrow.png);--masked-icon-size:1em;--masked-icon-gap:0.5em">' .
+		'<a class="wp-block-button__link wp-element-button">Learn more</a></div>' .
+		'<!-- /wp:button --></div><!-- /wp:buttons -->';
+
+	/**
+	 * Markup samples the plugin produces.
 	 *
 	 * @return array<string, array{0: string}>
 	 */
-	public static function block_markup_provider(): array {
+	public static function markup_provider(): array {
 		return array(
-			'callout'   => array(
-				'<!-- wp:masked-icon/callout {"tone":"warning"} -->' .
-				'<div class="wp-block-masked-icon-callout is-tone-warning"><p>Mind the gap</p></div>' .
-				'<!-- /wp:masked-icon/callout -->',
-			),
-			'section'   => array(
-				'<!-- wp:masked-icon/section {"tone":"muted"} -->' .
-				'<div class="wp-block-masked-icon-section is-tone-muted">' .
-				'<!-- wp:paragraph --><p>Nested</p><!-- /wp:paragraph -->' .
-				'</div><!-- /wp:masked-icon/section -->',
-			),
-			'item-list' => array(
-				'<!-- wp:masked-icon/item-list {"limit":3} /-->',
+			'icon block'       => array( self::ICON_MARKUP ),
+			'button with icon' => array( self::BUTTON_MARKUP ),
+			'decorative icon'  => array(
+				'<!-- wp:masked-icon/icon {"url":"https://example.com/star.svg"} -->' .
+				'<span class="wp-block-masked-icon-icon" style="--masked-icon-image:url(https://example.com/star.svg);--masked-icon-size:1em" aria-hidden="true"></span>' .
+				'<!-- /wp:masked-icon/icon -->',
 			),
 		);
 	}
 
 	/**
-	 * Saved markup passes through KSES untouched.
+	 * KSES leaves the markup alone.
 	 *
-	 * @dataProvider block_markup_provider
+	 * @dataProvider markup_provider
 	 *
-	 * @param string $markup Markup as stored in a post.
+	 * @param string $markup Saved markup.
 	 */
-	public function test_block_markup_survives_kses( string $markup ): void {
+	public function test_markup_survives_kses( string $markup ): void {
 		$this->assertSame(
 			$markup,
 			wp_kses_post( $markup ),
-			'KSES rewrote this block. Users without unfiltered_html would see it as invalid.'
+			'KSES rewrote this markup, so it would break for users without unfiltered_html.'
 		);
 	}
 
 	/**
-	 * A user without the capability saves the same markup an administrator would.
+	 * An author stores exactly what an administrator would.
 	 *
-	 * @dataProvider block_markup_provider
+	 * @dataProvider markup_provider
 	 *
-	 * @param string $markup Markup as stored in a post.
+	 * @param string $markup Saved markup.
 	 */
-	public function test_author_saves_the_same_markup_as_an_administrator( string $markup ): void {
+	public function test_author_stores_the_same_markup( string $markup ): void {
 		$author = self::factory()->user->create( array( 'role' => 'author' ) );
 
 		wp_set_current_user( $author );
 
 		$this->assertFalse(
 			current_user_can( 'unfiltered_html' ),
-			'This test is meaningless if the user can post unfiltered HTML.'
+			'This test proves nothing if the user may post unfiltered HTML.'
 		);
 
 		$post_id = self::factory()->post->create(
@@ -101,20 +104,17 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Block delimiters themselves are never touched, whoever saves them.
+	 * The custom property carrying the mask is what survives - a direct declaration is not.
+	 *
+	 * This is the reason the plugin is built the way it is, pinned down so nobody "simplifies" it.
 	 */
-	public function test_block_delimiters_are_preserved(): void {
-		$author = self::factory()->user->create( array( 'role' => 'contributor' ) );
+	public function test_a_direct_mask_declaration_would_not_survive(): void {
+		$safe   = '<span style="--masked-icon-image:url(https://example.com/a.png)"></span>';
+		$unsafe = '<span style="mask-image:url(https://example.com/a.png)"></span>';
+		$webkit = '<span style="-webkit-mask-image:url(https://example.com/a.png)"></span>';
 
-		wp_set_current_user( $author );
-
-		$markup = '<!-- wp:masked-icon/callout {"tone":"info"} -->' .
-			'<div class="wp-block-masked-icon-callout is-tone-info"><p>Text</p></div>' .
-			'<!-- /wp:masked-icon/callout -->';
-
-		$filtered = wp_kses_post( $markup );
-
-		$this->assertStringContainsString( '<!-- wp:masked-icon/callout {"tone":"info"} -->', $filtered );
-		$this->assertStringContainsString( '<!-- /wp:masked-icon/callout -->', $filtered );
+		$this->assertSame( $safe, wp_kses_post( $safe ), 'Custom properties are expected to survive.' );
+		$this->assertNotSame( $unsafe, wp_kses_post( $unsafe ), 'mask-image is expected to be stripped.' );
+		$this->assertNotSame( $webkit, wp_kses_post( $webkit ), '-webkit-mask-image is expected to be stripped.' );
 	}
 }

@@ -1,6 +1,10 @@
-/** A SelectControl option. Declared explicitly so the control's value stays a plain string
- * instead of being narrowed to the literals in one particular options array. */
-export interface ToneOption {
+/**
+ * A SelectControl option.
+ *
+ * Declared explicitly so the control's value stays a plain string instead of being narrowed to the
+ * literals in one particular options array.
+ */
+export interface SelectOption {
 	label: string;
 	value: string;
 }

@@ -1,0 +1,84 @@
+// Front-end styles for the icon, and for the icon added to a core Button.
+//
+// The mask URL never appears in a style attribute - it arrives as the custom property
+// --masked-icon-image, and this stylesheet is what turns it into a mask. That indirection is not
+// cosmetic: WordPress strips `mask-image` from inline styles for every user without the
+// unfiltered_html capability (on multisite that is everyone except the super admin), while custom
+// properties survive. Writing mask-image inline would work for the plugin author and silently
+// break for their users.
+
+@mixin masked-icon-surface {
+	background-color: currentColor;
+
+	mask-image: var( --masked-icon-image );
+	mask-size: var( --masked-icon-fit, contain );
+	mask-repeat: no-repeat;
+	mask-position: center;
+
+	-webkit-mask-image: var( --masked-icon-image );
+	-webkit-mask-size: var( --masked-icon-fit, contain );
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+}
+
+// WordPress builds this class from the full block name, so `masked-icon/icon` becomes
+// `wp-block-masked-icon-icon` rather than the shorter name one might expect.
+.wp-block-masked-icon-icon {
+	display: inline-block;
+	// Sits on the text baseline the way a glyph would.
+	vertical-align: -0.125em;
+	width: var( --masked-icon-size, 1em );
+	height: var( --masked-icon-size, 1em );
+	flex: none;
+
+	@include masked-icon-surface;
+}
+
+a.wp-block-masked-icon-icon,
+.wp-block-masked-icon-icon__link {
+	// A linked icon should not pick up the theme's underline.
+	text-decoration: none;
+}
+
+// An icon added to a core Button, rendered as a pseudo-element so the native button markup,
+// styles and colours are left exactly as WordPress produced them.
+.wp-block-button.has-masked-icon .wp-block-button__link {
+	display: inline-flex;
+	align-items: center;
+	gap: var( --masked-icon-gap, 0.5em );
+
+	&::after {
+		content: "";
+		width: var( --masked-icon-size, 1em );
+		height: var( --masked-icon-size, 1em );
+		flex: none;
+
+		@include masked-icon-surface;
+	}
+}
+
+.wp-block-button.has-masked-icon.is-icon-before .wp-block-button__link {
+	flex-direction: row-reverse;
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
+	transition: transform 0.2s ease;
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after {
+	transform: translateX( 0.25em );
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-before .wp-block-button__link:hover::after {
+	transform: translateX( -0.25em );
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
+		transition: none;
+	}
+
+	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after {
+		transform: none;
+	}
+}

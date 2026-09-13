@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       Masked Icon
- * Plugin URI:        https://example.com/masked-icon
- * Description:       A WordPress plugin scaffolded with WP Plugin Lab.
+ * Plugin URI:        https://github.com/lsobolew/masked-icon
+ * Description:       Turn any image into a colourable icon that follows your text colour.
  * Version:           0.1.0
  * Requires at least: 6.6
  * Requires PHP:      7.4
- * Author:            Your Name
- * Author URI:        https://example.com
+ * Author:            Lukasz Sobolewski
+ * Author URI:        https://github.com/lsobolew
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       masked-icon

@@ -65,6 +65,38 @@ final class Module implements ModuleContract {
 		foreach ( $this->block_directories() as $directory ) {
 			register_block_type( $directory );
 		}
+
+		$this->enqueue_button_styles();
+	}
+
+	/**
+	 * Attaches the icon stylesheet to the core Button block.
+	 *
+	 * An icon added to a button is a pseudo-element on core/button, so the rules live in this
+	 * plugin's stylesheet while the markup belongs to WordPress. Block styles are only loaded when
+	 * their own block is on the page, so a page holding a button and no Masked Icon block would
+	 * otherwise get the markup without the CSS.
+	 *
+	 * wp_enqueue_block_style() keeps that conditional: the file loads when a core/button is
+	 * rendered, and not otherwise.
+	 */
+	private function enqueue_button_styles(): void {
+		$relative = self::BUILD_DIR . '/icon/style-index.css';
+		$path     = MASKED_ICON_DIR . $relative;
+
+		if ( ! is_readable( $path ) ) {
+			return;
+		}
+
+		wp_enqueue_block_style(
+			'core/button',
+			array(
+				'handle' => 'masked-icon-button',
+				'src'    => MASKED_ICON_URL . $relative,
+				'path'   => $path,
+				'ver'    => (string) filemtime( $path ),
+			)
+		);
 	}
 
 	/**

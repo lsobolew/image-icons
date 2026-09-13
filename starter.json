@@ -6,10 +6,10 @@
 	"constantPrefix": "MASKED_ICON",
 	"hookPrefix": "maskedicon",
 	"textDomain": "masked-icon",
-	"description": "A WordPress plugin scaffolded with WP Plugin Lab.",
-	"author": "Your Name",
-	"authorUri": "https://example.com",
-	"pluginUri": "https://example.com/masked-icon",
+	"description": "Turn any image into a colorable icon: PNG, SVG or WebP rendered as a CSS mask that inherits the text colour.",
+	"author": "Lukasz Sobolewski",
+	"authorUri": "https://github.com/lsobolew",
+	"pluginUri": "https://github.com/lsobolew/masked-icon",
 	"license": "GPL-2.0-or-later",
 	"requiresWp": "6.6",
 	"requiresPhp": "7.4",
@@ -25,19 +25,19 @@
 	},
 	"features": {
 		"settings": {
-			"enabled": true,
+			"enabled": false,
 			"edition": "free"
 		},
 		"rest": {
-			"enabled": true,
+			"enabled": false,
 			"edition": "free"
 		},
 		"cli": {
-			"enabled": true,
+			"enabled": false,
 			"edition": "free"
 		},
 		"content-type": {
-			"enabled": true,
+			"enabled": false,
 			"edition": "free"
 		},
 		"blocks": {

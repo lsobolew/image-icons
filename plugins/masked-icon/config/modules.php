@@ -16,8 +16,4 @@ defined( 'ABSPATH' ) || exit;
 
 return array(
 	Sobolewski\MaskedIcon\Modules\Blocks\Module::class,
-	Sobolewski\MaskedIcon\Modules\Settings\Module::class,
-	Sobolewski\MaskedIcon\Modules\ContentType\Module::class,
-	Sobolewski\MaskedIcon\Modules\Rest\Module::class,
-	Sobolewski\MaskedIcon\Modules\Cli\Module::class,
 );
