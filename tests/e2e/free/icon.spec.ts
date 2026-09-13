@@ -175,10 +175,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 	} ) => {
 		const errors = watchConsole( page );
 
-		// This is what the rich-text format stores: a void span inside someone else's paragraph.
+		// What the rich-text format stores: a void element inside someone else's paragraph.
 		const inline =
-			`Read more <span class="wp-block-masked-icon-icon__mark" ` +
-			`style="--masked-icon-image:url(${ PIXEL })" aria-hidden="true"></span>`;
+			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -190,7 +190,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
+		const icon = page.locator( '.wp-block-masked-icon-icon__inline' );
 
 		await expect( icon ).toBeVisible();
 
@@ -216,6 +216,56 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( computed.display ).toBe( 'inline-block' );
 
 		expect( errors, `console errors on ${ THEME }` ).toEqual( [] );
+	} );
+
+	test( 'the inline format serialises to a closed element, not one that swallows the text', async ( {
+		admin,
+		page,
+	} ) => {
+		// The regression this guards against: rich-text writes an `object: true` format as a start
+		// tag with no closing tag, so a non-void tagName leaves everything after the icon parsed
+		// as its children - the rest of the sentence ends up inside the icon and moves with it.
+		//
+		// Asserting on hand-written markup cannot catch that, because the bug is in what the
+		// format produces. So this drives the registered format through the editor's own
+		// @wordpress/rich-text and reads back what it would store.
+		await admin.createNewPost();
+
+		const result = await page.evaluate( ( pixel ) => {
+			const richText = ( window as any ).wp.richText;
+
+			let value = richText.create( { html: 'Read more ' } );
+			value = { ...value, start: value.text.length, end: value.text.length };
+
+			value = richText.insertObject( value, {
+				type: 'masked-icon/inline',
+				attributes: {
+					src: pixel,
+					style: `--masked-icon-image:url(${ pixel })`,
+					alt: '',
+				},
+			} );
+
+			value = richText.insert( value, richText.create( { html: ' and then some' } ) );
+
+			const html = richText.toHTMLString( { value } );
+			const holder = document.createElement( 'div' );
+			holder.innerHTML = html;
+
+			const icon = holder.querySelector( '.wp-block-masked-icon-icon__inline' );
+
+			return {
+				html,
+				tagName: icon?.tagName ?? null,
+				// An element that swallowed the sentence reports it here; a void one reports ''.
+				insideTheIcon: icon?.textContent ?? null,
+				text: holder.textContent,
+			};
+		}, PIXEL );
+
+		expect( result.tagName, result.html ).toBe( 'IMG' );
+		expect( result.insideTheIcon, result.html ).toBe( '' );
+		expect( result.text ).toBe( 'Read more  and then some' );
 	} );
 
 	test( 'a button without an icon is left completely alone', async ( {

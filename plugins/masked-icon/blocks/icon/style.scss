@@ -41,6 +41,31 @@
 	}
 }
 
+// The inline icon, inserted into text by the rich-text format.
+//
+// It is an <img> because rich-text serialises object formats without a closing tag, which only
+// valid HTML for a void element - inline-format.tsx explains that at length. The consequence here
+// is that the element has replaced content of its own, and the source image must not be seen: the
+// icon is meant to be a currentColor silhouette, not the original artwork.
+//
+// So the content box is collapsed to nothing and the visible box is made entirely of padding. The
+// image is drawn into a 0x0 area and disappears, while the background and the mask - which paint
+// across the border box - fill the padding at the intended size.
+img.wp-block-masked-icon-icon__inline {
+	display: inline-block;
+	// Sits on the text baseline the way a glyph would, matching the block's mark.
+	vertical-align: -0.125em;
+	box-sizing: content-box;
+	width: 0;
+	height: 0;
+	padding: var( --masked-icon-size, 1em ) 0 0 var( --masked-icon-size, 1em );
+	// Themes set `img { max-width: 100%; height: auto }`; the class out-specifies it, but saying
+	// so here keeps the intent obvious to whoever reads this next.
+	max-width: none;
+
+	@include masked-icon-surface;
+}
+
 .wp-block-masked-icon-icon__link {
 	// A linked icon should not pick up the theme's underline.
 	text-decoration: none;

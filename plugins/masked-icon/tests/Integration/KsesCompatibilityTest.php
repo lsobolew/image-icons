@@ -48,8 +48,8 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 	 * An inline icon, as the rich-text format stores it inside someone else's paragraph.
 	 */
 	private const INLINE_MARKUP = '<!-- wp:paragraph -->' .
-		'<p>Read more <span class="wp-block-masked-icon-icon__mark" ' .
-		'style="--masked-icon-image:url(https://example.com/arrow.png)" aria-hidden="true"></span></p>' .
+		'<p>Read more <img class="wp-block-masked-icon-icon__inline" src="https://example.com/arrow.png" ' .
+		'alt="" style="--masked-icon-image:url(https://example.com/arrow.png)"> and then some</p>' .
 		'<!-- /wp:paragraph -->';
 
 	/**
