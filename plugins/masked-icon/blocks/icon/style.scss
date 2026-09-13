@@ -90,8 +90,11 @@ img.wp-block-masked-icon-icon__inline {
 @mixin masked-icon-pseudo {
 	content: "";
 	display: inline-block;
-	// Sits on the text baseline like a glyph, same as the block's mark and the inline icon.
-	vertical-align: -0.125em;
+	// Centred on the middle of the text rather than sat on its baseline, which is what the flex
+	// container's align-items used to do. It matters as soon as the icon is taller than the
+	// label: baseline alignment would leave the icon sticking up and the text pushed to the
+	// bottom of the button. Unlike align-items this costs the button's own content nothing.
+	vertical-align: middle;
 	// A pseudo-element has no image of its own to be measured from, so the proportions arrive as a
 	// custom property written when the icon was picked. Without one this is a square and `contain`
 	// letterboxes a tall or wide icon inside it - correct, but padded.

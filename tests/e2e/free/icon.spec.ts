@@ -416,6 +416,54 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( measured.display ).not.toContain( 'flex' );
 	} );
 
+	test( 'the label stays vertically centred against an icon taller than itself', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// This used to come free with the flex container that laid the icon out. The icon is in the
+		// normal text flow now, so it is vertical-align that has to hold the label in the middle -
+		// and only shows it is not when the icon is much taller than the text.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Tall',
+						maskedIconUrl: PIXEL,
+						maskedIconSize: '3em',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const offset = await page
+			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.evaluate( ( link ) => {
+				const range = document.createRange();
+				range.selectNodeContents( link.firstChild as Node );
+
+				const text = range.getBoundingClientRect();
+				const box = link.getBoundingClientRect();
+				const style = window.getComputedStyle( link );
+				const top = box.top + parseFloat( style.paddingTop );
+				const bottom = box.bottom - parseFloat( style.paddingBottom );
+
+				return Math.abs( ( text.top + text.bottom ) / 2 - ( top + bottom ) / 2 );
+			} );
+
+		// Not zero: vertical-align centres on the middle of the x-height rather than of the glyph
+		// box, which is a couple of pixels at a normal font size and is what the eye reads as
+		// centred anyway. A label sitting on the baseline under a 3em icon would be off by ~18px.
+		expect( offset ).toBeLessThan( 4 );
+	} );
+
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {
