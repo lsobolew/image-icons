@@ -1,26 +1,26 @@
 {
 	"$schema": "./docs/starter.schema.json",
-	"name": "My Plugin",
-	"slug": "my-plugin",
-	"namespace": "MyVendor\\MyPlugin",
-	"constantPrefix": "MY_PLUGIN",
-	"hookPrefix": "myplugin",
-	"textDomain": "my-plugin",
+	"name": "Masked Icon",
+	"slug": "masked-icon",
+	"namespace": "Sobolewski\\MaskedIcon",
+	"constantPrefix": "MASKED_ICON",
+	"hookPrefix": "maskedicon",
+	"textDomain": "masked-icon",
 	"description": "A WordPress plugin scaffolded with WP Plugin Lab.",
 	"author": "Your Name",
 	"authorUri": "https://example.com",
-	"pluginUri": "https://example.com/my-plugin",
+	"pluginUri": "https://example.com/masked-icon",
 	"license": "GPL-2.0-or-later",
 	"requiresWp": "6.6",
 	"requiresPhp": "7.4",
 	"editions": {
 		"free": {
-			"dir": "my-plugin",
+			"dir": "masked-icon",
 			"enabled": true
 		},
 		"pro": {
-			"dir": "my-plugin-pro",
-			"enabled": true
+			"dir": "masked-icon-pro",
+			"enabled": false
 		}
 	},
 	"features": {

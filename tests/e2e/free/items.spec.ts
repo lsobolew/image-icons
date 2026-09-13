@@ -10,7 +10,7 @@ test.describe( 'Plugin items', () => {
 		for ( const title of [ 'E2E Alpha', 'E2E Beta', 'E2E Gamma' ] ) {
 			const item = await requestUtils.rest( {
 				method: 'POST',
-				path: '/wp/v2/myplugin_item',
+				path: '/wp/v2/maskedicon_item',
 				data: { title, status: 'publish' },
 			} );
 
@@ -22,7 +22,7 @@ test.describe( 'Plugin items', () => {
 		for ( const id of CREATED ) {
 			await requestUtils.rest( {
 				method: 'DELETE',
-				path: `/wp/v2/myplugin_item/${ id }`,
+				path: `/wp/v2/maskedicon_item/${ id }`,
 				params: { force: true },
 			} );
 		}
@@ -38,7 +38,7 @@ test.describe( 'Plugin items', () => {
 	} );
 
 	test( 'the plugin REST endpoint returns items', async ( { requestUtils } ) => {
-		const items = await requestUtils.rest( { path: '/my-plugin/v1/items' } );
+		const items = await requestUtils.rest( { path: '/masked-icon/v1/items' } );
 
 		expect( Array.isArray( items ) ).toBe( true );
 		expect( items.length ).toBeGreaterThan( 0 );
@@ -48,7 +48,7 @@ test.describe( 'Plugin items', () => {
 
 	test( 'the endpoint honours per_page', async ( { requestUtils } ) => {
 		const items = await requestUtils.rest( {
-			path: '/my-plugin/v1/items',
+			path: '/masked-icon/v1/items',
 			params: { per_page: 2 },
 		} );
 
@@ -62,12 +62,12 @@ test.describe( 'Plugin items', () => {
 			data: {
 				title: 'E2E block',
 				status: 'publish',
-				content: '<!-- wp:my-plugin/item-list {"limit":2} /-->',
+				content: '<!-- wp:masked-icon/item-list {"limit":2} /-->',
 			},
 		} );
 
 		await page.goto( `/?p=${ post.id }` );
-		await expect( page.locator( 'ul.my-plugin-item-list li' ) ).toHaveCount( 2 );
+		await expect( page.locator( 'ul.masked-icon-item-list li' ) ).toHaveCount( 2 );
 
 		await requestUtils.rest( {
 			method: 'DELETE',

@@ -55,7 +55,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 		for ( const title of [ 'Block fixture A', 'Block fixture B', 'Block fixture C' ] ) {
 			const item = await requestUtils.rest( {
 				method: 'POST',
-				path: '/wp/v2/myplugin_item',
+				path: '/wp/v2/maskedicon_item',
 				data: { title, status: 'publish' },
 			} );
 
@@ -67,7 +67,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 		for ( const id of createdItems ) {
 			await requestUtils.rest( {
 				method: 'DELETE',
-				path: `/wp/v2/myplugin_item/${ id }`,
+				path: `/wp/v2/maskedicon_item/${ id }`,
 				params: { force: true },
 			} );
 		}
@@ -83,19 +83,19 @@ test.describe( `Blocks (${ THEME })`, () => {
 		const errors = watchConsole( page );
 
 		await admin.createNewPost();
-		await editor.insertBlock( { name: 'my-plugin/item-list', attributes: { limit: 3 } } );
+		await editor.insertBlock( { name: 'masked-icon/item-list', attributes: { limit: 3 } } );
 
 		// The editor preview comes from PHP through ServerSideRender, so seeing the wrapper here
 		// proves the REST render endpoint and the block registration agree with each other.
 		await expect(
-			editor.canvas.locator( '[data-type="my-plugin/item-list"]' )
+			editor.canvas.locator( '[data-type="masked-icon/item-list"]' )
 		).toBeVisible();
 
 		// publishPost() resolves to the post id, not to a URL.
 		const postId = await editor.publishPost();
 
 		await page.goto( `/?p=${ postId }` );
-		await expect( page.locator( 'ul.my-plugin-item-list' ) ).toBeVisible();
+		await expect( page.locator( 'ul.masked-icon-item-list' ) ).toBeVisible();
 
 		expect( errors, `console errors on ${ THEME }` ).toEqual( [] );
 	} );
@@ -109,7 +109,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'my-plugin/callout',
+			name: 'masked-icon/callout',
 			attributes: { message: 'Mind the gap', tone: 'warning' },
 		} );
 
@@ -118,7 +118,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const callout = page.locator( '.wp-block-my-plugin-callout' );
+		const callout = page.locator( '.wp-block-masked-icon-callout' );
 
 		await expect( callout ).toBeVisible();
 		await expect( callout ).toHaveClass( /is-tone-warning/ );
@@ -132,7 +132,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'my-plugin/section',
+			name: 'masked-icon/section',
 			attributes: { tone: 'muted' },
 			innerBlocks: [
 				{ name: 'core/paragraph', attributes: { content: 'Nested paragraph' } },
@@ -144,7 +144,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const section = page.locator( '.wp-block-my-plugin-section' );
+		const section = page.locator( '.wp-block-masked-icon-section' );
 
 		await expect( section ).toBeVisible();
 		await expect( section ).toHaveClass( /is-tone-muted/ );
@@ -160,9 +160,9 @@ test.describe( `Blocks (${ THEME })`, () => {
 		// Without the entry in deprecated.tsx the editor would refuse it and show the block as
 		// invalid - which is exactly what silently breaks existing posts when `save` changes.
 		const legacy =
-			'<!-- wp:my-plugin/callout -->' +
-			'<div class="wp-block-my-plugin-callout"><p>Saved by an older release</p></div>' +
-			'<!-- /wp:my-plugin/callout -->';
+			'<!-- wp:masked-icon/callout -->' +
+			'<div class="wp-block-masked-icon-callout"><p>Saved by an older release</p></div>' +
+			'<!-- /wp:masked-icon/callout -->';
 
 		await admin.createNewPost();
 		await editor.setContent( legacy );
@@ -179,7 +179,7 @@ test.describe( `Blocks (${ THEME })`, () => {
 		// The migration should have moved the text into `message` and defaulted the tone.
 		const blocks = await editor.getBlocks();
 
-		expect( blocks[ 0 ]?.name ).toBe( 'my-plugin/callout' );
+		expect( blocks[ 0 ]?.name ).toBe( 'masked-icon/callout' );
 		expect( blocks[ 0 ]?.attributes?.message ).toBe( 'Saved by an older release' );
 		expect( blocks[ 0 ]?.attributes?.tone ).toBe( 'info' );
 

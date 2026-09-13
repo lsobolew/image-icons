@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: composer
-    directory: /plugins/my-plugin
+    directory: /plugins/masked-icon
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -12,7 +12,7 @@ updates:
       interval: weekly
 
   - package-ecosystem: npm
-    directory: /plugins/my-plugin
+    directory: /plugins/masked-icon
     schedule:
       interval: weekly
 
