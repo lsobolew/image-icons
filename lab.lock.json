@@ -1,9 +1,9 @@
 {
 	"repo": "https://github.com/lsobolew/wp-plugin-lab.git",
 	"ref": "main",
-	"commit": "6f291c6996b5244b358ecca5ee57636dab9bbd2c",
-	"committedAt": "2026-09-13T13:21:54+02:00",
-	"upgradedAt": "2026-09-13T11:22:05.725Z",
+	"commit": "d26207311a51040e4ee7737fd05b8e3b86d4ecbf",
+	"committedAt": "2026-09-13T13:43:25+02:00",
+	"upgradedAt": "2026-09-13T11:43:47.169Z",
 	"paths": [
 		"bin",
 		"cli",
