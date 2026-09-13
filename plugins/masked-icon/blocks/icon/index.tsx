@@ -11,6 +11,7 @@ import metadata from './block.json';
 import Edit from './edit';
 import save from './save';
 import './button-extension';
+import './inline-format';
 import './editor.scss';
 
 registerBlock( metadata.name, {

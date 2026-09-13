@@ -168,6 +168,56 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( errors, `console errors on ${ THEME }` ).toEqual( [] );
 	} );
 
+	test( 'an inline icon inherits the colour of the text around it', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		const errors = watchConsole( page );
+
+		// This is what the rich-text format stores: a void span inside someone else's paragraph.
+		const inline =
+			`Read more <span class="wp-block-masked-icon-icon__mark" ` +
+			`style="--masked-icon-image:url(${ PIXEL })" aria-hidden="true"></span>`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: inline, style: { color: { text: '#d00000' } } },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
+
+		await expect( icon ).toBeVisible();
+
+		// The point of the whole plugin: the icon takes the colour of the text it sits in, without
+		// anybody setting a colour on the icon itself.
+		const computed = await icon.evaluate( ( element ) => {
+			const style = window.getComputedStyle( element );
+			const parent = window.getComputedStyle(
+				element.parentElement as HTMLElement
+			);
+
+			return {
+				mask: style.maskImage || style.webkitMaskImage,
+				background: style.backgroundColor,
+				parentColour: parent.color,
+				display: style.display,
+			};
+		} );
+
+		expect( computed.mask ).toContain( 'url(' );
+		expect( computed.background ).toBe( computed.parentColour );
+		expect( computed.background ).toBe( 'rgb(208, 0, 0)' );
+		expect( computed.display ).toBe( 'inline-block' );
+
+		expect( errors, `console errors on ${ THEME }` ).toEqual( [] );
+	} );
+
 	test( 'a button without an icon is left completely alone', async ( {
 		admin,
 		editor,

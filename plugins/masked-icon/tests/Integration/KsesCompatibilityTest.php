@@ -45,15 +45,24 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 		'<!-- /wp:button --></div><!-- /wp:buttons -->';
 
 	/**
+	 * An inline icon, as the rich-text format stores it inside someone else's paragraph.
+	 */
+	private const INLINE_MARKUP = '<!-- wp:paragraph -->' .
+		'<p>Read more <span class="wp-block-masked-icon-icon__mark" ' .
+		'style="--masked-icon-image:url(https://example.com/arrow.png)" aria-hidden="true"></span></p>' .
+		'<!-- /wp:paragraph -->';
+
+	/**
 	 * Markup samples the plugin produces.
 	 *
 	 * @return array<string, array{0: string}>
 	 */
 	public static function markup_provider(): array {
 		return array(
-			'icon block'       => array( self::ICON_MARKUP ),
-			'button with icon' => array( self::BUTTON_MARKUP ),
-			'decorative icon'  => array(
+			'inline icon in a paragraph' => array( self::INLINE_MARKUP ),
+			'icon block'                 => array( self::ICON_MARKUP ),
+			'button with icon'           => array( self::BUTTON_MARKUP ),
+			'decorative icon'            => array(
 				'<!-- wp:masked-icon/icon {"url":"https://example.com/star.svg"} -->' .
 				'<div class="wp-block-masked-icon-icon"><span class="wp-block-masked-icon-icon__mark" style="--masked-icon-image:url(https://example.com/star.svg);--masked-icon-size:1em" aria-hidden="true"></span></div>' .
 				'<!-- /wp:masked-icon/icon -->',

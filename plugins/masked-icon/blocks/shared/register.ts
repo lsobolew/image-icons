@@ -1,4 +1,5 @@
 import { registerBlockType } from '@wordpress/blocks';
+import { registerFormatType } from '@wordpress/rich-text';
 
 import type { ComponentType } from 'react';
 
@@ -31,6 +32,31 @@ export interface BlockRegistration {
 
 export function registerBlock( name: string, settings: BlockRegistration ): void {
 	( registerBlockType as unknown as ( n: string, s: BlockRegistration ) => void )(
+		name,
+		settings
+	);
+}
+
+/**
+ * Registers a rich-text format.
+ *
+ * Same story as registerBlock above: the available type definitions predate the `attributes`
+ * option, which maps friendly names onto real HTML attributes and is what lets a format carry a
+ * style or an aria attribute at all. The cast lives here so the format itself stays typed.
+ *
+ * Delete this when @wordpress/rich-text ships its own types.
+ */
+export interface FormatRegistration {
+	title: string;
+	tagName: string;
+	className: string | null;
+	object?: boolean;
+	attributes?: Record< string, string >;
+	edit: ComponentType< any >; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+export function registerFormat( name: string, settings: FormatRegistration ): void {
+	( registerFormatType as unknown as ( n: string, s: FormatRegistration ) => void )(
 		name,
 		settings
 	);

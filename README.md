@@ -14,6 +14,9 @@ button, a light background and a coloured heading, without exporting three versi
 
 - **Masked Icon block** - pick any image from the media library and it renders as a single-colour
   icon. PNG, SVG and WebP all work, because only the shape is used.
+- **Inline icons** - a rich-text format, so an icon can sit inside a sentence: "Read more →". It
+  inherits the colour and the font size of the text around it. A block could not do this; blocks are
+  block-level, which is why this is a format.
 - **Icon on the native Button** - the plugin extends `core/button` instead of shipping a rival
   button block, so every native affordance keeps working: block styles, colour supports,
   `theme.json`, width controls, link settings. Optional hover slide, reduced-motion aware.

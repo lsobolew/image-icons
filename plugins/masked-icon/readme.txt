@@ -21,8 +21,12 @@ without exporting three versions of it.
 **Any image, not just SVG.** PNG, SVG and WebP all work, because only the shape is used. A plain
 black PNG becomes an icon in whatever colour you set.
 
+**Icons inside your text.** Select the toolbar's icon button while writing and drop an icon into a
+sentence: "Read more →". It sits on the baseline, scales with the font size and takes the colour of
+the text around it, the way a glyph would.
+
 **Sizes with your text.** The default size is `1em`, so the icon scales with the font size around
-it, the way a glyph would.
+it.
 
 **Adds an icon to the native Button block.** This plugin does not replace the WordPress Button with
 its own. It extends the one you already use, so block styles, colour settings, theme.json styling,
@@ -51,7 +55,8 @@ it in its stylesheet. The plugin's test suite asserts this on every release.
 
 1. Upload the plugin to `/wp-content/plugins/` or install it from the Plugins screen.
 2. Activate it.
-3. Add the **Masked Icon** block, or open a Button block and look for the **Icon** panel.
+3. Add the **Masked Icon** block, put one inside a sentence with the toolbar's icon button, or open
+   a Button block and look for the **Icon** panel.
 
 == Frequently Asked Questions ==
 
@@ -83,7 +88,8 @@ than to a broken layout.
 == Changelog ==
 
 = 0.1.0 =
-* First release: the Masked Icon block and an icon option for the core Button block.
+* First release: the Masked Icon block, inline icons inside text, and an icon option for the core
+  Button block.
 
 == Upgrade Notice ==
 

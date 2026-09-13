@@ -66,21 +66,40 @@ final class Module implements ModuleContract {
 			register_block_type( $directory );
 		}
 
-		$this->enqueue_button_styles();
+		$this->enqueue_host_block_styles();
 	}
 
 	/**
-	 * Attaches the icon stylesheet to the core Button block.
+	 * Core blocks that can end up carrying one of this plugin's icons.
 	 *
-	 * An icon added to a button is a pseudo-element on core/button, so the rules live in this
-	 * plugin's stylesheet while the markup belongs to WordPress. Block styles are only loaded when
-	 * their own block is on the page, so a page holding a button and no Masked Icon block would
-	 * otherwise get the markup without the CSS.
+	 * A button gets one through its own settings; the others through the inline format, which can
+	 * be used in any rich text.
+	 */
+	const HOST_BLOCKS = array(
+		'core/button',
+		'core/paragraph',
+		'core/heading',
+		'core/list',
+		'core/list-item',
+		'core/quote',
+		'core/pullquote',
+		'core/verse',
+		'core/table',
+	);
+
+	/**
+	 * Attaches the icon stylesheet to the core blocks that can contain an icon.
 	 *
-	 * wp_enqueue_block_style() keeps that conditional: the file loads when a core/button is
+	 * An icon on a button is a pseudo-element on core/button, and an inline icon is a span inside
+	 * someone else's paragraph. In both cases the markup belongs to WordPress and only the rules
+	 * are ours. Block styles load only when their own block is on the page, so a page with a
+	 * button - or a paragraph with an inline icon - and no Masked Icon block would get the markup
+	 * without the CSS.
+	 *
+	 * wp_enqueue_block_style() keeps it conditional: the file loads when one of these blocks is
 	 * rendered, and not otherwise.
 	 */
-	private function enqueue_button_styles(): void {
+	private function enqueue_host_block_styles(): void {
 		$relative = self::BUILD_DIR . '/icon/style-index.css';
 		$path     = MASKED_ICON_DIR . $relative;
 
@@ -88,15 +107,17 @@ final class Module implements ModuleContract {
 			return;
 		}
 
-		wp_enqueue_block_style(
-			'core/button',
-			array(
-				'handle' => 'masked-icon-button',
-				'src'    => MASKED_ICON_URL . $relative,
-				'path'   => $path,
-				'ver'    => (string) filemtime( $path ),
-			)
-		);
+		foreach ( self::HOST_BLOCKS as $block ) {
+			wp_enqueue_block_style(
+				$block,
+				array(
+					'handle' => 'masked-icon-inline',
+					'src'    => MASKED_ICON_URL . $relative,
+					'path'   => $path,
+					'ver'    => (string) filemtime( $path ),
+				)
+			);
+		}
 	}
 
 	/**
