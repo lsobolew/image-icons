@@ -1,5 +1,5 @@
 // Editor-only affordances. The icon itself is styled by style.scss, which the editor also loads.
-.wp-block-masked-icon-icon.is-placeholder {
+.wp-block-masked-icon-icon.is-placeholder .wp-block-masked-icon-icon__mark {
 	width: 1.5em;
 	height: 1.5em;
 	background-color: currentColor;

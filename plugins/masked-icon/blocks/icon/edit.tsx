@@ -27,10 +27,7 @@ const FIT_OPTIONS: SelectOption[] = [
 export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 	const { url, label, size, fit, href } = attributes;
 
-	const blockProps = useBlockProps( {
-		style: maskStyle( attributes ),
-		className: url ? undefined : 'is-placeholder',
-	} );
+	const blockProps = useBlockProps( { className: url ? undefined : 'is-placeholder' } );
 
 	const onSelect = ( media: Media ) =>
 		setAttributes( {
@@ -119,7 +116,12 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<span { ...blockProps } />
+			<div { ...blockProps }>
+				<span
+					className="wp-block-masked-icon-icon__mark"
+					style={ maskStyle( attributes ) }
+				/>
+			</div>
 		</>
 	);
 }

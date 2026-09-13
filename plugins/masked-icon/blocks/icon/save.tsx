@@ -3,6 +3,15 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { maskStyle } from './style-props';
 import type { IconSaveProps } from './types';
 
+/**
+ * The block root is a plain element that carries no mask of its own, and the masked shape lives in
+ * a span inside it.
+ *
+ * The extra element is not decoration. A block's root participates in the theme's layout, and an
+ * `inline-block` root escapes a constrained layout entirely - the icon ends up pinned to the left
+ * edge of the viewport instead of sitting where the content column starts. A block-level wrapper
+ * behaves, and the span inside stays inline so the icon keeps its baseline and its `1em` sizing.
+ */
 export default function save( { attributes }: IconSaveProps ) {
 	const { url, label, href, linkTarget, rel } = attributes;
 
@@ -16,23 +25,28 @@ export default function save( { attributes }: IconSaveProps ) {
 		? { role: 'img', 'aria-label': label }
 		: { 'aria-hidden': true };
 
-	const blockProps = useBlockProps.save( {
-		style: maskStyle( attributes ),
-		...accessibility,
-	} );
+	const mark = (
+		<span
+			className="wp-block-masked-icon-icon__mark"
+			style={ maskStyle( attributes ) }
+			{ ...accessibility }
+		/>
+	);
 
-	if ( href ) {
-		return (
-			<a
-				className="wp-block-masked-icon-icon__link"
-				href={ href }
-				target={ linkTarget || undefined }
-				rel={ rel || undefined }
-			>
-				<span { ...blockProps } />
-			</a>
-		);
-	}
-
-	return <span { ...blockProps } />;
+	return (
+		<div { ...useBlockProps.save() }>
+			{ href ? (
+				<a
+					className="wp-block-masked-icon-icon__link"
+					href={ href }
+					target={ linkTarget || undefined }
+					rel={ rel || undefined }
+				>
+					{ mark }
+				</a>
+			) : (
+				mark
+			) }
+		</div>
+	);
 }

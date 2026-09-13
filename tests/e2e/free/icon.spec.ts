@@ -64,7 +64,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon' );
+		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
 
 		await expect( icon ).toBeVisible();
 		await expect( icon ).toHaveAttribute( 'aria-label', 'Next' );
@@ -105,7 +105,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon' );
+		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
 
 		await expect( icon ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( icon ).not.toHaveAttribute( 'role', 'img' );

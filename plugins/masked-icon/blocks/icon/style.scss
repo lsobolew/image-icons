@@ -23,18 +23,24 @@
 
 // WordPress builds this class from the full block name, so `masked-icon/icon` becomes
 // `wp-block-masked-icon-icon` rather than the shorter name one might expect.
+//
+// The root stays a normal block-level element: an inline-block root escapes a theme's constrained
+// layout and the icon lands against the viewport edge instead of the content column.
 .wp-block-masked-icon-icon {
-	display: inline-block;
-	// Sits on the text baseline the way a glyph would.
-	vertical-align: -0.125em;
-	width: var( --masked-icon-size, 1em );
-	height: var( --masked-icon-size, 1em );
-	flex: none;
+	line-height: 1;
 
-	@include masked-icon-surface;
+	&__mark {
+		display: inline-block;
+		// Sits on the text baseline the way a glyph would.
+		vertical-align: -0.125em;
+		width: var( --masked-icon-size, 1em );
+		height: var( --masked-icon-size, 1em );
+		flex: none;
+
+		@include masked-icon-surface;
+	}
 }
 
-a.wp-block-masked-icon-icon,
 .wp-block-masked-icon-icon__link {
 	// A linked icon should not pick up the theme's underline.
 	text-decoration: none;

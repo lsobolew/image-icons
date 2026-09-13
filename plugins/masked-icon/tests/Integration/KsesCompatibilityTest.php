@@ -32,7 +32,7 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 	 * Markup exactly as the block's save() writes it.
 	 */
 	private const ICON_MARKUP = '<!-- wp:masked-icon/icon {"url":"https://example.com/arrow.png","size":"1.5em","label":"Next"} -->' .
-		'<span class="wp-block-masked-icon-icon" style="--masked-icon-image:url(https://example.com/arrow.png);--masked-icon-size:1.5em" role="img" aria-label="Next"></span>' .
+		'<div class="wp-block-masked-icon-icon"><span class="wp-block-masked-icon-icon__mark" style="--masked-icon-image:url(https://example.com/arrow.png);--masked-icon-size:1.5em" role="img" aria-label="Next"></span></div>' .
 		'<!-- /wp:masked-icon/icon -->';
 
 	/**
@@ -55,7 +55,7 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 			'button with icon' => array( self::BUTTON_MARKUP ),
 			'decorative icon'  => array(
 				'<!-- wp:masked-icon/icon {"url":"https://example.com/star.svg"} -->' .
-				'<span class="wp-block-masked-icon-icon" style="--masked-icon-image:url(https://example.com/star.svg);--masked-icon-size:1em" aria-hidden="true"></span>' .
+				'<div class="wp-block-masked-icon-icon"><span class="wp-block-masked-icon-icon__mark" style="--masked-icon-image:url(https://example.com/star.svg);--masked-icon-size:1em" aria-hidden="true"></span></div>' .
 				'<!-- /wp:masked-icon/icon -->',
 			),
 		);
