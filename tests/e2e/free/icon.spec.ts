@@ -14,7 +14,19 @@ const THEME = process.env.WPLAB_THEME || 'unknown';
 const PIXEL =
 	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
-const IGNORED_CONSOLE = [ /is deprecated since version/i, /Failed to load resource/i, /favicon/i ];
+/**
+ * Console noise that belongs to WordPress rather than to this plugin.
+ *
+ * The assertion below is strict on purpose - a block that throws in the editor still looks fine in
+ * a screenshot - but it has to be curated, because older releases log their own warnings. The
+ * createRoot one comes from WordPress 6.6's editor bundle and says nothing about this plugin.
+ */
+const IGNORED_CONSOLE = [
+	/is deprecated since version/i,
+	/Failed to load resource/i,
+	/favicon/i,
+	/importing createRoot from "react-dom"/i,
+];
 
 function watchConsole( page: Page ): string[] {
 	const errors: string[] = [];

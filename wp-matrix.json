@@ -43,7 +43,7 @@
 	},
 	"themes": {
 		"//": "Themes the block is tested against. 'sweep' says where the full set runs; every other target uses 'default'. A block behaves differently on a block theme than on a classic one, which is why the set mixes both.",
-		"default": "twentytwentyfive",
+		"default": "twentytwentyfour",
 		"sweep": {
 			"targets": [
 				"latest"
@@ -59,19 +59,22 @@
 				"slug": "twentytwentyfive",
 				"alias": "tt5",
 				"source": "wporg",
-				"type": "block"
+				"type": "block",
+				"requiresWp": "6.7"
 			},
 			{
 				"slug": "twentytwentyfour",
 				"alias": "tt4",
 				"source": "wporg",
-				"type": "block"
+				"type": "block",
+				"requiresWp": "6.4"
 			},
 			{
 				"slug": "twentytwentyone",
 				"alias": "tt1",
 				"source": "wporg",
-				"type": "classic"
+				"type": "classic",
+				"requiresWp": "5.6"
 			}
 		]
 	}
