@@ -16,11 +16,13 @@
 	"editions": {
 		"free": {
 			"dir": "masked-icon",
-			"enabled": true
+			"enabled": true,
+			"wporg": true
 		},
 		"pro": {
 			"dir": "masked-icon-pro",
-			"enabled": false
+			"enabled": false,
+			"wporg": false
 		}
 	},
 	"features": {
