@@ -19,6 +19,7 @@ import {
 	PanelBody,
 	Button,
 	SelectControl,
+	ToggleControl,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -38,6 +39,7 @@ interface ButtonIconAttributes {
 	/** The image's own proportions, as a CSS ratio - "800/1028". Empty when they are unknown. */
 	maskedIconRatio: string;
 	maskedIconGap: string;
+	maskedIconOriginal: boolean;
 	maskedIconAnimation: string;
 	/** Pre-0.2 "slide on hover" toggle, still read so older buttons keep working. */
 	maskedIconAnimate: boolean;
@@ -75,6 +77,7 @@ const DEFAULTS: ButtonIconAttributes = {
 	maskedIconSize: '1em',
 	maskedIconRatio: '',
 	maskedIconGap: '0.5em',
+	maskedIconOriginal: false,
 	maskedIconAnimation: '',
 	maskedIconAnimate: false,
 };
@@ -136,6 +139,7 @@ addFilter(
 				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
 				maskedIconRatio: { type: 'string', default: DEFAULTS.maskedIconRatio },
 				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
+				maskedIconOriginal: { type: 'boolean', default: DEFAULTS.maskedIconOriginal },
 				maskedIconAnimation: { type: 'string', default: DEFAULTS.maskedIconAnimation },
 				maskedIconAnimate: { type: 'boolean', default: DEFAULTS.maskedIconAnimate },
 			},
@@ -159,6 +163,7 @@ function iconProps( attributes: Attributes ) {
 	const className = [
 		'has-masked-icon',
 		position === 'before' ? 'is-icon-before' : 'is-icon-after',
+		attributes.maskedIconOriginal ? 'is-icon-original' : '',
 		animation ? 'is-icon-animated' : '',
 		animation && animation !== 'slide' ? `is-icon-anim-${ animation }` : '',
 	]
@@ -236,6 +241,13 @@ const withIconControls = createHigherOrderComponent(
 							) }
 						</div>
 
+						<p className="components-base-control__help">
+							{ __(
+								'PNG, SVG, WebP, AVIF and GIF all work. The icon is cut out of the parts of the image that are not transparent, so a file with a transparent background gives the best result - a JPEG, which cannot be transparent, comes out as a solid rectangle.',
+								'masked-icon'
+							) }
+						</p>
+
 						{ url && (
 							<>
 								<SelectControl
@@ -273,6 +285,18 @@ const withIconControls = createHigherOrderComponent(
 										setAttributes( {
 											maskedIconGap: next || DEFAULTS.maskedIconGap,
 										} )
+									}
+								/>
+
+								<ToggleControl
+									label={ __( 'Keep the original colours', 'masked-icon' ) }
+									help={ __(
+										'Draws the file as it is instead of using it as a mask, so it keeps its own colours and stops following the text - including when the button changes colour on hover. Size, position, gap and the hover animation carry on working.',
+										'masked-icon'
+									) }
+									checked={ Boolean( attributes.maskedIconOriginal ) }
+									onChange={ ( next: boolean ) =>
+										setAttributes( { maskedIconOriginal: next } )
 									}
 								/>
 

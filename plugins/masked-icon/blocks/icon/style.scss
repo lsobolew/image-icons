@@ -117,6 +117,24 @@ img.wp-block-masked-icon-icon__inline {
 	margin-inline-end: var( --masked-icon-gap, 0.5em );
 }
 
+// "Keep the original colours": the file is drawn as itself rather than used as a mask. Everything
+// else about the icon - size, proportions, side, gap, animation - is untouched, because the only
+// thing this switch is meant to turn off is the tint.
+//
+// The selectors repeat the side condition from the rules above so they are plainly one class more
+// specific, rather than equally specific and winning only because they come later in the file.
+.wp-block-button.has-masked-icon.is-icon-original:not( .is-icon-before ) .wp-block-button__link::after,
+.wp-block-button.has-masked-icon.is-icon-original.is-icon-before .wp-block-button__link::before {
+	background-color: transparent;
+	background-image: var( --masked-icon-image );
+	background-size: var( --masked-icon-fit, contain );
+	background-repeat: no-repeat;
+	background-position: center;
+
+	mask-image: none;
+	-webkit-mask-image: none;
+}
+
 // Hover animations for the button icon.
 //
 // `is-icon-animated` on its own means the slide, which is both the default and what posts saved

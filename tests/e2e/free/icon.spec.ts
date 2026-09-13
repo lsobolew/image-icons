@@ -464,6 +464,71 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( offset ).toBeLessThan( 4 );
 	} );
 
+	test( 'keeping the original colours drops the mask but nothing else', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Branded',
+						maskedIconUrl: WIDE_PIXEL,
+						maskedIconSize: '2em',
+						maskedIconRatio: '2/1',
+						maskedIconOriginal: true,
+						maskedIconAnimation: 'rotate',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		const icon = await link.evaluate( ( element ) => {
+			const style = window.getComputedStyle( element, '::after' );
+
+			return {
+				mask: style.maskImage || style.webkitMaskImage,
+				background: style.backgroundColor,
+				backgroundImage: style.backgroundImage,
+				width: parseFloat( style.width ),
+				height: parseFloat( style.height ),
+				// em is relative to the button's font size, whatever the theme made it.
+				fontSize: parseFloat( window.getComputedStyle( element ).fontSize ),
+			};
+		} );
+
+		// The tint is gone: no mask, no currentColor behind it, the file drawn as itself.
+		expect( icon.mask ).toBe( 'none' );
+		expect( icon.background ).toBe( 'rgba(0, 0, 0, 0)' );
+		expect( icon.backgroundImage ).toContain( 'url(' );
+
+		// Everything else still applies - the size, the proportions...
+		expect( icon.height ).toBeCloseTo( icon.fontSize * 2, 0 );
+		expect( icon.width / icon.height ).toBeCloseTo( 2, 1 );
+
+		// ...and the animation.
+		await link.hover();
+		await expect
+			.poll(
+				() =>
+					link.evaluate(
+						( element ) => window.getComputedStyle( element, '::after' ).transform
+					),
+				{ message: 'an icon keeping its own colours stopped animating' }
+			)
+			.toMatch( /^matrix\(/ );
+	} );
+
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {

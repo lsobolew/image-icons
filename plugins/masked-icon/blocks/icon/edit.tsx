@@ -52,7 +52,7 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 					labels={ {
 						title: __( 'Masked Icon', 'masked-icon' ),
 						instructions: __(
-							'Pick any image. It is used as a mask, so the icon takes the colour of the surrounding text rather than the colours in the file.',
+							'Pick any image. It is used as a mask, so the icon takes the colour of the surrounding text rather than the colours in the file. PNG, SVG, WebP, AVIF and GIF all work; the icon is cut out of the parts that are not transparent, so a file with a transparent background gives the best result. A JPEG, which cannot be transparent, comes out as a solid rectangle.',
 							'masked-icon'
 						),
 					} }
