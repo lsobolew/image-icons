@@ -43,25 +43,25 @@
 
 // The inline icon, inserted into text by the rich-text format.
 //
-// It is an <img> because rich-text serialises object formats without a closing tag, which only
-// valid HTML for a void element - inline-format.tsx explains that at length. The consequence here
-// is that the element has replaced content of its own, and the source image must not be seen: the
-// icon is meant to be a currentColor silhouette, not the original artwork.
+// It is an <img> because rich-text serialises object formats without a closing tag, which is only
+// valid HTML for a void element - inline-format.tsx explains that at length.
 //
-// So the content box is collapsed to nothing and the visible box is made entirely of padding. The
-// image is drawn into a 0x0 area and disappears, while the background and the mask - which paint
-// across the border box - fill the padding at the intended size.
+// Its src is the mask image itself, which is what makes the box the right shape: set the height
+// and the browser derives the width from the file's own proportions, so a tall or wide icon is
+// never squashed into a square. The pixels themselves must not show - the icon is meant to be a
+// currentColor silhouette, not the artwork - and replaced content is clipped to the content box,
+// so pushing the image far outside it hides it while the box, and its proportions, stay.
 img.wp-block-masked-icon-icon__inline {
 	display: inline-block;
 	// Sits on the text baseline the way a glyph would, matching the block's mark.
 	vertical-align: -0.125em;
-	box-sizing: content-box;
-	width: 0;
-	height: 0;
-	padding: var( --masked-icon-size, 1em ) 0 0 var( --masked-icon-size, 1em );
+	height: var( --masked-icon-size, 1em );
+	width: auto;
 	// Themes set `img { max-width: 100%; height: auto }`; the class out-specifies it, but saying
 	// so here keeps the intent obvious to whoever reads this next.
 	max-width: none;
+	object-fit: none;
+	object-position: -9999px -9999px;
 
 	@include masked-icon-surface;
 }
@@ -92,6 +92,16 @@ img.wp-block-masked-icon-icon__inline {
 	flex-direction: row-reverse;
 }
 
+// Hover animations for the button icon.
+//
+// `is-icon-animated` on its own means the slide, which is both the default and what posts saved
+// before the animation list existed carry - so nothing that already exists has to be re-saved.
+// Every other animation adds `is-icon-anim-*` next to it.
+//
+// Those rules deliberately come last. The slide needs a direction-aware rule for
+// `is-icon-before`, which makes it one class more specific than a plain animation rule would be;
+// matching that specificity and relying on source order is simpler to read than inflating every
+// selector to out-specify it.
 .wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
 	transition: transform 0.2s ease;
 }
@@ -104,12 +114,65 @@ img.wp-block-masked-icon-icon__inline {
 	transform: translateX( -0.25em );
 }
 
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-rotate .wp-block-button__link:hover::after {
+	transform: rotate( 45deg );
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin .wp-block-button__link:hover::after {
+	transform: rotate( 360deg );
+	transition-duration: 0.5s;
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-grow .wp-block-button__link:hover::after {
+	transform: scale( 1.25 );
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-bounce .wp-block-button__link:hover::after {
+	animation: masked-icon-bounce 0.6s ease infinite;
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-wiggle .wp-block-button__link:hover::after {
+	animation: masked-icon-wiggle 0.4s ease infinite;
+}
+
+@keyframes masked-icon-bounce {
+	0%,
+	100% {
+		transform: translateY( 0 );
+	}
+
+	50% {
+		transform: translateY( -0.25em );
+	}
+}
+
+@keyframes masked-icon-wiggle {
+	0%,
+	100% {
+		transform: rotate( 0deg );
+	}
+
+	25% {
+		transform: rotate( -12deg );
+	}
+
+	75% {
+		transform: rotate( 12deg );
+	}
+}
+
+// Motion is a preference, not a decoration the site gets to override.
+//
+// !important is the right tool here rather than a specificity hack: this has to beat every
+// animation rule above it, and adding classes to the selector until it does would have to be
+// redone the next time somebody adds an animation.
 @media ( prefers-reduced-motion: reduce ) {
 	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link::after {
-		transition: none;
+		transition: none !important;
 	}
 
 	.wp-block-button.has-masked-icon.is-icon-animated .wp-block-button__link:hover::after {
-		transform: none;
+		transform: none !important;
+		animation: none !important;
 	}
 }

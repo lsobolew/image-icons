@@ -8,3 +8,13 @@
 	-webkit-mask-image: none;
 	border-radius: 2px;
 }
+
+// Replace and Remove sit on one row with a gap, rather than touching each other. Plain flexbox
+// rather than a components-package layout primitive: the equivalent there is still exported under
+// an __experimental name, and this has to render the same on every WordPress in the matrix.
+.masked-icon-media-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 16px;
+}

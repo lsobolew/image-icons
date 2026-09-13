@@ -6,11 +6,18 @@ import {
 	MediaUploadCheck,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, TextControl, SelectControl, ToolbarButton } from '@wordpress/components';
+import {
+	PanelBody,
+	TextControl,
+	SelectControl,
+	ToolbarButton,
+	__experimentalUnitControl as UnitControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import { maskStyle } from './style-props';
 import type { IconEditProps } from './types';
+import { LENGTH_UNITS } from '../shared/units';
 import type { SelectOption } from '../shared/types';
 
 interface Media {
@@ -80,14 +87,15 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Icon', 'masked-icon' ) }>
-					<TextControl
+					<UnitControl
 						label={ __( 'Size', 'masked-icon' ) }
 						help={ __(
-							'Any CSS length. 1em keeps the icon in step with the text around it.',
+							'1em keeps the icon in step with the text around it.',
 							'masked-icon'
 						) }
+						units={ LENGTH_UNITS }
 						value={ size }
-						onChange={ ( next: string ) => setAttributes( { size: next } ) }
+						onChange={ ( next?: string ) => setAttributes( { size: next || '1em' } ) }
 					/>
 
 					<SelectControl

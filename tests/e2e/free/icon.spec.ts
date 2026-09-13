@@ -14,6 +14,11 @@ const THEME = process.env.WPLAB_THEME || 'unknown';
 const PIXEL =
 	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
+// Twice as wide as it is tall, so anything that forces the icon into a square shows up as a
+// measurement rather than as something only a human would notice.
+const WIDE_PIXEL =
+	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAADklEQVR4nGP4z8DwH4QBEfcD/ePF9e8AAAAASUVORK5CYII=';
+
 /**
  * Console noise that belongs to WordPress rather than to this plugin.
  *
@@ -266,6 +271,139 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( result.tagName, result.html ).toBe( 'IMG' );
 		expect( result.insideTheIcon, result.html ).toBe( '' );
 		expect( result.text ).toBe( 'Read more  and then some' );
+	} );
+
+	test( 'an inline icon keeps the proportions of the image it masks', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The icon carries the mask as its own src precisely so the browser can size it from the
+		// file. A box built out of padding would be square and letterbox everything else.
+		const inline =
+			`Wide <img class="wp-block-masked-icon-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: inline },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const box = await page
+			.locator( '.wp-block-masked-icon-icon__inline' )
+			.evaluate( ( element ) => {
+				const rect = element.getBoundingClientRect();
+
+				return { width: rect.width, height: rect.height };
+			} );
+
+		expect( box.height ).toBeGreaterThan( 0 );
+		// 2:1 source, so the box is twice as wide as it is tall - within a pixel of rounding.
+		expect( box.width / box.height ).toBeCloseTo( 2, 1 );
+	} );
+
+	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Spinner',
+						maskedIconUrl: PIXEL,
+						maskedIconAnimation: 'spin',
+					},
+				},
+			],
+		} );
+
+		const content = await editor.getEditedPostContent();
+
+		expect( content ).toContain( 'is-icon-animated' );
+		expect( content ).toContain( 'is-icon-anim-spin' );
+	} );
+
+	test( 'the hover animation actually runs on the front end', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The class reaching the markup is only half the story - the stylesheet has to win the
+		// cascade against the slide rules above it, which are one class more specific than a naive
+		// animation rule would be.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Refresh',
+						maskedIconUrl: PIXEL,
+						maskedIconAnimation: 'rotate',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		const idle = await link.evaluate(
+			( element ) => window.getComputedStyle( element, '::after' ).transform
+		);
+
+		expect( idle ).toBe( 'none' );
+
+		await link.hover();
+
+		// The rotation is a transition, so poll until it has settled rather than guessing a delay.
+		await expect
+			.poll(
+				() =>
+					link.evaluate(
+						( element ) => window.getComputedStyle( element, '::after' ).transform
+					),
+				{ message: 'the icon never rotated on hover' }
+			)
+			.toMatch( /^matrix\(/ );
+	} );
+
+	test( 'a button saved with the old slide toggle still produces the markup it was saved with', async ( {
+		admin,
+		editor,
+	} ) => {
+		// maskedIconAnimate is what the boolean "Slide on hover" toggle wrote before the animation
+		// list replaced it. If the class set changed, every button already in a post would come
+		// back as "this block contains unexpected content" the next time somebody opened it.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Legacy',
+						maskedIconUrl: PIXEL,
+						maskedIconAnimate: true,
+					},
+				},
+			],
+		} );
+
+		const content = await editor.getEditedPostContent();
+
+		expect( content ).toContain( 'is-icon-animated' );
+		expect( content ).not.toContain( 'is-icon-anim-' );
 	} );
 
 	test( 'a button without an icon is left completely alone', async ( {

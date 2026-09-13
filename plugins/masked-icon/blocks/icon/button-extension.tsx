@@ -18,14 +18,14 @@ import { InspectorControls, MediaUpload, MediaUploadCheck } from '@wordpress/blo
 import {
 	PanelBody,
 	Button,
-	TextControl,
 	SelectControl,
-	ToggleControl,
+	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import type { ComponentType } from 'react';
 
+import { LENGTH_UNITS } from '../shared/units';
 import type { SelectOption } from '../shared/types';
 
 const BLOCK = 'core/button';
@@ -36,6 +36,8 @@ interface ButtonIconAttributes {
 	maskedIconPosition: string;
 	maskedIconSize: string;
 	maskedIconGap: string;
+	maskedIconAnimation: string;
+	/** Pre-0.2 "slide on hover" toggle, still read so older buttons keep working. */
 	maskedIconAnimate: boolean;
 }
 
@@ -46,14 +48,48 @@ const POSITION_OPTIONS: SelectOption[] = [
 	{ label: __( 'Before text', 'masked-icon' ), value: 'before' },
 ];
 
+/**
+ * Hover animations.
+ *
+ * Kept to the handful people actually reach for on a button: a nudge in the reading direction, a
+ * turn for anything cross- or gear-shaped, a full spin for refresh icons, and two attention-
+ * seeking ones. Every option is pure CSS on the pseudo-element and every one is switched off by
+ * prefers-reduced-motion.
+ */
+const ANIMATION_OPTIONS: SelectOption[] = [
+	{ label: __( 'None', 'masked-icon' ), value: '' },
+	{ label: __( 'Slide', 'masked-icon' ), value: 'slide' },
+	{ label: __( 'Rotate', 'masked-icon' ), value: 'rotate' },
+	{ label: __( 'Spin', 'masked-icon' ), value: 'spin' },
+	{ label: __( 'Grow', 'masked-icon' ), value: 'grow' },
+	{ label: __( 'Bounce', 'masked-icon' ), value: 'bounce' },
+	{ label: __( 'Wiggle', 'masked-icon' ), value: 'wiggle' },
+];
+
 const DEFAULTS: ButtonIconAttributes = {
 	maskedIconUrl: '',
 	maskedIconId: 0,
 	maskedIconPosition: 'after',
 	maskedIconSize: '1em',
 	maskedIconGap: '0.5em',
+	maskedIconAnimation: '',
 	maskedIconAnimate: false,
 };
+
+/**
+ * The animation to use, whichever attribute carries it.
+ *
+ * Buttons saved before the list existed have the boolean instead, and it means the slide.
+ */
+function animationOf( attributes: Attributes ): string {
+	const chosen = ( attributes.maskedIconAnimation as string ) || '';
+
+	if ( chosen ) {
+		return chosen;
+	}
+
+	return attributes.maskedIconAnimate ? 'slide' : '';
+}
 
 /** Adds our attributes to the button block definition. */
 addFilter(
@@ -73,6 +109,7 @@ addFilter(
 				maskedIconPosition: { type: 'string', default: DEFAULTS.maskedIconPosition },
 				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
 				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
+				maskedIconAnimation: { type: 'string', default: DEFAULTS.maskedIconAnimation },
 				maskedIconAnimate: { type: 'boolean', default: DEFAULTS.maskedIconAnimate },
 			},
 		};
@@ -88,12 +125,15 @@ function iconProps( attributes: Attributes ) {
 	}
 
 	const position = ( attributes.maskedIconPosition as string ) || DEFAULTS.maskedIconPosition;
-	const animate = Boolean( attributes.maskedIconAnimate );
+	const animation = animationOf( attributes );
 
+	// The slide adds no class of its own, so a button saved by an earlier version produces exactly
+	// the markup it produced then and stays valid when somebody opens the post again.
 	const className = [
 		'has-masked-icon',
 		position === 'before' ? 'is-icon-before' : 'is-icon-after',
-		animate ? 'is-icon-animated' : '',
+		animation ? 'is-icon-animated' : '',
+		animation && animation !== 'slide' ? `is-icon-anim-${ animation }` : '',
 	]
 		.filter( Boolean )
 		.join( ' ' );
@@ -124,30 +164,31 @@ const withIconControls = createHigherOrderComponent(
 
 				<InspectorControls>
 					<PanelBody title={ __( 'Icon', 'masked-icon' ) } initialOpen={ false }>
-						<MediaUploadCheck>
-							<MediaUpload
-								allowedTypes={ [ 'image' ] }
-								value={ attributes.maskedIconId as number }
-								onSelect={ ( media: { id: number; url: string } ) =>
-									setAttributes( {
-										maskedIconUrl: media.url,
-										maskedIconId: media.id,
-									} )
-								}
-								render={ ( { open }: { open: () => void } ) => (
-									<Button variant="secondary" onClick={ open }>
-										{ url
-											? __( 'Replace icon', 'masked-icon' )
-											: __( 'Choose icon', 'masked-icon' ) }
-									</Button>
-								) }
-							/>
-						</MediaUploadCheck>
+						{ /* One row, so Replace and Remove are not two buttons stuck together. */ }
+						<div className="masked-icon-media-actions">
+							<MediaUploadCheck>
+								<MediaUpload
+									allowedTypes={ [ 'image' ] }
+									value={ attributes.maskedIconId as number }
+									onSelect={ ( media: { id: number; url: string } ) =>
+										setAttributes( {
+											maskedIconUrl: media.url,
+											maskedIconId: media.id,
+										} )
+									}
+									render={ ( { open }: { open: () => void } ) => (
+										<Button variant="secondary" onClick={ open }>
+											{ url
+												? __( 'Replace icon', 'masked-icon' )
+												: __( 'Choose icon', 'masked-icon' ) }
+										</Button>
+									) }
+								/>
+							</MediaUploadCheck>
 
-						{ url && (
-							<>
+							{ url && (
 								<Button
-									variant="link"
+									variant="secondary"
 									isDestructive
 									onClick={ () =>
 										setAttributes( { maskedIconUrl: '', maskedIconId: 0 } )
@@ -155,7 +196,11 @@ const withIconControls = createHigherOrderComponent(
 								>
 									{ __( 'Remove icon', 'masked-icon' ) }
 								</Button>
+							) }
+						</div>
 
+						{ url && (
+							<>
 								<SelectControl
 									label={ __( 'Position', 'masked-icon' ) }
 									value={
@@ -168,35 +213,47 @@ const withIconControls = createHigherOrderComponent(
 									}
 								/>
 
-								<TextControl
+								<UnitControl
 									label={ __( 'Size', 'masked-icon' ) }
+									units={ LENGTH_UNITS }
 									value={
 										( attributes.maskedIconSize as string ) || DEFAULTS.maskedIconSize
 									}
-									onChange={ ( next: string ) =>
-										setAttributes( { maskedIconSize: next } )
+									onChange={ ( next?: string ) =>
+										setAttributes( {
+											maskedIconSize: next || DEFAULTS.maskedIconSize,
+										} )
 									}
 								/>
 
-								<TextControl
+								<UnitControl
 									label={ __( 'Gap', 'masked-icon' ) }
+									units={ LENGTH_UNITS }
 									value={
 										( attributes.maskedIconGap as string ) || DEFAULTS.maskedIconGap
 									}
-									onChange={ ( next: string ) =>
-										setAttributes( { maskedIconGap: next } )
+									onChange={ ( next?: string ) =>
+										setAttributes( {
+											maskedIconGap: next || DEFAULTS.maskedIconGap,
+										} )
 									}
 								/>
 
-								<ToggleControl
-									label={ __( 'Slide on hover', 'masked-icon' ) }
+								<SelectControl
+									label={ __( 'Hover animation', 'masked-icon' ) }
 									help={ __(
-										'Nudges the icon away from the text on hover. Respects reduced-motion settings.',
+										'Plays while the pointer is on the button. Readers who ask for reduced motion get none of them.',
 										'masked-icon'
 									) }
-									checked={ Boolean( attributes.maskedIconAnimate ) }
-									onChange={ ( next: boolean ) =>
-										setAttributes( { maskedIconAnimate: next } )
+									value={ animationOf( attributes ) }
+									options={ ANIMATION_OPTIONS }
+									onChange={ ( next: string ) =>
+										setAttributes( {
+											maskedIconAnimation: next,
+											// The old boolean would otherwise keep the slide alive
+											// underneath whatever was picked here.
+											maskedIconAnimate: false,
+										} )
 									}
 								/>
 							</>
