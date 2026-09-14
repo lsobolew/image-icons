@@ -28,6 +28,7 @@ import { __ } from '@wordpress/i18n';
 import type { ComponentType } from 'react';
 
 import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
+import { formatsHelp } from '../shared/formats';
 import {
 	ALIGN_OPTIONS,
 	DEFAULT_ALIGN,
@@ -269,12 +270,7 @@ const withIconControls = createHigherOrderComponent(
 							) }
 						</div>
 
-						<p className="components-base-control__help">
-							{ __(
-								'PNG, SVG, WebP, AVIF and GIF all work. The icon is cut out of the parts of the image that are not transparent, so a file with a transparent background gives the best result - a JPEG, which cannot be transparent, comes out as a solid rectangle.',
-								'masked-icon'
-							) }
-						</p>
+						<p className="components-base-control__help">{ formatsHelp() }</p>
 
 						{ url && (
 							<>

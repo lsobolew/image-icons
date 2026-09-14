@@ -56,6 +56,29 @@ final class Module implements ModuleContract {
 	 */
 	public function register(): void {
 		add_action( 'init', array( $this, 'register_blocks' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'pass_mask_formats' ) );
+	}
+
+	/**
+	 * Tells the editor which image formats this site will actually take.
+	 *
+	 * The controls used to name a fixed list, which was wrong in both directions: it offered SVG,
+	 * which WordPress refuses by default, and it omitted formats a given site does allow. The list
+	 * depends on the site's upload settings and on who is looking, so it is computed here and read
+	 * by the controls rather than written into them.
+	 */
+	public function pass_mask_formats(): void {
+		$handle = generate_block_asset_handle( 'masked-icon/icon', 'editorScript' );
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		wp_add_inline_script(
+			$handle,
+			'window.maskedIconFormats = ' . wp_json_encode( MaskFormats::available() ) . ';',
+			'before'
+		);
 	}
 
 	/**

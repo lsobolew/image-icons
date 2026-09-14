@@ -18,6 +18,7 @@ import { __ } from '@wordpress/i18n';
 import { maskStyle } from './style-props';
 import type { IconEditProps } from './types';
 import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
+import { formatsHelp } from '../shared/formats';
 import { ALIGN_OPTIONS } from '../shared/icon-options';
 import type { SelectOption } from '../shared/types';
 
@@ -52,10 +53,10 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 					icon="art"
 					labels={ {
 						title: __( 'Masked Icon', 'masked-icon' ),
-						instructions: __(
-							'Pick any image. It is used as a mask, so the icon takes the colour of the surrounding text rather than the colours in the file. PNG, SVG, WebP, AVIF and GIF all work; the icon is cut out of the parts that are not transparent, so a file with a transparent background gives the best result. A JPEG, which cannot be transparent, comes out as a solid rectangle.',
+						instructions: `${ __(
+							'Pick any image. It is used as a mask, so the icon takes the colour of the surrounding text rather than the colours in the file.',
 							'masked-icon'
-						),
+						) } ${ formatsHelp() }`,
 					} }
 					onSelect={ onSelect }
 					accept="image/*"
