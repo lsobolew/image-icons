@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "masked-icon/item-list",
+	"name": "image-icons/item-list",
 	"version": "0.1.0",
 	"title": "Item list",
 	"category": "widgets",
 	"icon": "list-view",
 	"description": "Displays the most recent items registered by the plugin.",
 	"keywords": [ "items", "list" ],
-	"textdomain": "masked-icon",
+	"textdomain": "image-icons",
 	"attributes": {
 		"limit": {
 			"type": "number",

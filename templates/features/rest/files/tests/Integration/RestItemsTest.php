@@ -2,21 +2,21 @@
 /**
  * Integration tests for the REST endpoints.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Tests\Integration;
+namespace Sobolewski\ImageIcons\Tests\Integration;
 
-use Sobolewski\MaskedIcon\Core\Settings;
-use Sobolewski\MaskedIcon\Modules\ContentType\Module as ContentType;
+use Sobolewski\ImageIcons\Core\Settings;
+use Sobolewski\ImageIcons\Modules\ContentType\Module as ContentType;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 
 /**
- * The /masked-icon/v1/items routes: availability, permissions and response shape.
+ * The /image-icons/v1/items routes: availability, permissions and response shape.
  */
 final class RestItemsTest extends WP_UnitTestCase {
 
@@ -56,8 +56,8 @@ final class RestItemsTest extends WP_UnitTestCase {
 	public function test_routes_are_registered(): void {
 		$routes = $this->server->get_routes();
 
-		$this->assertArrayHasKey( '/masked-icon/v1/items', $routes );
-		$this->assertArrayHasKey( '/masked-icon/v1/items/(?P<id>[\d]+)', $routes );
+		$this->assertArrayHasKey( '/image-icons/v1/items', $routes );
+		$this->assertArrayHasKey( '/image-icons/v1/items/(?P<id>[\d]+)', $routes );
 	}
 
 	/**
@@ -66,7 +66,7 @@ final class RestItemsTest extends WP_UnitTestCase {
 	public function test_anonymous_request_is_rejected(): void {
 		wp_set_current_user( 0 );
 
-		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/masked-icon/v1/items' ) );
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/image-icons/v1/items' ) );
 
 		$this->assertSame( 401, $response->get_status() );
 	}
@@ -85,7 +85,7 @@ final class RestItemsTest extends WP_UnitTestCase {
 			)
 		);
 
-		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/masked-icon/v1/items' ) );
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/image-icons/v1/items' ) );
 		$data     = $response->get_data();
 
 		$this->assertSame( 200, $response->get_status() );
@@ -108,7 +108,7 @@ final class RestItemsTest extends WP_UnitTestCase {
 			)
 		);
 
-		$request = new WP_REST_Request( 'GET', '/masked-icon/v1/items' );
+		$request = new WP_REST_Request( 'GET', '/image-icons/v1/items' );
 		$request->set_param( 'per_page', 2 );
 
 		$response = $this->server->dispatch( $request );
@@ -132,7 +132,7 @@ final class RestItemsTest extends WP_UnitTestCase {
 			)
 		);
 
-		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/masked-icon/v1/items' ) );
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/image-icons/v1/items' ) );
 
 		$this->assertCount( 2, $response->get_data() );
 	}
@@ -144,7 +144,7 @@ final class RestItemsTest extends WP_UnitTestCase {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 
 		$response = $this->server->dispatch(
-			new WP_REST_Request( 'GET', '/masked-icon/v1/items/999999' )
+			new WP_REST_Request( 'GET', '/image-icons/v1/items/999999' )
 		);
 
 		$this->assertSame( 404, $response->get_status() );

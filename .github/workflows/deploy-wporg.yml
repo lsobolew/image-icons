@@ -32,6 +32,6 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SLUG: masked-icon
-          BUILD_DIR: .wplab/build/masked-icon
+          SLUG: image-icons
+          BUILD_DIR: .wplab/build/image-icons
           ASSETS_DIR: .wordpress-org

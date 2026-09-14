@@ -2,37 +2,37 @@
 /**
  * Module: custom post type, taxonomy and post meta.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\ContentType;
+namespace Sobolewski\ImageIcons\Modules\ContentType;
 
-use Sobolewski\MaskedIcon\Core\Module as ModuleContract;
-use Sobolewski\MaskedIcon\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Module as ModuleContract;
+use Sobolewski\ImageIcons\Core\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers the "maskedicon_item" post type, its taxonomy and a REST-visible meta field.
+ * Registers the "imageicons_item" post type, its taxonomy and a REST-visible meta field.
  */
 final class Module implements ModuleContract {
 
 	/**
 	 * Post type name (20 characters max).
 	 */
-	const POST_TYPE = 'maskedicon_item';
+	const POST_TYPE = 'imageicons_item';
 
 	/**
 	 * Taxonomy name.
 	 */
-	const TAXONOMY = 'maskedicon_item_type';
+	const TAXONOMY = 'imageicons_item_type';
 
 	/**
 	 * Meta key. The leading underscore hides it from the custom fields box.
 	 */
-	const META_PRIORITY = '_maskedicon_priority';
+	const META_PRIORITY = '_imageicons_priority';
 
 	/**
 	 * Plugin instance.
@@ -74,12 +74,12 @@ final class Module implements ModuleContract {
 			self::POST_TYPE,
 			array(
 				'labels'       => array(
-					'name'          => __( 'Items', 'masked-icon' ),
-					'singular_name' => __( 'Item', 'masked-icon' ),
-					'add_new_item'  => __( 'Add item', 'masked-icon' ),
-					'edit_item'     => __( 'Edit item', 'masked-icon' ),
-					'search_items'  => __( 'Search items', 'masked-icon' ),
-					'not_found'     => __( 'No items found.', 'masked-icon' ),
+					'name'          => __( 'Items', 'image-icons' ),
+					'singular_name' => __( 'Item', 'image-icons' ),
+					'add_new_item'  => __( 'Add item', 'image-icons' ),
+					'edit_item'     => __( 'Edit item', 'image-icons' ),
+					'search_items'  => __( 'Search items', 'image-icons' ),
+					'not_found'     => __( 'No items found.', 'image-icons' ),
 				),
 				'public'       => true,
 				'has_archive'  => true,
@@ -109,8 +109,8 @@ final class Module implements ModuleContract {
 			array( self::POST_TYPE ),
 			array(
 				'labels'            => array(
-					'name'          => __( 'Item types', 'masked-icon' ),
-					'singular_name' => __( 'Item type', 'masked-icon' ),
+					'name'          => __( 'Item types', 'image-icons' ),
+					'singular_name' => __( 'Item type', 'image-icons' ),
 				),
 				'public'            => true,
 				'hierarchical'      => true,
@@ -133,7 +133,7 @@ final class Module implements ModuleContract {
 			self::META_PRIORITY,
 			array(
 				'type'              => 'integer',
-				'description'       => __( 'Item priority used when ordering lists.', 'masked-icon' ),
+				'description'       => __( 'Item priority used when ordering lists.', 'image-icons' ),
 				'single'            => true,
 				'default'           => 0,
 				'show_in_rest'      => true,

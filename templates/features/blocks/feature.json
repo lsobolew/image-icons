@@ -2,7 +2,7 @@
 	"name": "blocks",
 	"title": "Editor block",
 	"edition": "free",
-	"moduleClass": "Sobolewski\\MaskedIcon\\Modules\\Blocks\\Module",
+	"moduleClass": "Sobolewski\\ImageIcons\\Modules\\Blocks\\Module",
 	"paths": [
 		"src/Modules/Blocks",
 		"blocks",

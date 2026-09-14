@@ -1,26 +1,26 @@
 {
 	"$schema": "./docs/starter.schema.json",
-	"name": "Masked Icon",
-	"slug": "masked-icon",
-	"namespace": "Sobolewski\\MaskedIcon",
-	"constantPrefix": "MASKED_ICON",
-	"hookPrefix": "maskedicon",
-	"textDomain": "masked-icon",
+	"name": "Image Icons",
+	"slug": "image-icons",
+	"namespace": "Sobolewski\\ImageIcons",
+	"constantPrefix": "IMAGE_ICONS",
+	"hookPrefix": "imageicons",
+	"textDomain": "image-icons",
 	"description": "Turn any image into a colorable icon: PNG, SVG or WebP rendered as a CSS mask that inherits the text colour.",
 	"author": "Lukasz Sobolewski",
 	"authorUri": "https://github.com/lsobolew",
-	"pluginUri": "https://github.com/lsobolew/masked-icon",
+	"pluginUri": "https://github.com/lsobolew/image-icons",
 	"license": "GPL-2.0-or-later",
 	"requiresWp": "6.6",
 	"requiresPhp": "7.4",
 	"editions": {
 		"free": {
-			"dir": "masked-icon",
+			"dir": "image-icons",
 			"enabled": true,
 			"wporg": true
 		},
 		"pro": {
-			"dir": "masked-icon-pro",
+			"dir": "image-icons-pro",
 			"enabled": false,
 			"wporg": false
 		}

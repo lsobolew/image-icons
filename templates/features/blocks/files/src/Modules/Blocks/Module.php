@@ -2,17 +2,17 @@
 /**
  * Module: editor blocks.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Blocks;
+namespace Sobolewski\ImageIcons\Modules\Blocks;
 
-use Sobolewski\MaskedIcon\Core\Module as ModuleContract;
-use Sobolewski\MaskedIcon\Core\Plugin;
-use Sobolewski\MaskedIcon\Core\Settings;
-use Sobolewski\MaskedIcon\Modules\ContentType\Module as ContentType;
+use Sobolewski\ImageIcons\Core\Module as ModuleContract;
+use Sobolewski\ImageIcons\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Settings;
+use Sobolewski\ImageIcons\Modules\ContentType\Module as ContentType;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -58,7 +58,7 @@ final class Module implements ModuleContract {
 	 * Registers the blocks from their block.json metadata.
 	 */
 	public function register_blocks(): void {
-		$manifest = MASKED_ICON_DIR . 'build/item-list/block.json';
+		$manifest = IMAGE_ICONS_DIR . 'build/item-list/block.json';
 
 		if ( ! is_readable( $manifest ) ) {
 			// A missing build (fresh clone, module disabled) must never take the plugin down.
@@ -100,7 +100,7 @@ final class Module implements ModuleContract {
 			return sprintf(
 				'<p %1$s>%2$s</p>',
 				wp_kses_data( get_block_wrapper_attributes() ),
-				esc_html__( 'No items to show.', 'masked-icon' )
+				esc_html__( 'No items to show.', 'image-icons' )
 			);
 		}
 
@@ -116,7 +116,7 @@ final class Module implements ModuleContract {
 
 		return sprintf(
 			'<ul %1$s>%2$s</ul>',
-			wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'masked-icon-item-list' ) ) ),
+			wp_kses_data( get_block_wrapper_attributes( array( 'class' => 'image-icons-item-list' ) ) ),
 			$items // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above.
 		);
 	}

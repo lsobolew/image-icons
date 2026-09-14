@@ -1,5 +1,5 @@
 /**
- * End-to-end tests for the Masked Icon block and the core Button extension.
+ * End-to-end tests for the Image Icons block and the core Button extension.
  *
  * The assertions deliberately go past "the element is there" and read the computed style, because
  * the whole plugin is a bet that a CSS mask driven by custom properties survives all the way from
@@ -72,25 +72,25 @@ async function iconAnimations( link: Locator ) {
 	);
 }
 
-test.describe( `Masked Icon (${ THEME })`, () => {
+test.describe( `Image Icons (${ THEME })`, () => {
 	test( 'renders as a mask that takes the text colour', async ( { admin, editor, page } ) => {
 		const errors = watchConsole( page );
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'masked-icon/icon',
+			name: 'image-icons/icon',
 			attributes: { url: PIXEL, size: '2em', label: 'Next' },
 		} );
 
 		await expect(
-			editor.canvas.locator( '[data-type="masked-icon/icon"]' )
+			editor.canvas.locator( '[data-type="image-icons/icon"]' )
 		).toBeVisible();
 
 		const postId = await editor.publishPost();
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
+		const icon = page.locator( '.wp-block-image-icons-icon__mark' );
 
 		await expect( icon ).toBeVisible();
 		await expect( icon ).toHaveAttribute( 'aria-label', 'Next' );
@@ -123,7 +123,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 	} ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'masked-icon/icon',
+			name: 'image-icons/icon',
 			attributes: { url: PIXEL },
 		} );
 
@@ -131,7 +131,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon__mark' );
+		const icon = page.locator( '.wp-block-image-icons-icon__mark' );
 
 		await expect( icon ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( icon ).not.toHaveAttribute( 'role', 'img' );
@@ -167,7 +167,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// Scoped to the post: a block theme may well render buttons in its header or footer.
 		const button = page.locator( '.entry-content .wp-block-button, main .wp-block-button' ).first();
 
-		await expect( button ).toHaveClass( /has-masked-icon/ );
+		await expect( button ).toHaveClass( /has-image-icons/ );
 		await expect( button ).toHaveClass( /is-icon-after/ );
 		await expect(
 			page.locator( 'a.wp-block-button__link' ).filter( { hasText: 'Learn more' } )
@@ -203,8 +203,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		// What the rich-text format stores: a void element inside someone else's paragraph.
 		const inline =
-			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -216,7 +216,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon__inline' );
+		const icon = page.locator( '.wp-block-image-icons-icon__inline' );
 
 		await expect( icon ).toBeVisible();
 
@@ -264,10 +264,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 			value = { ...value, start: value.text.length, end: value.text.length };
 
 			value = richText.insertObject( value, {
-				type: 'masked-icon/inline',
+				type: 'image-icons/inline',
 				attributes: {
 					src: pixel,
-					style: `--masked-icon-image:url(${ pixel })`,
+					style: `--image-icons-image:url(${ pixel })`,
 					alt: '',
 				},
 			} );
@@ -278,7 +278,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 			const holder = document.createElement( 'div' );
 			holder.innerHTML = html;
 
-			const icon = holder.querySelector( '.wp-block-masked-icon-icon__inline' );
+			const icon = holder.querySelector( '.wp-block-image-icons-icon__inline' );
 
 			return {
 				html,
@@ -304,8 +304,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// another one. It comes from isObjectActive, which the editor only passes to a format that
 		// asks for it.
 		const inline =
-			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -350,8 +350,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// selected and read its values straight out of the selection - and writing to the document
 		// momentarily takes the selection off the object.
 		const inline =
-			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -386,7 +386,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		const content = await editor.getEditedPostContent();
 
 		expect( content ).toContain( 'alt="Next page"' );
-		expect( content ).toMatch( /--masked-icon-size:2[a-z%]+/ );
+		expect( content ).toMatch( /--image-icons-size:2[a-z%]+/ );
 	} );
 
 	test( 'inserting an inline icon opens its settings straight away', async ( {
@@ -416,9 +416,9 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// text-top and text-bottom put the icon's edges on the text's, which is a measurable
 		// difference as soon as the icon is taller than the line.
 		const icon = ( align: string ) =>
-			`<img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" alt="" ` +
-			`style="--masked-icon-image:url(${ PIXEL });--masked-icon-size:2em` +
-			`${ align ? `;--masked-icon-align:${ align }` : '' }">`;
+			`<img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" alt="" ` +
+			`style="--image-icons-image:url(${ PIXEL });--image-icons-size:2em` +
+			`${ align ? `;--image-icons-align:${ align }` : '' }">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -442,7 +442,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// what defines the line box and every alignment would report the same offset from the top
 		// of the paragraph. What actually differs is where the icon sits relative to the words.
 		const offsets = await page
-			.locator( '.wp-block-masked-icon-icon__inline' )
+			.locator( '.wp-block-image-icons-icon__inline' )
 			.evaluateAll( ( icons ) =>
 				icons.map( ( element ) => {
 					const box = element.getBoundingClientRect();
@@ -489,12 +489,12 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 			const written = {
 				src: pixel,
 				alt: 'Next page',
-				style: `--masked-icon-image:url(${ pixel });--masked-icon-size:1.5em;color:#d00000`,
+				style: `--image-icons-image:url(${ pixel });--image-icons-size:1.5em;color:#d00000`,
 				className: 'has-text-color',
 			};
 
 			value = richText.insertObject( value, {
-				type: 'masked-icon/inline',
+				type: 'image-icons/inline',
 				attributes: written,
 			} );
 
@@ -511,9 +511,9 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// is our own classes only.
 		expect( roundTrip.read.className ).toBe( 'has-text-color' );
 		expect( roundTrip.read.alt ).toBe( 'Next page' );
-		expect( roundTrip.read.style ).toContain( '--masked-icon-size:1.5em' );
+		expect( roundTrip.read.style ).toContain( '--image-icons-size:1.5em' );
 		expect( roundTrip.read.style ).toContain( 'color:#d00000' );
-		expect( roundTrip.html ).toContain( 'wp-block-masked-icon-icon__inline' );
+		expect( roundTrip.html ).toContain( 'wp-block-image-icons-icon__inline' );
 	} );
 
 	test( 'a custom colour survives being read back and written again', async ( {
@@ -527,9 +527,9 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// dropped the colour declaration. A palette colour never showed the fault, because there
 		// the real class is read first - which is why this uses a custom one.
 		const inline =
-			`Read more <img class="wp-block-masked-icon-icon__inline has-text-color" ` +
+			`Read more <img class="wp-block-image-icons-icon__inline has-text-color" ` +
 			`src="${ PIXEL }" alt="" ` +
-			`style="--masked-icon-image:url(${ PIXEL });color:#d00000">`;
+			`style="--image-icons-image:url(${ PIXEL });color:#d00000">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
@@ -564,9 +564,9 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// The paragraph is one colour and the icon another, which is the whole point of letting an
 		// icon carry a colour: without one it follows the text, with one it does not.
 		const inline =
-			`Read more <img class="wp-block-masked-icon-icon__inline has-text-color" ` +
+			`Read more <img class="wp-block-image-icons-icon__inline has-text-color" ` +
 			`src="${ PIXEL }" alt="Next" ` +
-			`style="--masked-icon-image:url(${ PIXEL });--masked-icon-size:2em;color:#0000d0">`;
+			`style="--image-icons-image:url(${ PIXEL });--image-icons-size:2em;color:#0000d0">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -578,7 +578,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-masked-icon-icon__inline' );
+		const icon = page.locator( '.wp-block-image-icons-icon__inline' );
 
 		const computed = await icon.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element );
@@ -606,8 +606,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		page,
 	} ) => {
 		const inline =
-			`Logo <img class="wp-block-masked-icon-icon__inline is-original" src="${ WIDE_PIXEL }" ` +
-			`alt="Our logo" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+			`Logo <img class="wp-block-image-icons-icon__inline is-original" src="${ WIDE_PIXEL }" ` +
+			`alt="Our logo" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
@@ -617,7 +617,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const computed = await page
-			.locator( '.wp-block-masked-icon-icon__inline' )
+			.locator( '.wp-block-image-icons-icon__inline' )
 			.evaluate( ( element ) => {
 				const style = window.getComputedStyle( element );
 				const box = element.getBoundingClientRect();
@@ -646,8 +646,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// The icon carries the mask as its own src precisely so the browser can size it from the
 		// file. A box built out of padding would be square and letterbox everything else.
 		const inline =
-			`Wide <img class="wp-block-masked-icon-icon__inline" src="${ WIDE_PIXEL }" ` +
-			`alt="" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+			`Wide <img class="wp-block-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -660,7 +660,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const box = await page
-			.locator( '.wp-block-masked-icon-icon__inline' )
+			.locator( '.wp-block-image-icons-icon__inline' )
 			.evaluate( ( element ) => {
 				const rect = element.getBoundingClientRect();
 
@@ -704,7 +704,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const boxes = await page
-			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
 			.evaluateAll( ( links ) =>
 				links.map( ( link ) => {
 					const style = window.getComputedStyle( link, '::after' );
@@ -732,8 +732,8 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// made the label and the inline icon flex items spaced by the icon gap. Both are ways of
 		// letting the pseudo-element's settings escape onto content that is not the pseudo-element.
 		const inline =
-			`Buy <img class="wp-block-masked-icon-icon__inline" src="${ WIDE_PIXEL }" ` +
-			`alt="" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+			`Buy <img class="wp-block-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -757,10 +757,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const measured = await page
-			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
 			.evaluate( ( link ) => {
 				const icon = link.querySelector(
-					'.wp-block-masked-icon-icon__inline'
+					'.wp-block-image-icons-icon__inline'
 				) as HTMLElement;
 				const box = icon.getBoundingClientRect();
 				const after = window.getComputedStyle( link, '::after' );
@@ -818,10 +818,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const alignment = await page
-			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
 			.evaluate( ( element ) => {
 				// Set the property the inline icon uses, to prove the button does not read it.
-				element.style.setProperty( '--masked-icon-align', 'text-top' );
+				element.style.setProperty( '--image-icons-align', 'text-top' );
 
 				return window.getComputedStyle( element, '::after' ).verticalAlign;
 			} );
@@ -857,7 +857,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const offset = await page
-			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
 			.evaluate( ( link ) => {
 				const range = document.createRange();
 				range.selectNodeContents( link.firstChild as Node );
@@ -904,7 +904,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		const icon = await link.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element, '::after' );
@@ -936,7 +936,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 				message: 'an icon keeping its own colours stopped animating',
 			} )
 			.toEqual( [
-				{ name: 'masked-icon-rotate-hover', playState: 'running', pseudo: '::after' },
+				{ name: 'image-icons-rotate-hover', playState: 'running', pseudo: '::after' },
 			] );
 	} );
 
@@ -971,14 +971,14 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		expect( content ).toContain( 'is-icon-idle-wiggle' );
 		expect( content ).toContain( 'is-icon-anim-spin' );
-		expect( content ).toContain( '--masked-icon-idle-interval:4s' );
-		expect( content ).toContain( '--masked-icon-hover-duration:0.3s' );
+		expect( content ).toContain( '--image-icons-idle-interval:4s' );
+		expect( content ).toContain( '--image-icons-hover-duration:0.3s' );
 
 		const postId = await editor.publishPost();
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		const idle = await link.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element, '::after' );
@@ -987,14 +987,14 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		} );
 
 		// Idle runs on its own, at the interval that was set.
-		expect( idle.name ).toBe( 'masked-icon-wiggle-idle' );
+		expect( idle.name ).toBe( 'image-icons-wiggle-idle' );
 		expect( idle.duration ).toBe( '4s' );
 
 		await link.hover();
 
 		// Hover takes over: a different animation, at its own duration.
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'masked-icon-spin-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'image-icons-spin-hover', playState: 'running', pseudo: '::after' },
 		] );
 
 		const hovered = await link.evaluate(
@@ -1036,7 +1036,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		expect( await iconAnimations( link ) ).toEqual( [] );
 
@@ -1070,7 +1070,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await expect( link ).toBeFocused();
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'masked-icon-grow-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'image-icons-grow-hover', playState: 'running', pseudo: '::after' },
 		] );
 	} );
 
@@ -1103,10 +1103,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'masked-icon-wiggle-idle', playState: 'running', pseudo: '::after' },
+			{ name: 'image-icons-wiggle-idle', playState: 'running', pseudo: '::after' },
 		] );
 
 		await link.hover();
@@ -1114,7 +1114,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// Exactly one animation, and it is the hover one - the idle has stood down rather than
 		// both of them fighting over transform.
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'masked-icon-grow-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'image-icons-grow-hover', playState: 'running', pseudo: '::after' },
 		] );
 	} );
 
@@ -1166,7 +1166,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		expect( await iconAnimations( link ) ).toEqual( [] );
 
@@ -1174,7 +1174,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
 			{
-				name: 'masked-icon-rotate-hover',
+				name: 'image-icons-rotate-hover',
 				playState: 'running',
 				pseudo: '::after',
 			},
@@ -1205,12 +1205,12 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
 
 		await link.hover();
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'masked-icon-spin-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'image-icons-spin-hover', playState: 'running', pseudo: '::after' },
 		] );
 
 		const advanced = await link.evaluate( async ( element ) => {
@@ -1277,6 +1277,6 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 			.first();
 
 		await expect( button ).toBeVisible();
-		await expect( button ).not.toHaveClass( /has-masked-icon/ );
+		await expect( button ).not.toHaveClass( /has-image-icons/ );
 	} );
 } );

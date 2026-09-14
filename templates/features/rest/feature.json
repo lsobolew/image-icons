@@ -2,7 +2,7 @@
 	"name": "rest",
 	"title": "REST API endpoints",
 	"edition": "free",
-	"moduleClass": "Sobolewski\\MaskedIcon\\Modules\\Rest\\Module",
+	"moduleClass": "Sobolewski\\ImageIcons\\Modules\\Rest\\Module",
 	"paths": [
 		"src/Modules/Rest"
 	],
@@ -10,5 +10,5 @@
 		"tests/Integration/RestItemsTest.php"
 	],
 	"npmDependencies": [],
-	"notes": "Also removes the maskedicon_rest_item extension point that the Pro edition uses."
+	"notes": "Also removes the imageicons_rest_item extension point that the Pro edition uses."
 }

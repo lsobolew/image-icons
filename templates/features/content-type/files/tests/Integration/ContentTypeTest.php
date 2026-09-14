@@ -2,15 +2,15 @@
 /**
  * Integration tests for the post type and its meta field.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Tests\Integration;
+namespace Sobolewski\ImageIcons\Tests\Integration;
 
-use Sobolewski\MaskedIcon\Core\Plugin;
-use Sobolewski\MaskedIcon\Modules\ContentType\Module as ContentType;
+use Sobolewski\ImageIcons\Core\Plugin;
+use Sobolewski\ImageIcons\Modules\ContentType\Module as ContentType;
 use WP_UnitTestCase;
 
 /**

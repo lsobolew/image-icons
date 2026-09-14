@@ -2,15 +2,15 @@
 /**
  * Module: WP-CLI commands.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Cli;
+namespace Sobolewski\ImageIcons\Modules\Cli;
 
-use Sobolewski\MaskedIcon\Core\Module as ModuleContract;
-use Sobolewski\MaskedIcon\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Module as ModuleContract;
+use Sobolewski\ImageIcons\Core\Plugin;
 use WP_CLI;
 
 defined( 'ABSPATH' ) || exit;
@@ -51,6 +51,6 @@ final class Module implements ModuleContract {
 			return;
 		}
 
-		WP_CLI::add_command( 'masked-icon', Command::class );
+		WP_CLI::add_command( 'image-icons', Command::class );
 	}
 }

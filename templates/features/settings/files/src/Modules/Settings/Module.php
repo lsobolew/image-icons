@@ -2,16 +2,16 @@
 /**
  * Module: settings screen in the admin.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Settings;
+namespace Sobolewski\ImageIcons\Modules\Settings;
 
-use Sobolewski\MaskedIcon\Core\Module as ModuleContract;
-use Sobolewski\MaskedIcon\Core\Plugin;
-use Sobolewski\MaskedIcon\Core\Settings;
+use Sobolewski\ImageIcons\Core\Module as ModuleContract;
+use Sobolewski\ImageIcons\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,14 +19,14 @@ defined( 'ABSPATH' ) || exit;
  * Adds a settings page built on the Settings API.
  *
  * Removing this module only takes away the UI - the values and defaults keep living in
- * Sobolewski\MaskedIcon\Core\Settings.
+ * Sobolewski\ImageIcons\Core\Settings.
  */
 final class Module implements ModuleContract {
 
 	/**
 	 * Admin page slug.
 	 */
-	const PAGE_SLUG = 'masked-icon';
+	const PAGE_SLUG = 'image-icons';
 
 	/**
 	 * Capability required to manage the settings.
@@ -62,7 +62,7 @@ final class Module implements ModuleContract {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_filter( 'plugin_action_links_' . MASKED_ICON_BASENAME, array( $this, 'add_action_link' ) );
+		add_filter( 'plugin_action_links_' . IMAGE_ICONS_BASENAME, array( $this, 'add_action_link' ) );
 	}
 
 	/**
@@ -70,8 +70,8 @@ final class Module implements ModuleContract {
 	 */
 	public function add_menu_page(): void {
 		add_options_page(
-			__( 'Masked Icon', 'masked-icon' ),
-			__( 'Masked Icon', 'masked-icon' ),
+			__( 'Image Icons', 'image-icons' ),
+			__( 'Image Icons', 'image-icons' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -91,7 +91,7 @@ final class Module implements ModuleContract {
 		$settings_link = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( admin_url( 'options-general.php?page=' . self::PAGE_SLUG ) ),
-			esc_html__( 'Settings', 'masked-icon' )
+			esc_html__( 'Settings', 'image-icons' )
 		);
 
 		array_unshift( $links, $settings_link );
@@ -115,47 +115,47 @@ final class Module implements ModuleContract {
 		);
 
 		add_settings_section(
-			'masked_icon_general',
-			__( 'General settings', 'masked-icon' ),
+			'image_icons_general',
+			__( 'General settings', 'image-icons' ),
 			static function () {
-				echo '<p>' . esc_html__( 'Basic plugin configuration.', 'masked-icon' ) . '</p>';
+				echo '<p>' . esc_html__( 'Basic plugin configuration.', 'image-icons' ) . '</p>';
 			},
 			self::PAGE_SLUG
 		);
 
 		add_settings_field(
 			'enabled',
-			__( 'Enable functionality', 'masked-icon' ),
+			__( 'Enable functionality', 'image-icons' ),
 			array( $this, 'render_checkbox' ),
 			self::PAGE_SLUG,
-			'masked_icon_general',
+			'image_icons_general',
 			array(
 				'key'         => 'enabled',
-				'description' => __( 'Global on/off switch for the plugin.', 'masked-icon' ),
+				'description' => __( 'Global on/off switch for the plugin.', 'image-icons' ),
 			)
 		);
 
 		add_settings_field(
 			'items_per_page',
-			__( 'Items per page', 'masked-icon' ),
+			__( 'Items per page', 'image-icons' ),
 			array( $this, 'render_number' ),
 			self::PAGE_SLUG,
-			'masked_icon_general',
+			'image_icons_general',
 			array(
 				'key'         => 'items_per_page',
-				'description' => __( 'How many items to show in lists and in the REST API.', 'masked-icon' ),
+				'description' => __( 'How many items to show in lists and in the REST API.', 'image-icons' ),
 			)
 		);
 
 		add_settings_field(
 			'api_label',
-			__( 'API label', 'masked-icon' ),
+			__( 'API label', 'image-icons' ),
 			array( $this, 'render_text' ),
 			self::PAGE_SLUG,
-			'masked_icon_general',
+			'image_icons_general',
 			array(
 				'key'         => 'api_label',
-				'description' => __( 'Free-form text returned by the REST endpoint.', 'masked-icon' ),
+				'description' => __( 'Free-form text returned by the REST endpoint.', 'image-icons' ),
 			)
 		);
 	}
@@ -219,11 +219,11 @@ final class Module implements ModuleContract {
 		// Belt and braces: WordPress checks the capability when adding the page, but the callback
 		// can also be reached directly.
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You are not allowed to access this page.', 'masked-icon' ) );
+			wp_die( esc_html__( 'You are not allowed to access this page.', 'image-icons' ) );
 		}
 
 		?>
-		<div class="wrap" id="masked-icon-settings">
+		<div class="wrap" id="image-icons-settings">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<form action="options.php" method="post">
 				<?php

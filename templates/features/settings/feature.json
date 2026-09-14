@@ -2,7 +2,7 @@
 	"name": "settings",
 	"title": "Settings screen",
 	"edition": "free",
-	"moduleClass": "Sobolewski\\MaskedIcon\\Modules\\Settings\\Module",
+	"moduleClass": "Sobolewski\\ImageIcons\\Modules\\Settings\\Module",
 	"paths": [
 		"src/Modules/Settings"
 	],

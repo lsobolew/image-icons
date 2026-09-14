@@ -2,15 +2,15 @@
 /**
  * Module: REST API.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Rest;
+namespace Sobolewski\ImageIcons\Modules\Rest;
 
-use Sobolewski\MaskedIcon\Core\Module as ModuleContract;
-use Sobolewski\MaskedIcon\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Module as ModuleContract;
+use Sobolewski\ImageIcons\Core\Plugin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ final class Module implements ModuleContract {
 	/**
 	 * REST namespace.
 	 */
-	const NAMESPACE_V1 = 'masked-icon/v1';
+	const NAMESPACE_V1 = 'image-icons/v1';
 
 	/**
 	 * Plugin instance.

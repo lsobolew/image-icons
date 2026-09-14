@@ -2,7 +2,7 @@
 	"name": "cli",
 	"title": "WP-CLI commands",
 	"edition": "free",
-	"moduleClass": "Sobolewski\\MaskedIcon\\Modules\\Cli\\Module",
+	"moduleClass": "Sobolewski\\ImageIcons\\Modules\\Cli\\Module",
 	"paths": [
 		"src/Modules/Cli"
 	],

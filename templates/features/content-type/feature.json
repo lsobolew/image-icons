@@ -2,7 +2,7 @@
 	"name": "content-type",
 	"title": "Custom post type and taxonomy",
 	"edition": "free",
-	"moduleClass": "Sobolewski\\MaskedIcon\\Modules\\ContentType\\Module",
+	"moduleClass": "Sobolewski\\ImageIcons\\Modules\\ContentType\\Module",
 	"paths": [
 		"src/Modules/ContentType"
 	],

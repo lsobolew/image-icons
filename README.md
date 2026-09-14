@@ -1,4 +1,4 @@
-# Masked Icon
+# Image Icons
 
 Turn any image into a colourable icon that follows your text colour.
 
@@ -12,7 +12,7 @@ button, a light background and a coloured heading, without exporting three versi
 
 ## What it does
 
-- **Masked Icon block** - pick any image from the media library and it renders as a single-colour
+- **Image Icon block** - pick any image from the media library and it renders as a single-colour
   icon. PNG, SVG and WebP all work, because only the shape is used.
 - **Inline icons** - a rich-text format, so an icon can sit inside a sentence: "Read more →". It
   inherits the colour and the font size of the text around it. A block could not do this; blocks are
@@ -30,8 +30,8 @@ capability: authors and contributors on a single site, and **everyone except the
 multisite**. Writing the mask into the markup therefore works for the plugin author, who is an
 administrator on their own machine, and silently breaks for a client's editor.
 
-Masked Icon puts the mask in a CSS custom property, which survives that filtering, and resolves it
-in its stylesheet. `plugins/masked-icon/tests/Integration/KsesCompatibilityTest.php` asserts it -
+Image Icons puts the mask in a CSS custom property, which survives that filtering, and resolves it
+in its stylesheet. `plugins/image-icons/tests/Integration/KsesCompatibilityTest.php` asserts it -
 including a test that fails if anyone moves a mask declaration back into the markup.
 
 ## Development
@@ -41,7 +41,7 @@ with the repository. Docker and Node are the only requirements - PHP runs in con
 
 ```bash
 npm install
-npm --prefix plugins/masked-icon install
+npm --prefix plugins/image-icons install
 ./bin/wpx up latest          # WordPress on http://localhost:8191
 ./bin/wpx dev                # rebuild the block on every change
 ./bin/wpx test               # unit, integration and end-to-end

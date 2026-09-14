@@ -2,17 +2,17 @@
 /**
  * WP-CLI commands for the plugin.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Cli;
+namespace Sobolewski\ImageIcons\Modules\Cli;
 
-use Sobolewski\MaskedIcon\Core\Api;
-use Sobolewski\MaskedIcon\Core\Plugin;
-use Sobolewski\MaskedIcon\Core\Settings;
-use Sobolewski\MaskedIcon\Modules\ContentType\Module as ContentType;
+use Sobolewski\ImageIcons\Core\Api;
+use Sobolewski\ImageIcons\Core\Plugin;
+use Sobolewski\ImageIcons\Core\Settings;
+use Sobolewski\ImageIcons\Modules\ContentType\Module as ContentType;
 use WP_CLI;
 use WP_CLI\Utils;
 
@@ -40,8 +40,8 @@ final class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp masked-icon info
-	 *     wp masked-icon info --format=json
+	 *     wp image-icons info
+	 *     wp image-icons info --format=json
 	 *
 	 * @param array<int, string>    $args       Positional arguments.
 	 * @param array<string, string> $assoc_args Named arguments.
@@ -88,7 +88,7 @@ final class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp masked-icon seed --count=20
+	 *     wp image-icons seed --count=20
 	 *
 	 * @param array<int, string>    $args       Positional arguments.
 	 * @param array<string, string> $assoc_args Named arguments.

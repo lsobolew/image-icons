@@ -2,15 +2,15 @@
 /**
  * REST controller for the plugin items.
  *
- * @package Sobolewski\MaskedIcon
+ * @package Sobolewski\ImageIcons
  */
 
 declare( strict_types=1 );
 
-namespace Sobolewski\MaskedIcon\Modules\Rest;
+namespace Sobolewski\ImageIcons\Modules\Rest;
 
-use Sobolewski\MaskedIcon\Core\Settings;
-use Sobolewski\MaskedIcon\Modules\ContentType\Module as ContentType;
+use Sobolewski\ImageIcons\Core\Settings;
+use Sobolewski\ImageIcons\Modules\ContentType\Module as ContentType;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -22,7 +22,7 @@ use WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The /masked-icon/v1/items endpoints.
+ * The /image-icons/v1/items endpoints.
  */
 final class ItemsController extends WP_REST_Controller {
 
@@ -64,7 +64,7 @@ final class ItemsController extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => array(
 						'id' => array(
-							'description' => __( 'Item identifier.', 'masked-icon' ),
+							'description' => __( 'Item identifier.', 'image-icons' ),
 							'type'        => 'integer',
 							'required'    => true,
 						),
@@ -85,8 +85,8 @@ final class ItemsController extends WP_REST_Controller {
 	public function get_items_permissions_check( $request ) {
 		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error(
-				'masked_icon_rest_forbidden',
-				__( 'You are not allowed to read items.', 'masked-icon' ),
+				'image_icons_rest_forbidden',
+				__( 'You are not allowed to read items.', 'image-icons' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -155,8 +155,8 @@ final class ItemsController extends WP_REST_Controller {
 
 		if ( ! $post instanceof WP_Post || ContentType::POST_TYPE !== $post->post_type ) {
 			return new WP_Error(
-				'masked_icon_rest_not_found',
-				__( 'Item not found.', 'masked-icon' ),
+				'image_icons_rest_not_found',
+				__( 'Item not found.', 'image-icons' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -189,7 +189,7 @@ final class ItemsController extends WP_REST_Controller {
 		 * @param WP_Post              $item    Source post.
 		 * @param WP_REST_Request      $request Request object.
 		 */
-		$data = apply_filters( 'maskedicon_rest_item', $data, $item, $request );
+		$data = apply_filters( 'imageicons_rest_item', $data, $item, $request );
 
 		return rest_ensure_response( $data );
 	}
@@ -206,38 +206,38 @@ final class ItemsController extends WP_REST_Controller {
 
 		$this->schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'masked-icon-item',
+			'title'      => 'image-icons-item',
 			'type'       => 'object',
 			'properties' => array(
 				'id'       => array(
-					'description' => __( 'Item identifier.', 'masked-icon' ),
+					'description' => __( 'Item identifier.', 'image-icons' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 					'readonly'    => true,
 				),
 				'title'    => array(
-					'description' => __( 'Item title.', 'masked-icon' ),
+					'description' => __( 'Item title.', 'image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'excerpt'  => array(
-					'description' => __( 'Item excerpt.', 'masked-icon' ),
+					'description' => __( 'Item excerpt.', 'image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'link'     => array(
-					'description' => __( 'Item URL.', 'masked-icon' ),
+					'description' => __( 'Item URL.', 'image-icons' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view' ),
 				),
 				'priority' => array(
-					'description' => __( 'Item priority.', 'masked-icon' ),
+					'description' => __( 'Item priority.', 'image-icons' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 				),
 				'label'    => array(
-					'description' => __( 'Label taken from the plugin settings.', 'masked-icon' ),
+					'description' => __( 'Label taken from the plugin settings.', 'image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
@@ -255,14 +255,14 @@ final class ItemsController extends WP_REST_Controller {
 	public function get_collection_params(): array {
 		return array(
 			'page'     => array(
-				'description'       => __( 'Result page number.', 'masked-icon' ),
+				'description'       => __( 'Result page number.', 'image-icons' ),
 				'type'              => 'integer',
 				'default'           => 1,
 				'minimum'           => 1,
 				'sanitize_callback' => 'absint',
 			),
 			'per_page' => array(
-				'description'       => __( 'Number of items per page.', 'masked-icon' ),
+				'description'       => __( 'Number of items per page.', 'image-icons' ),
 				'type'              => 'integer',
 				'minimum'           => 1,
 				'maximum'           => 100,
