@@ -20,6 +20,8 @@ export interface IconSettings {
 	customColor: string;
 	/** A CSS length, or empty for the 1em default. */
 	size: string;
+	/** A vertical-align keyword, or empty for the default. */
+	align: string;
 	/** Draw the file as itself rather than masking it. */
 	original: boolean;
 }
@@ -30,6 +32,7 @@ export const EMPTY_SETTINGS: IconSettings = {
 	presetColor: '',
 	customColor: '',
 	size: '',
+	align: '',
 	original: false,
 };
 
@@ -94,6 +97,7 @@ export function readSettings( attributes: Record< string, string > ): IconSettin
 		presetColor: preset?.[ 1 ] || '',
 		customColor: declarations.get( 'color' ) || '',
 		size: declarations.get( '--masked-icon-size' ) || '',
+		align: declarations.get( '--masked-icon-align' ) || '',
 		original: classes.includes( 'is-original' ),
 	};
 }
@@ -114,6 +118,7 @@ export function writeSettings(
 
 	declarations.set( '--masked-icon-image', `url(${ encodeURI( settings.src ) })` );
 	declarations.set( '--masked-icon-size', settings.size );
+	declarations.set( '--masked-icon-align', settings.align );
 	// A palette colour is a class, so the literal declaration has to go when one is picked.
 	declarations.set( 'color', settings.presetColor ? '' : settings.customColor );
 

@@ -41,6 +41,7 @@ import {
 import {
 	Popover,
 	Button,
+	SelectControl,
 	TextControl,
 	ToggleControl,
 	ColorPalette,
@@ -51,7 +52,8 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 import { registerFormat } from '../shared/register';
-import { LENGTH_UNITS } from '../shared/units';
+import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
+import { ALIGN_OPTIONS, DEFAULT_ALIGN } from '../shared/icon-options';
 import { readSettings, writeSettings, EMPTY_SETTINGS } from './inline-settings';
 import type { IconSettings } from './inline-settings';
 
@@ -133,6 +135,10 @@ function IconSettingsPopover( {
 		<Popover
 			anchor={ anchor }
 			onClose={ onClose }
+			// Dismiss on Escape or a click outside, the way core's link popover does - but not
+			// when focus merely moves back to the editable text, which happens on every keystroke
+			// that writes to the document.
+			focusOnMount={ false }
 			placement="bottom"
 			className="masked-icon-inline-settings"
 		>
@@ -155,7 +161,20 @@ function IconSettingsPopover( {
 					label={ __( 'Size', 'masked-icon' ) }
 					units={ LENGTH_UNITS }
 					value={ settings.size || '1em' }
-					onChange={ ( next?: string ) => onChange( { ...settings, size: next || '' } ) }
+					onChange={ ( next?: string ) =>
+						onChange( {
+							...settings,
+							size: toLength( next, unitOf( settings.size ) ),
+						} )
+					}
+				/>
+
+				<SelectControl
+					label={ __( 'Alignment', 'masked-icon' ) }
+					help={ __( 'How the icon sits against the text.', 'masked-icon' ) }
+					value={ settings.align || DEFAULT_ALIGN }
+					options={ ALIGN_OPTIONS }
+					onChange={ ( next: string ) => onChange( { ...settings, align: next } ) }
 				/>
 
 				<TextControl
@@ -208,30 +227,32 @@ function InlineIcon( {
 	activeObjectAttributes,
 	contentRef,
 }: FormatEditProps ): ReactNode {
-	// The position of the icon being edited, captured when the settings open rather than read as
-	// they are applied. Opening the popover moves focus out of the editable area, and anything that
-	// then changes the selection would otherwise redirect the next save at whatever is selected now.
-	const [ editing, setEditing ] = useState< number | null >( null );
+	// Which icon is being edited, and what its settings currently say.
+	//
+	// Both are held here rather than read from the value on each render, and that is the whole
+	// reason the popover stays open. Every keystroke writes to the document, the block re-renders,
+	// and the selection is momentarily not on the object any more - so a popover rendered only
+	// while isObjectActive, reading its values out of activeObjectAttributes, tears itself down
+	// mid-edit. Local state also means a half-typed size is the field's own business until it is
+	// worth writing, instead of a value that gets re-parsed and corrected under the cursor.
+	const [ editing, setEditing ] = useState< { index: number; settings: IconSettings } | null >(
+		null
+	);
 
-	const apply = ( next: IconSettings ) => {
-		if ( editing === null ) {
-			return;
-		}
+	const write = ( index: number, settings: IconSettings ) => {
+		setEditing( { index, settings } );
 
 		// An object occupies one position in the value, and its settings live in `replacements` at
 		// that index. Writing there is how the editor's own formats edit an object in place;
-		// rich-text's replace() is the String.replace-alike for text and does something else
-		// entirely. Removing and re-inserting would work too, at the cost of the caret position
-		// and a second undo step.
+		// rich-text's replace() is the String.replace-alike and does something else entirely.
 		const replacements = value.replacements.slice();
 
-		replacements[ editing ] = {
+		replacements[ index ] = {
 			type: NAME,
-			attributes: writeSettings( next, activeObjectAttributes ),
+			attributes: writeSettings( settings, activeObjectAttributes ),
 		} as ( typeof replacements )[ number ];
 
 		onChange( { ...value, replacements } );
-		onFocus();
 	};
 
 	const insert = ( media: SelectedMedia ) => {
@@ -239,59 +260,73 @@ function InlineIcon( {
 			return;
 		}
 
+		const settings = {
+			...EMPTY_SETTINGS,
+			src: media.url,
+			// The library's alt text is a reasonable first guess; an empty one leaves the icon
+			// decorative, which is the right default for an icon beside text.
+			alt: media.alt || '',
+		};
+
+		// insertObject puts the object where the selection is and leaves it selected, so the index
+		// it lands on is the selection start.
+		const index = value.start as number;
+
 		onChange(
-			insertObject( value, {
-				type: NAME,
-				attributes: writeSettings( {
-					...EMPTY_SETTINGS,
-					src: media.url,
-					// The library's alt text is a reasonable first guess; an empty one leaves the
-					// icon decorative, which is the right default for an icon beside text.
-					alt: media.alt || '',
-				} ),
-			} )
+			insertObject( value, { type: NAME, attributes: writeSettings( settings ) } )
 		);
 
+		// Open the settings straight away. Picking an image is the start of placing an icon, not
+		// the end of it, and everything worth setting is a click away rather than a hunt back
+		// through the toolbar.
+		setEditing( { index, settings } );
+	};
+
+	const close = () => {
+		setEditing( null );
+		// Hand the caret back to the text, so typing carries on where the icon is.
 		onFocus();
 	};
 
-	// With an icon selected the button opens its settings; otherwise it picks an image to insert.
-	if ( isObjectActive ) {
-		return (
-			<>
+	return (
+		<>
+			{ isObjectActive || editing ? (
 				<RichTextToolbarButton
 					icon="art"
 					title={ __( 'Masked icon', 'masked-icon' ) }
 					isActive
-					onClick={ () => setEditing( value.start as number ) }
+					onClick={ () =>
+						setEditing( {
+							index: value.start as number,
+							settings: readSettings( activeObjectAttributes ),
+						} )
+					}
 				/>
-
-				{ editing !== null && (
-					<IconSettingsPopover
-						settings={ readSettings( activeObjectAttributes ) }
-						onChange={ apply }
-						onClose={ () => setEditing( null ) }
-						contentRef={ contentRef }
+			) : (
+				<MediaUploadCheck>
+					<MediaUpload
+						allowedTypes={ [ 'image' ] }
+						onSelect={ insert }
+						render={ ( { open }: { open: () => void } ) => (
+							<RichTextToolbarButton
+								icon="art"
+								title={ __( 'Masked icon', 'masked-icon' ) }
+								onClick={ open }
+							/>
+						) }
 					/>
-				) }
-			</>
-		);
-	}
+				</MediaUploadCheck>
+			) }
 
-	return (
-		<MediaUploadCheck>
-			<MediaUpload
-				allowedTypes={ [ 'image' ] }
-				onSelect={ insert }
-				render={ ( { open }: { open: () => void } ) => (
-					<RichTextToolbarButton
-						icon="art"
-						title={ __( 'Masked icon', 'masked-icon' ) }
-						onClick={ open }
-					/>
-				) }
-			/>
-		</MediaUploadCheck>
+			{ editing && (
+				<IconSettingsPopover
+					settings={ editing.settings }
+					onChange={ ( next ) => write( editing.index, next ) }
+					onClose={ close }
+					contentRef={ contentRef }
+				/>
+			) }
+		</>
 	);
 }
 

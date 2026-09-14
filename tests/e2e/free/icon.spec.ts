@@ -320,6 +320,134 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		await expect( page.getByRole( 'button', { name: 'Replace image' } ) ).toBeVisible();
 	} );
 
+	test( 'the settings popover stays open while the settings are being edited', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// It used to close on every keystroke, because it was rendered only while the object was
+		// selected and read its values straight out of the selection - and writing to the document
+		// momentarily takes the selection off the object.
+		const inline =
+			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: inline },
+		} );
+
+		await editor.canvas.getByRole( 'document', { name: 'Block: Paragraph' } ).click();
+		await page.keyboard.press( 'End' );
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+
+		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
+		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+
+		const alt = page.getByRole( 'textbox', { name: 'Alternative text' } );
+		const size = page.getByRole( 'spinbutton', { name: 'Size' } );
+
+		await expect( alt ).toBeVisible();
+
+		await alt.fill( 'Next page' );
+		await expect( alt ).toBeVisible();
+
+		// Clearing the size field is the case that closed it most reliably.
+		await size.fill( '' );
+		await expect( alt ).toBeVisible();
+
+		await size.fill( '2' );
+		await expect( alt ).toBeVisible();
+
+		// And the edits reached the document, in a form CSS can actually use: a bare "2" is not a
+		// length, so the unit has to survive the field being emptied.
+		const content = await editor.getEditedPostContent();
+
+		expect( content ).toContain( 'alt="Next page"' );
+		expect( content ).toMatch( /--masked-icon-size:2[a-z%]+/ );
+	} );
+
+	test( 'inserting an inline icon opens its settings straight away', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: 'Read more ' },
+		} );
+
+		await editor.canvas.getByRole( 'document', { name: 'Block: Paragraph' } ).click();
+		await page.keyboard.press( 'End' );
+
+		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
+		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+
+		// The media library opens first; picking an image is the start of placing an icon.
+		const media = page.getByRole( 'dialog' );
+
+		await expect( media ).toBeVisible();
+	} );
+
+	test( 'an inline icon can be aligned against the text', async ( { admin, editor, page } ) => {
+		// text-top and text-bottom put the icon's edges on the text's, which is a measurable
+		// difference as soon as the icon is taller than the line.
+		const icon = ( align: string ) =>
+			`<img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" alt="" ` +
+			`style="--masked-icon-image:url(${ PIXEL });--masked-icon-size:2em` +
+			`${ align ? `;--masked-icon-align:${ align }` : '' }">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: `Top ${ icon( 'text-top' ) }` },
+		} );
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: `Bottom ${ icon( 'text-bottom' ) }` },
+		} );
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: `Middle ${ icon( '' ) }` },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		// Measured against the text, not the paragraph: the icon is twice the text's size, so it is
+		// what defines the line box and every alignment would report the same offset from the top
+		// of the paragraph. What actually differs is where the icon sits relative to the words.
+		const offsets = await page
+			.locator( '.wp-block-masked-icon-icon__inline' )
+			.evaluateAll( ( icons ) =>
+				icons.map( ( element ) => {
+					const box = element.getBoundingClientRect();
+					const range = document.createRange();
+
+					range.selectNode( element.previousSibling as Node );
+
+					const text = range.getBoundingClientRect();
+
+					// Positive means the icon's centre sits below the text's centre.
+					return (
+						( box.top + box.bottom ) / 2 - ( text.top + text.bottom ) / 2
+					);
+				} )
+			);
+
+		expect( offsets ).toHaveLength( 3 );
+
+		const [ textTop, textBottom, middle ] = offsets;
+
+		// Anchoring the icon's top to the text's top pushes its bulk downwards; anchoring its
+		// bottom pulls it up. Middle lands between the two.
+		expect( textBottom ).toBeLessThan( middle );
+		expect( middle ).toBeLessThan( textTop );
+	} );
+
 	test( 'the inline settings survive a round trip through the editor', async ( {
 		admin,
 		editor,
@@ -703,6 +831,75 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 				{ message: 'an icon keeping its own colours stopped animating' }
 			)
 			.toMatch( /^matrix\(/ );
+	} );
+
+	test( 'idle and hover animations are independent, and each carries its own timing', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// Core does have a notion of block states as of 7.0, but those pseudo-selectors belong to
+		// Global Styles and restyle every button on the site; a block's own style attribute does
+		// not carry them. So the two slots are built here, and this checks they do not collide.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Notice me',
+						maskedIconUrl: PIXEL,
+						maskedIconIdle: 'wiggle',
+						maskedIconIdleInterval: 4,
+						maskedIconAnimation: 'spin',
+						maskedIconDuration: 0.3,
+					},
+				},
+			],
+		} );
+
+		const content = await editor.getEditedPostContent();
+
+		expect( content ).toContain( 'is-icon-idle-wiggle' );
+		expect( content ).toContain( 'is-icon-anim-spin' );
+		expect( content ).toContain( '--masked-icon-idle-interval:4s' );
+		expect( content ).toContain( '--masked-icon-hover-duration:0.3s' );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		const idle = await link.evaluate( ( element ) => {
+			const style = window.getComputedStyle( element, '::after' );
+
+			return { name: style.animationName, duration: style.animationDuration };
+		} );
+
+		// Idle runs on its own, at the interval that was set.
+		expect( idle.name ).toBe( 'masked-icon-wiggle-idle' );
+		expect( idle.duration ).toBe( '4s' );
+
+		await link.hover();
+
+		// Hover takes over: a different animation at a different duration.
+		await expect
+			.poll( () =>
+				link.evaluate(
+					( element ) => window.getComputedStyle( element, '::after' ).transform
+				)
+			)
+			.toMatch( /^matrix\(/ );
+
+		const hovered = await link.evaluate( ( element ) => {
+			const style = window.getComputedStyle( element, '::after' );
+
+			return { transitionDuration: style.transitionDuration };
+		} );
+
+		expect( hovered.transitionDuration ).toBe( '0.3s' );
 	} );
 
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {

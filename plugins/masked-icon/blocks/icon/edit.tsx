@@ -17,7 +17,8 @@ import { __ } from '@wordpress/i18n';
 
 import { maskStyle } from './style-props';
 import type { IconEditProps } from './types';
-import { LENGTH_UNITS } from '../shared/units';
+import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
+import { ALIGN_OPTIONS } from '../shared/icon-options';
 import type { SelectOption } from '../shared/types';
 
 interface Media {
@@ -32,7 +33,7 @@ const FIT_OPTIONS: SelectOption[] = [
 ];
 
 export default function Edit( { attributes, setAttributes }: IconEditProps ) {
-	const { url, label, size, fit, href } = attributes;
+	const { url, label, size, fit, verticalAlign, href } = attributes;
 
 	const blockProps = useBlockProps( { className: url ? undefined : 'is-placeholder' } );
 
@@ -95,7 +96,17 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 						) }
 						units={ LENGTH_UNITS }
 						value={ size }
-						onChange={ ( next?: string ) => setAttributes( { size: next || '1em' } ) }
+						onChange={ ( next?: string ) =>
+							setAttributes( { size: toLength( next, unitOf( size ) ) || '1em' } )
+						}
+					/>
+
+					<SelectControl
+						label={ __( 'Alignment', 'masked-icon' ) }
+						help={ __( 'How the icon sits against surrounding text.', 'masked-icon' ) }
+						value={ verticalAlign }
+						options={ ALIGN_OPTIONS }
+						onChange={ ( next: string ) => setAttributes( { verticalAlign: next } ) }
 					/>
 
 					<SelectControl

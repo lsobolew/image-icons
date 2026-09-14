@@ -20,13 +20,22 @@ import {
 	Button,
 	SelectControl,
 	ToggleControl,
+	RangeControl,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import type { ComponentType } from 'react';
 
-import { LENGTH_UNITS } from '../shared/units';
+import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
+import {
+	ALIGN_OPTIONS,
+	DEFAULT_ALIGN,
+	HOVER_ANIMATION_OPTIONS,
+	IDLE_ANIMATION_OPTIONS,
+	DEFAULT_IDLE_INTERVAL,
+	DEFAULT_HOVER_DURATION,
+} from '../shared/icon-options';
 import type { SelectOption } from '../shared/types';
 
 const BLOCK = 'core/button';
@@ -39,8 +48,12 @@ interface ButtonIconAttributes {
 	/** The image's own proportions, as a CSS ratio - "800/1028". Empty when they are unknown. */
 	maskedIconRatio: string;
 	maskedIconGap: string;
+	maskedIconAlign: string;
 	maskedIconOriginal: boolean;
+	maskedIconIdle: string;
+	maskedIconIdleInterval: number;
 	maskedIconAnimation: string;
+	maskedIconDuration: number;
 	/** Pre-0.2 "slide on hover" toggle, still read so older buttons keep working. */
 	maskedIconAnimate: boolean;
 }
@@ -52,24 +65,6 @@ const POSITION_OPTIONS: SelectOption[] = [
 	{ label: __( 'Before text', 'masked-icon' ), value: 'before' },
 ];
 
-/**
- * Hover animations.
- *
- * Kept to the handful people actually reach for on a button: a nudge in the reading direction, a
- * turn for anything cross- or gear-shaped, a full spin for refresh icons, and two attention-
- * seeking ones. Every option is pure CSS on the pseudo-element and every one is switched off by
- * prefers-reduced-motion.
- */
-const ANIMATION_OPTIONS: SelectOption[] = [
-	{ label: __( 'None', 'masked-icon' ), value: '' },
-	{ label: __( 'Slide', 'masked-icon' ), value: 'slide' },
-	{ label: __( 'Rotate', 'masked-icon' ), value: 'rotate' },
-	{ label: __( 'Spin', 'masked-icon' ), value: 'spin' },
-	{ label: __( 'Grow', 'masked-icon' ), value: 'grow' },
-	{ label: __( 'Bounce', 'masked-icon' ), value: 'bounce' },
-	{ label: __( 'Wiggle', 'masked-icon' ), value: 'wiggle' },
-];
-
 const DEFAULTS: ButtonIconAttributes = {
 	maskedIconUrl: '',
 	maskedIconId: 0,
@@ -77,8 +72,12 @@ const DEFAULTS: ButtonIconAttributes = {
 	maskedIconSize: '1em',
 	maskedIconRatio: '',
 	maskedIconGap: '0.5em',
+	maskedIconAlign: DEFAULT_ALIGN,
 	maskedIconOriginal: false,
+	maskedIconIdle: '',
+	maskedIconIdleInterval: DEFAULT_IDLE_INTERVAL,
 	maskedIconAnimation: '',
+	maskedIconDuration: DEFAULT_HOVER_DURATION,
 	maskedIconAnimate: false,
 };
 
@@ -139,8 +138,15 @@ addFilter(
 				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
 				maskedIconRatio: { type: 'string', default: DEFAULTS.maskedIconRatio },
 				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
+				maskedIconAlign: { type: 'string', default: DEFAULTS.maskedIconAlign },
 				maskedIconOriginal: { type: 'boolean', default: DEFAULTS.maskedIconOriginal },
+				maskedIconIdle: { type: 'string', default: DEFAULTS.maskedIconIdle },
+				maskedIconIdleInterval: {
+					type: 'number',
+					default: DEFAULTS.maskedIconIdleInterval,
+				},
 				maskedIconAnimation: { type: 'string', default: DEFAULTS.maskedIconAnimation },
+				maskedIconDuration: { type: 'number', default: DEFAULTS.maskedIconDuration },
 				maskedIconAnimate: { type: 'boolean', default: DEFAULTS.maskedIconAnimate },
 			},
 		};
@@ -157,6 +163,7 @@ function iconProps( attributes: Attributes ) {
 
 	const position = ( attributes.maskedIconPosition as string ) || DEFAULTS.maskedIconPosition;
 	const animation = animationOf( attributes );
+	const idle = ( attributes.maskedIconIdle as string ) || '';
 
 	// The slide adds no class of its own, so a button saved by an earlier version produces exactly
 	// the markup it produced then and stays valid when somebody opens the post again.
@@ -164,6 +171,7 @@ function iconProps( attributes: Attributes ) {
 		'has-masked-icon',
 		position === 'before' ? 'is-icon-before' : 'is-icon-after',
 		attributes.maskedIconOriginal ? 'is-icon-original' : '',
+		idle ? `is-icon-idle-${ idle }` : '',
 		animation ? 'is-icon-animated' : '',
 		animation && animation !== 'slide' ? `is-icon-anim-${ animation }` : '',
 	]
@@ -183,6 +191,26 @@ function iconProps( attributes: Attributes ) {
 
 	if ( ratio ) {
 		style[ '--masked-icon-ratio' ] = ratio;
+	}
+
+	const align = ( attributes.maskedIconAlign as string ) || DEFAULTS.maskedIconAlign;
+
+	if ( align !== DEFAULT_ALIGN ) {
+		style[ '--masked-icon-align' ] = align;
+	}
+
+	// Only written when the animation that reads it is actually on, so a button carries no
+	// declaration for something it does not do.
+	if ( idle ) {
+		style[ '--masked-icon-idle-interval' ] = `${
+			( attributes.maskedIconIdleInterval as number ) ?? DEFAULT_IDLE_INTERVAL
+		}s`;
+	}
+
+	if ( animation ) {
+		style[ '--masked-icon-hover-duration' ] = `${
+			( attributes.maskedIconDuration as number ) ?? DEFAULT_HOVER_DURATION
+		}s`;
 	}
 
 	return { className, style };
@@ -270,8 +298,28 @@ const withIconControls = createHigherOrderComponent(
 									}
 									onChange={ ( next?: string ) =>
 										setAttributes( {
-											maskedIconSize: next || DEFAULTS.maskedIconSize,
+											maskedIconSize:
+												toLength(
+													next,
+													unitOf( attributes.maskedIconSize as string )
+												) || DEFAULTS.maskedIconSize,
 										} )
+									}
+								/>
+
+								<SelectControl
+									label={ __( 'Alignment', 'masked-icon' ) }
+									help={ __(
+										'How the icon sits against the label.',
+										'masked-icon'
+									) }
+									value={
+										( attributes.maskedIconAlign as string ) ||
+										DEFAULTS.maskedIconAlign
+									}
+									options={ ALIGN_OPTIONS }
+									onChange={ ( next: string ) =>
+										setAttributes( { maskedIconAlign: next } )
 									}
 								/>
 
@@ -283,7 +331,11 @@ const withIconControls = createHigherOrderComponent(
 									}
 									onChange={ ( next?: string ) =>
 										setAttributes( {
-											maskedIconGap: next || DEFAULTS.maskedIconGap,
+											maskedIconGap:
+												toLength(
+													next,
+													unitOf( attributes.maskedIconGap as string )
+												) || DEFAULTS.maskedIconGap,
 										} )
 									}
 								/>
@@ -301,13 +353,49 @@ const withIconControls = createHigherOrderComponent(
 								/>
 
 								<SelectControl
+									label={ __( 'Idle animation', 'masked-icon' ) }
+									help={ __(
+										'Plays on its own, to draw the eye. Use it sparingly: on the page it never stops.',
+										'masked-icon'
+									) }
+									value={ ( attributes.maskedIconIdle as string ) || '' }
+									options={ IDLE_ANIMATION_OPTIONS }
+									onChange={ ( next: string ) =>
+										setAttributes( { maskedIconIdle: next } )
+									}
+								/>
+
+								{ Boolean( attributes.maskedIconIdle ) && (
+									<RangeControl
+										label={ __( 'Repeat every', 'masked-icon' ) }
+										help={ __(
+											'The icon moves at the start of each interval and rests for the remainder, so a longer interval means it twitches less often rather than more slowly.',
+											'masked-icon'
+										) }
+										min={ 0.5 }
+										max={ 10 }
+										step={ 0.5 }
+										value={
+											( attributes.maskedIconIdleInterval as number ) ??
+											DEFAULT_IDLE_INTERVAL
+										}
+										onChange={ ( next?: number ) =>
+											setAttributes( {
+												maskedIconIdleInterval:
+													next ?? DEFAULT_IDLE_INTERVAL,
+											} )
+										}
+									/>
+								) }
+
+								<SelectControl
 									label={ __( 'Hover animation', 'masked-icon' ) }
 									help={ __(
-										'Plays while the pointer is on the button. Readers who ask for reduced motion get none of them.',
+										'Plays while the pointer is on the button, taking over from the idle one.',
 										'masked-icon'
 									) }
 									value={ animationOf( attributes ) }
-									options={ ANIMATION_OPTIONS }
+									options={ HOVER_ANIMATION_OPTIONS }
 									onChange={ ( next: string ) =>
 										setAttributes( {
 											maskedIconAnimation: next,
@@ -317,6 +405,36 @@ const withIconControls = createHigherOrderComponent(
 										} )
 									}
 								/>
+
+								{ Boolean( animationOf( attributes ) ) && (
+									<RangeControl
+										label={ __( 'Hover speed', 'masked-icon' ) }
+										help={ __(
+											'How long one cycle of the hover animation takes. Shorter is livelier.',
+											'masked-icon'
+										) }
+										min={ 0.1 }
+										max={ 3 }
+										step={ 0.1 }
+										value={
+											( attributes.maskedIconDuration as number ) ??
+											DEFAULT_HOVER_DURATION
+										}
+										onChange={ ( next?: number ) =>
+											setAttributes( {
+												maskedIconDuration:
+													next ?? DEFAULT_HOVER_DURATION,
+											} )
+										}
+									/>
+								) }
+
+								<p className="components-base-control__help">
+									{ __(
+										'Readers who ask their system for reduced motion get none of these.',
+										'masked-icon'
+									) }
+								</p>
 							</>
 						) }
 					</PanelBody>
