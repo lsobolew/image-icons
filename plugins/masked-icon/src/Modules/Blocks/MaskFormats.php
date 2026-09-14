@@ -72,9 +72,11 @@ final class MaskFormats {
 	/**
 	 * Extensions from the allowed map whose MIME type is in the wanted list.
 	 *
-	 * The allowed map is keyed by an extension pattern - "jpg|jpeg|jpe" - so one key can name
-	 * several spellings of the same format. Only the first is kept: a list reading "jpg, jpeg,
-	 * jpe" spends three entries telling the reader one thing.
+	 * One entry per format, not per spelling. The allowed map is keyed by an extension pattern -
+	 * "jpg|jpeg|jpe" - and a plugin may register further keys for the same type, the way Safe SVG
+	 * adds "svgz" beside "svg". Both would have the reader parsing a longer list to learn the same
+	 * thing, so the MIME type is what decides, and the first extension seen for it is the one
+	 * shown.
 	 *
 	 * @param array<string, string> $allowed Extension pattern => MIME type.
 	 * @param string[]              $wanted  MIME types to keep.
@@ -82,17 +84,21 @@ final class MaskFormats {
 	 */
 	private static function extensions( array $allowed, array $wanted ): array {
 		$extensions = array();
+		$seen       = array();
 
 		foreach ( $allowed as $pattern => $mime ) {
-			if ( ! in_array( $mime, $wanted, true ) ) {
+			if ( ! in_array( $mime, $wanted, true ) || in_array( $mime, $seen, true ) ) {
 				continue;
 			}
 
 			$first = explode( '|', (string) $pattern )[0];
 
-			if ( '' !== $first && ! in_array( $first, $extensions, true ) ) {
-				$extensions[] = $first;
+			if ( '' === $first ) {
+				continue;
 			}
+
+			$seen[]       = $mime;
+			$extensions[] = $first;
 		}
 
 		return $extensions;

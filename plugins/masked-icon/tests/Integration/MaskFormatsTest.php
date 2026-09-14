@@ -88,6 +88,28 @@ final class MaskFormatsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A second extension for a format already listed does not list it twice.
+	 *
+	 * Safe SVG registers svgz alongside svg, and "SVG and SVGZ" tells the reader one thing twice.
+	 */
+	public function test_a_second_spelling_of_a_format_is_not_listed_again(): void {
+		add_filter(
+			'upload_mimes',
+			static function ( array $mimes ): array {
+				$mimes['svg']  = 'image/svg+xml';
+				$mimes['svgz'] = 'image/svg+xml';
+
+				return $mimes;
+			}
+		);
+
+		$transparent = MaskFormats::available()['transparent'];
+
+		$this->assertContains( 'svg', $transparent );
+		$this->assertNotContains( 'svgz', $transparent );
+	}
+
+	/**
 	 * A site that removes a format stops offering it.
 	 */
 	public function test_a_removed_format_disappears(): void {
