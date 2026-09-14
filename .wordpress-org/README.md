@@ -13,3 +13,6 @@ part of the plugin zip.
 
 Numbering matters: `screenshot-1.png` is the first line of that readme section, `screenshot-2.png`
 the second, and so on.
+
+Everything in this directory is uploaded as-is, so keep it to finished images. The scenes the
+screenshots are taken from live in `assets-src/`, deliberately outside this directory.

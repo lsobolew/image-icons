@@ -1,8 +1,11 @@
-# Directory screenshots
+# Sources for the directory assets
 
-Scenes for the WordPress.org listing. Each `.html` file here is laid out at a fixed size, so a
-plain browser screenshot *is* the finished asset - no cropping, and the same result every time you
-re-take one after a design change.
+Scenes used to produce the images in `.wordpress-org/`. Nothing here is published: the deploy
+workflow uploads `.wordpress-org/` and only that, so a scene file left in it would end up on the
+plugin's directory page. Finished images go there; the things that made them stay here.
+
+Each `.html` scene is laid out at a fixed size, so a plain browser screenshot *is* the finished
+asset - no cropping, and the same result every time one is re-taken after a design change.
 
 ## Taking them
 
@@ -16,7 +19,8 @@ re-take one after a design change.
    ```
 
 2. Open `http://localhost:8080/shot.html` in a 1200x1000 window and screenshot it.
-3. Save as `screenshot-1.png` in the directory assets, in the order the readme lists them.
+3. Save it into `.wordpress-org/` as `screenshot-1.png`, numbered to match the order the
+   `== Screenshots ==` section of `readme.txt` lists them in.
 
 The scene pulls in the plugin's own `style-index.css`, so what you photograph is the real
 stylesheet rather than a mock-up of it.
