@@ -93,6 +93,14 @@ the keyboard.
 3. Add the **Image Icons** block, put one inside a sentence with the toolbar's icon button, or open
    a Button block and look for the **Icon** panel.
 
+== Source code ==
+
+The editor script that ships in `build/` is compiled and minified from TypeScript. The source it
+was built from, together with the build configuration, lives at
+https://github.com/lsobolew/image-icons - the block sources are under
+`plugins/image-icons/blocks/`, and `npm run build` in `plugins/image-icons/` reproduces exactly
+what is in the package.
+
 == Frequently Asked Questions ==
 
 = Do I need Font Awesome or another icon set? =
