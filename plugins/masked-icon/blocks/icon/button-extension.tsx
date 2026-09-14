@@ -360,7 +360,7 @@ const withIconControls = createHigherOrderComponent(
 								<SelectControl
 									label={ __( 'Hover animation', 'masked-icon' ) }
 									help={ __(
-										'Plays while the pointer is on the button, taking over from the idle one.',
+										'Plays while the pointer is on the button, and while somebody who reached it with the keyboard has it focused. It takes over from the idle one.',
 										'masked-icon'
 									) }
 									value={ animationOf( attributes ) }
@@ -377,9 +377,9 @@ const withIconControls = createHigherOrderComponent(
 
 								{ Boolean( animationOf( attributes ) ) && (
 									<RangeControl
-										label={ __( 'Hover speed', 'masked-icon' ) }
+										label={ __( 'Speed', 'masked-icon' ) }
 										help={ __(
-											'How long one cycle of the hover animation takes. Shorter is livelier.',
+											'How long one cycle of the animation takes. Shorter is livelier.',
 											'masked-icon'
 										) }
 										min={ 0.1 }

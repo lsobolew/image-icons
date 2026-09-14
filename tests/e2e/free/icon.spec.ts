@@ -1004,6 +1004,76 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( hovered ).toBe( '0.3s' );
 	} );
 
+	test( 'the animation runs for the keyboard too, but not on a mouse click', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// Somebody tabbing through a page should get the same signal a pointer gets. :focus-visible
+		// rather than :focus, because :focus also fires when the button is clicked - the animation
+		// would start on the click and keep running after the pointer had left, which is not what
+		// a hover effect means. Both halves of that are asserted here.
+		//
+		// The button needs a URL: core renders one without a link as an anchor with no href, and
+		// such an element cannot be focused at all.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Reachable',
+						url: '#somewhere',
+						maskedIconUrl: PIXEL,
+						maskedIconAnimation: 'grow',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		expect( await iconAnimations( link ) ).toEqual( [] );
+
+		// The mouse first, on a page nobody has touched with a keyboard. Clicking focuses the
+		// button, so :focus would match from here on; :focus-visible should not.
+		await link.click();
+		await page.mouse.move( 0, 0 );
+
+		await expect( link ).toBeFocused();
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [] );
+
+		// Now arrive by keyboard instead, on a fresh page. It has to be fresh: clicking an element
+		// that already showed a focus ring keeps the ring, so carrying focus over from one phase
+		// to the other would test that browser heuristic rather than this stylesheet.
+		await page.reload();
+		await page.locator( 'body' ).click( { position: { x: 2, y: 2 } } );
+		await page.mouse.move( 0, 0 );
+
+		for ( let step = 0; step < 40; step++ ) {
+			await page.keyboard.press( 'Tab' );
+
+			const onButton = await link.evaluate(
+				( element ) => document.activeElement === element
+			);
+
+			if ( onButton ) {
+				break;
+			}
+		}
+
+		await expect( link ).toBeFocused();
+
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{ name: 'masked-icon-grow-hover', playState: 'running', pseudo: '::after' },
+		] );
+	} );
+
 	test( 'a hover animation takes over from a running idle one', async ( {
 		admin,
 		editor,

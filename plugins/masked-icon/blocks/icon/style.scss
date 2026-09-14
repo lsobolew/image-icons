@@ -206,9 +206,25 @@ img.wp-block-masked-icon-icon__inline.is-original {
 	}
 }
 
+// The animation plays for a pointer and for a keyboard alike.
+//
+// :focus-visible rather than :focus, because :focus also fires when the button is clicked - the
+// animation would then start on the click and keep running after the pointer had gone, which is
+// not what anybody meant by a hover effect. :focus-visible fires when the browser judges that
+// focus ought to be shown, which in practice means somebody arrived by keyboard.
+//
+// It is a separate rule rather than another selector in the list above, and that is not a style
+// preference: a browser that does not recognise a selector throws away the whole rule it appears
+// in. Putting :focus-visible beside :hover would cost the hover animation too, on exactly the old
+// browsers that needed the fallback.
 @mixin masked-icon-hovered {
 	.wp-block-button__link:hover::after,
 	.wp-block-button__link:hover::before {
+		@content;
+	}
+
+	.wp-block-button__link:focus-visible::after,
+	.wp-block-button__link:focus-visible::before {
 		@content;
 	}
 }
@@ -379,6 +395,16 @@ img.wp-block-masked-icon-icon__inline.is-original {
 	}
 
 	.wp-block-button__link:hover::before {
+		animation: masked-icon-slide-back-hover var( --masked-icon-hover-duration, 0.2s ) ease
+			forwards;
+	}
+
+	// Kept apart from the :hover rules above for the reason given at masked-icon-hovered.
+	.wp-block-button__link:focus-visible::after {
+		animation: masked-icon-slide-hover var( --masked-icon-hover-duration, 0.2s ) ease forwards;
+	}
+
+	.wp-block-button__link:focus-visible::before {
 		animation: masked-icon-slide-back-hover var( --masked-icon-hover-duration, 0.2s ) ease
 			forwards;
 	}
