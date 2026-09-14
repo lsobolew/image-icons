@@ -167,10 +167,22 @@ img.wp-block-masked-icon-icon__inline.is-original {
 // twitches less often rather than more slowly. That is the difference between something that
 // catches the eye occasionally and something that never stops moving.
 //
-// WordPress core has a notion of block states, added in 7.0, and it is not this one: those
-// pseudo-selectors are for Global Styles, where they restyle every button on the site at once. A
-// block's own style attribute does not carry them - a `:hover` written there produces no CSS at
-// all - so a per-button animation has to be built here.
+// Why this is not built on core's own block states.
+//
+// WordPress 7.1 does give an individual button real state styles: the inspector has a state
+// switcher, `style[':hover']` on the block is honoured, and the front end gets a generated
+// `.wp-states-<hash>` class with the rules under it. It is a genuine per-block mechanism, not a
+// Global Styles one.
+//
+// It cannot carry this, for three reasons. Those styles are compiled by
+// wp_style_engine_get_styles(), which understands colour, typography, spacing, borders and
+// shadows and silently drops everything else - an `animation` declaration and a custom property
+// both vanish. The whole file is @since 7.1, while this plugin supports 6.6. And the state
+// switcher's current value lives behind @wordpress/private-apis, which is locked to core
+// packages, so a plugin's own panel cannot even read which state the user is looking at.
+//
+// So the two slots below are ours. If the style engine ever grows a way to carry an arbitrary
+// declaration, this is the place to revisit.
 
 @mixin masked-icon-animated {
 	.wp-block-button__link::after,

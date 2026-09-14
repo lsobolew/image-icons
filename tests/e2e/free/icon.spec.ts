@@ -838,9 +838,10 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		editor,
 		page,
 	} ) => {
-		// Core does have a notion of block states as of 7.0, but those pseudo-selectors belong to
-		// Global Styles and restyle every button on the site; a block's own style attribute does
-		// not carry them. So the two slots are built here, and this checks they do not collide.
+		// Core's own block states (7.1) are real and per-block, but they compile through the style
+		// engine, which drops anything that is not colour, typography, spacing, border or shadow -
+		// so an animation cannot ride along. These two slots are ours; this checks they do not
+		// collide with each other.
 		await admin.createNewPost();
 		await editor.insertBlock( {
 			name: 'core/buttons',
