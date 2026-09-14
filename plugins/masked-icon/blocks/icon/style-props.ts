@@ -10,7 +10,7 @@ import type { IconAttributes } from './types';
  * while leaving custom properties alone. The stylesheet reads them back.
  */
 export function maskStyle(
-	attributes: Pick< IconAttributes, 'url' | 'size' | 'fit' | 'verticalAlign' >
+	attributes: Pick< IconAttributes, 'url' | 'size' | 'fit' >
 ): CSSProperties {
 	const style: Record< string, string > = {};
 
@@ -24,12 +24,6 @@ export function maskStyle(
 
 	if ( attributes.fit && attributes.fit !== 'contain' ) {
 		style[ '--masked-icon-fit' ] = attributes.fit;
-	}
-
-	// Nothing is written for the default, so a block saved before this setting existed keeps
-	// exactly the markup it had and stays valid when somebody opens the post again.
-	if ( attributes.verticalAlign && attributes.verticalAlign !== 'middle' ) {
-		style[ '--masked-icon-align' ] = attributes.verticalAlign;
 	}
 
 	return style as CSSProperties;

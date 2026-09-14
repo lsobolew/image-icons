@@ -30,8 +30,6 @@ import type { ComponentType } from 'react';
 import { LENGTH_UNITS, toLength, unitOf } from '../shared/units';
 import { formatsHelp } from '../shared/formats';
 import {
-	ALIGN_OPTIONS,
-	DEFAULT_ALIGN,
 	HOVER_ANIMATION_OPTIONS,
 	IDLE_ANIMATION_OPTIONS,
 	DEFAULT_IDLE_INTERVAL,
@@ -49,7 +47,6 @@ interface ButtonIconAttributes {
 	/** The image's own proportions, as a CSS ratio - "800/1028". Empty when they are unknown. */
 	maskedIconRatio: string;
 	maskedIconGap: string;
-	maskedIconAlign: string;
 	maskedIconOriginal: boolean;
 	maskedIconIdle: string;
 	maskedIconIdleInterval: number;
@@ -73,7 +70,6 @@ const DEFAULTS: ButtonIconAttributes = {
 	maskedIconSize: '1em',
 	maskedIconRatio: '',
 	maskedIconGap: '0.5em',
-	maskedIconAlign: DEFAULT_ALIGN,
 	maskedIconOriginal: false,
 	maskedIconIdle: '',
 	maskedIconIdleInterval: DEFAULT_IDLE_INTERVAL,
@@ -139,7 +135,6 @@ addFilter(
 				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
 				maskedIconRatio: { type: 'string', default: DEFAULTS.maskedIconRatio },
 				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
-				maskedIconAlign: { type: 'string', default: DEFAULTS.maskedIconAlign },
 				maskedIconOriginal: { type: 'boolean', default: DEFAULTS.maskedIconOriginal },
 				maskedIconIdle: { type: 'string', default: DEFAULTS.maskedIconIdle },
 				maskedIconIdleInterval: {
@@ -192,12 +187,6 @@ function iconProps( attributes: Attributes ) {
 
 	if ( ratio ) {
 		style[ '--masked-icon-ratio' ] = ratio;
-	}
-
-	const align = ( attributes.maskedIconAlign as string ) || DEFAULTS.maskedIconAlign;
-
-	if ( align !== DEFAULT_ALIGN ) {
-		style[ '--masked-icon-align' ] = align;
 	}
 
 	// Only written when the animation that reads it is actually on, so a button carries no
@@ -300,22 +289,6 @@ const withIconControls = createHigherOrderComponent(
 													unitOf( attributes.maskedIconSize as string )
 												) || DEFAULTS.maskedIconSize,
 										} )
-									}
-								/>
-
-								<SelectControl
-									label={ __( 'Alignment', 'masked-icon' ) }
-									help={ __(
-										'How the icon sits against the label.',
-										'masked-icon'
-									) }
-									value={
-										( attributes.maskedIconAlign as string ) ||
-										DEFAULTS.maskedIconAlign
-									}
-									options={ ALIGN_OPTIONS }
-									onChange={ ( next: string ) =>
-										setAttributes( { maskedIconAlign: next } )
 									}
 								/>
 

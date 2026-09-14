@@ -781,6 +781,54 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( measured.display ).not.toContain( 'flex' );
 	} );
 
+	test( 'a button icon is centred and offers no alignment of its own', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// Alignment is a question about surrounding text, and a button icon has none - it is the
+		// only thing on its line. The control is the inline icon's alone, and the button's icon is
+		// centred outright rather than reading a property somebody could still set by hand.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: { text: 'Centred', maskedIconUrl: PIXEL, maskedIconSize: '3em' },
+				},
+			],
+		} );
+
+		// insertBlock leaves the Buttons wrapper selected; the Icon panel belongs to the button
+		// inside it.
+		await editor.canvas.getByText( 'Centred' ).click();
+
+		const panel = page.getByRole( 'button', { name: 'Icon', exact: true } );
+
+		await expect( panel ).toBeVisible();
+		await panel.click();
+
+		// The panel is open - Position is one of its controls - and Alignment is not in it.
+		await expect( page.getByRole( 'combobox', { name: 'Position' } ) ).toBeVisible();
+		await expect( page.getByRole( 'combobox', { name: 'Alignment' } ) ).toHaveCount( 0 );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const alignment = await page
+			.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' )
+			.evaluate( ( element ) => {
+				// Set the property the inline icon uses, to prove the button does not read it.
+				element.style.setProperty( '--masked-icon-align', 'text-top' );
+
+				return window.getComputedStyle( element, '::after' ).verticalAlign;
+			} );
+
+		expect( alignment ).toBe( 'middle' );
+	} );
+
 	test( 'the label stays vertically centred against an icon taller than itself', async ( {
 		admin,
 		editor,

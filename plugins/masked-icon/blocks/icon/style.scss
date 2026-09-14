@@ -7,19 +7,18 @@
 // properties survive. Writing mask-image inline would work for the plugin author and silently
 // break for their users.
 
-// How the icon sits against the text, as a plain vertical-align keyword:
+// --masked-icon-align sets how an inline icon sits against the text it is written into, as a
+// plain vertical-align keyword: middle, text-bottom or text-top.
 //
-//   middle       centred on the middle of the text - the default, and what keeps a label centred
-//                against an icon taller than itself
-//   text-bottom  bottom edge on the bottom of the text
-//   text-top     top edge on the top of the text
+// It applies to the inline icon and to nothing else. An icon on a button or in a block of its own
+// has no surrounding text to sit against - it is the only thing on its line - so there is nothing
+// for the setting to mean there, and both are centred outright.
 //
-// Earlier versions used -0.125em here. That number is a convention borrowed from icon fonts - an
-// eighth of an em is roughly the distance from a font's baseline to the bottom of its descenders,
-// so it makes a square icon look like it is sitting on the baseline. It is an empirical fudge that
-// happens to suit body text at ordinary sizes and drifts as soon as the icon is much larger than
-// the text, which is exactly when alignment starts to matter. A keyword the browser resolves
-// against the actual font is both honest and adjustable.
+// Earlier versions used -0.125em for all three. That number is a convention borrowed from icon
+// fonts - an eighth of an em is roughly the distance from a font's baseline to the bottom of its
+// descenders, so it makes a square icon look like it is sitting on the baseline. It is an
+// empirical fudge that suits body text at ordinary sizes and drifts as soon as the icon is much
+// larger than the text, which is exactly when alignment starts to matter.
 
 @mixin masked-icon-surface {
 	background-color: currentColor;
@@ -45,7 +44,7 @@
 
 	&__mark {
 		display: inline-block;
-		vertical-align: var( --masked-icon-align, middle );
+		vertical-align: middle;
 		width: var( --masked-icon-size, 1em );
 		height: var( --masked-icon-size, 1em );
 		flex: none;
@@ -113,7 +112,10 @@ img.wp-block-masked-icon-icon__inline.is-original {
 @mixin masked-icon-pseudo {
 	content: "";
 	display: inline-block;
-	vertical-align: var( --masked-icon-align, middle );
+	// Centred on the middle of the label rather than sat on its baseline. It matters as soon as
+	// the icon is taller than the text: baseline alignment would leave the icon sticking up and
+	// the label pushed to the bottom of the button.
+	vertical-align: middle;
 	// A pseudo-element has no image of its own to be measured from, so the proportions arrive as a
 	// custom property written when the icon was picked. Without one this is a square and `contain`
 	// letterboxes a tall or wide icon inside it - correct, but padded.

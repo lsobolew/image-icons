@@ -9,8 +9,6 @@ export interface IconAttributes {
 	size: string;
 	/** How the image fits the box. */
 	fit: string;
-	/** How the icon sits against surrounding text - a vertical-align keyword. */
-	verticalAlign: string;
 	/** Optional link. */
 	href: string;
 	linkTarget: string;

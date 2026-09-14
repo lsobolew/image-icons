@@ -15,7 +15,6 @@
 		"label": { "type": "string", "default": "" },
 		"size": { "type": "string", "default": "1em" },
 		"fit": { "type": "string", "default": "contain" },
-		"verticalAlign": { "type": "string", "default": "middle" },
 		"href": { "type": "string", "default": "" },
 		"linkTarget": { "type": "string", "default": "" },
 		"rel": { "type": "string", "default": "" }
