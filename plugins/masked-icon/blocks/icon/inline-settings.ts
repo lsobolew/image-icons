@@ -8,8 +8,23 @@
  * the editor.
  */
 
-/** The class WordPress gives an element coloured from a theme palette slug. */
+/**
+ * The class WordPress gives an element coloured from a theme palette slug.
+ *
+ * `has-text-color` matches this shape too - it is `has-` + `text` + `-color` - but it is the flag
+ * that says a colour was set at all, not a palette entry called "text". Reading it as a slug is
+ * what made a custom colour vanish the moment the settings were reopened: the icon came back
+ * claiming a palette colour nothing in the theme matched, so the swatch showed empty and the next
+ * save dropped the real colour. It is excluded everywhere this pattern is used.
+ */
 const PRESET_COLOR = /^has-([a-z0-9-]+)-color$/;
+
+/** Set alongside a colour, whichever kind it is. */
+const HAS_COLOR = 'has-text-color';
+
+function isPresetColor( name: string ): boolean {
+	return name !== HAS_COLOR && PRESET_COLOR.test( name );
+}
 
 export interface IconSettings {
 	src: string;
@@ -88,6 +103,7 @@ export function readSettings( attributes: Record< string, string > ): IconSettin
 	const declarations = parseStyle( attributes.style || '' );
 	const classes = ( attributes.className || '' ).split( /\s+/ ).filter( Boolean );
 	const preset = classes
+		.filter( isPresetColor )
 		.map( ( name ) => name.match( PRESET_COLOR ) )
 		.find( ( match ): match is RegExpMatchArray => match !== null );
 
@@ -124,12 +140,15 @@ export function writeSettings(
 
 	const classes = ( previous.className || '' )
 		.split( /\s+/ )
-		.filter( ( name ) => name && ! PRESET_COLOR.test( name ) && name !== 'has-text-color' && name !== 'is-original' );
+		.filter(
+			( name ) =>
+				name && ! isPresetColor( name ) && name !== HAS_COLOR && name !== 'is-original'
+		);
 
 	if ( settings.presetColor ) {
-		classes.push( `has-${ settings.presetColor }-color`, 'has-text-color' );
+		classes.push( `has-${ settings.presetColor }-color`, HAS_COLOR );
 	} else if ( settings.customColor ) {
-		classes.push( 'has-text-color' );
+		classes.push( HAS_COLOR );
 	}
 
 	if ( settings.original ) {

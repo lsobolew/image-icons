@@ -6,7 +6,7 @@
  * the editor to the browser. Checking a class name would pass even if the mask never applied.
  */
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
-import type { Page } from '@playwright/test';
+import type { Page, Locator } from '@playwright/test';
 
 const THEME = process.env.WPLAB_THEME || 'unknown';
 
@@ -49,6 +49,27 @@ function watchConsole( page: Page ): string[] {
 	page.on( 'pageerror', ( error ) => errors.push( `uncaught: ${ error.message }` ) );
 
 	return errors;
+}
+
+/**
+ * The animations running on a button icon.
+ *
+ * Read through getAnimations rather than getComputedStyle, because the icon is a pseudo-element
+ * and computed style reports what the rule *declares* for it, not what an animation is currently
+ * producing - so a transform that never moves and one that is mid-flight look identical there.
+ * This sees the animation itself: its name, whether it is playing, and whether its clock advances.
+ */
+async function iconAnimations( link: Locator ) {
+	return link.evaluate( ( element ) =>
+		element
+			.getAnimations( { subtree: true } )
+			.filter( ( animation ) => Boolean( ( animation as CSSAnimation ).animationName ) )
+			.map( ( animation ) => ( {
+				name: ( animation as CSSAnimation ).animationName,
+				playState: animation.playState,
+				pseudo: ( animation.effect as KeyframeEffect )?.pseudoElement ?? null,
+			} ) )
+	);
 }
 
 test.describe( `Masked Icon (${ THEME })`, () => {
@@ -495,6 +516,46 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( roundTrip.html ).toContain( 'wp-block-masked-icon-icon__inline' );
 	} );
 
+	test( 'a custom colour survives being read back and written again', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// `has-text-color` is the flag saying a colour was set, and it happens to have the shape of
+		// a palette class - has- + text + -color. Read as a palette slug, a custom colour came back
+		// as an entry no theme has, and the next write turned it into `has-text-color-color` and
+		// dropped the colour declaration. A palette colour never showed the fault, because there
+		// the real class is read first - which is why this uses a custom one.
+		const inline =
+			`Read more <img class="wp-block-masked-icon-icon__inline has-text-color" ` +
+			`src="${ PIXEL }" alt="" ` +
+			`style="--masked-icon-image:url(${ PIXEL });color:#d00000">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
+
+		await editor.canvas.getByRole( 'document', { name: 'Block: Paragraph' } ).click();
+		await page.keyboard.press( 'End' );
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
+		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+
+		// Touch something else entirely. The colour is not being edited - it only has to survive
+		// the read-modify-write that editing anything performs.
+		const alt = page.getByRole( 'textbox', { name: 'Alternative text' } );
+
+		await expect( alt ).toBeVisible();
+		await alt.fill( 'Next page' );
+
+		await expect.poll( () => editor.getEditedPostContent() ).toContain( 'alt="Next page"' );
+
+		const content = await editor.getEditedPostContent();
+
+		expect( content ).toContain( 'color:#d00000' );
+		expect( content ).not.toContain( 'has-text-color-color' );
+		expect( content ).toContain( 'has-text-color' );
+	} );
+
 	test( 'an inline icon takes a chosen colour and its own size', async ( {
 		admin,
 		editor,
@@ -823,14 +884,12 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		// ...and the animation.
 		await link.hover();
 		await expect
-			.poll(
-				() =>
-					link.evaluate(
-						( element ) => window.getComputedStyle( element, '::after' ).transform
-					),
-				{ message: 'an icon keeping its own colours stopped animating' }
-			)
-			.toMatch( /^matrix\(/ );
+			.poll( () => iconAnimations( link ), {
+				message: 'an icon keeping its own colours stopped animating',
+			} )
+			.toEqual( [
+				{ name: 'masked-icon-rotate-hover', playState: 'running', pseudo: '::after' },
+			] );
 	} );
 
 	test( 'idle and hover animations are independent, and each carries its own timing', async ( {
@@ -885,22 +944,60 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		await link.hover();
 
-		// Hover takes over: a different animation at a different duration.
-		await expect
-			.poll( () =>
-				link.evaluate(
-					( element ) => window.getComputedStyle( element, '::after' ).transform
-				)
-			)
-			.toMatch( /^matrix\(/ );
+		// Hover takes over: a different animation, at its own duration.
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{ name: 'masked-icon-spin-hover', playState: 'running', pseudo: '::after' },
+		] );
 
-		const hovered = await link.evaluate( ( element ) => {
-			const style = window.getComputedStyle( element, '::after' );
+		const hovered = await link.evaluate(
+			( element ) => window.getComputedStyle( element, '::after' ).animationDuration
+		);
 
-			return { transitionDuration: style.transitionDuration };
+		expect( hovered ).toBe( '0.3s' );
+	} );
+
+	test( 'a hover animation takes over from a running idle one', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// This combination is what exposed the transitions. An idle animation writes transform on
+		// every frame, and a transition cannot start from a value an animation is producing - so
+		// cancelling the idle one on hover made the icon jump to the hover value instead of
+		// travelling there. Two animations hand over cleanly; one replaces the other.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Both',
+						maskedIconUrl: PIXEL,
+						maskedIconIdle: 'wiggle',
+						maskedIconAnimation: 'grow',
+					},
+				},
+			],
 		} );
 
-		expect( hovered.transitionDuration ).toBe( '0.3s' );
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{ name: 'masked-icon-wiggle-idle', playState: 'running', pseudo: '::after' },
+		] );
+
+		await link.hover();
+
+		// Exactly one animation, and it is the hover one - the idle has stood down rather than
+		// both of them fighting over transform.
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{ name: 'masked-icon-grow-hover', playState: 'running', pseudo: '::after' },
+		] );
 	} );
 
 	test( 'the chosen hover animation reaches the saved markup', async ( { admin, editor } ) => {
@@ -931,8 +1028,7 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		page,
 	} ) => {
 		// The class reaching the markup is only half the story - the stylesheet has to win the
-		// cascade against the slide rules above it, which are one class more specific than a naive
-		// animation rule would be.
+		// cascade too, and the animation has to actually play.
 		await admin.createNewPost();
 		await editor.insertBlock( {
 			name: 'core/buttons',
@@ -954,24 +1050,65 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 
 		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
 
-		const idle = await link.evaluate(
-			( element ) => window.getComputedStyle( element, '::after' ).transform
-		);
-
-		expect( idle ).toBe( 'none' );
+		expect( await iconAnimations( link ) ).toEqual( [] );
 
 		await link.hover();
 
-		// The rotation is a transition, so poll until it has settled rather than guessing a delay.
-		await expect
-			.poll(
-				() =>
-					link.evaluate(
-						( element ) => window.getComputedStyle( element, '::after' ).transform
-					),
-				{ message: 'the icon never rotated on hover' }
-			)
-			.toMatch( /^matrix\(/ );
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{
+				name: 'masked-icon-rotate-hover',
+				playState: 'running',
+				pseudo: '::after',
+			},
+		] );
+	} );
+
+	test( 'a spin on hover really turns', async ( { admin, editor, page } ) => {
+		// Spin was written as a transition to rotate(360deg) and animated nothing whatsoever: a
+		// full turn is the identity matrix, so once both ends are decomposed there is nothing
+		// between them to interpolate. As keyframes it turns. The clock advancing is the proof -
+		// a paused or finished animation would sit at one value and look the same in a screenshot.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/buttons',
+			innerBlocks: [
+				{
+					name: 'core/button',
+					attributes: {
+						text: 'Spinner',
+						maskedIconUrl: PIXEL,
+						maskedIconAnimation: 'spin',
+					},
+				},
+			],
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const link = page.locator( '.wp-block-button.has-masked-icon .wp-block-button__link' );
+
+		await link.hover();
+
+		await expect.poll( () => iconAnimations( link ) ).toEqual( [
+			{ name: 'masked-icon-spin-hover', playState: 'running', pseudo: '::after' },
+		] );
+
+		const advanced = await link.evaluate( async ( element ) => {
+			const clock = () =>
+				Number(
+					element.getAnimations( { subtree: true } )[ 0 ]?.currentTime ?? 0
+				);
+
+			const before = clock();
+
+			await new Promise( ( resolve ) => setTimeout( resolve, 250 ) );
+
+			return clock() - before;
+		} );
+
+		expect( advanced ).toBeGreaterThan( 0 );
 	} );
 
 	test( 'a button saved with the old slide toggle still produces the markup it was saved with', async ( {

@@ -167,7 +167,23 @@ img.wp-block-masked-icon-icon__inline.is-original {
 // twitches less often rather than more slowly. That is the difference between something that
 // catches the eye occasionally and something that never stops moving.
 //
-// Why this is not built on core's own block states.
+// ## Why every hover animation is a keyframe animation, and none of them is a transition
+//
+// Transitions are the obvious tool for "grow a bit while hovered", and they were used here first.
+// Two measurements killed that:
+//
+//   - Transitioning `transform` to `rotate(360deg)` animates nothing at all. A full turn is the
+//     identity matrix, and once both ends are decomposed there is nothing between them to
+//     interpolate - so the spin sat perfectly still.
+//   - A transition cannot start from a value an animation is producing. With an idle animation
+//     running, cancelling it on hover made the icon jump straight to the hover value rather than
+//     travel there.
+//
+// Keyframes have neither problem: an animation replaces an animation cleanly, and a rotation
+// expressed as keyframes really rotates. The cost is that leaving the button ends the animation
+// rather than easing back out of it - worth paying for movement that actually happens.
+//
+// ## Why not core's own block states
 //
 // WordPress 7.1 does give an individual button real state styles: the inspector has a state
 // switcher, `style[':hover']` on the block is honoured, and the front end gets a generated
@@ -180,9 +196,6 @@ img.wp-block-masked-icon-icon__inline.is-original {
 // both vanish. The whole file is @since 7.1, while this plugin supports 6.6. And the state
 // switcher's current value lives behind @wordpress/private-apis, which is locked to core
 // packages, so a plugin's own panel cannot even read which state the user is looking at.
-//
-// So the two slots below are ours. If the style engine ever grows a way to carry an arbitrary
-// declaration, this is the place to revisit.
 
 @mixin masked-icon-animated {
 	.wp-block-button__link::after,
@@ -250,8 +263,59 @@ img.wp-block-masked-icon-icon__inline.is-original {
 	}
 }
 
-// Hover: motion spread across the cycle, because it repeats for as long as the pointer stays.
-@keyframes masked-icon-bounce {
+// Hover: these run once and hold, so the icon travels to its hover position and stays there.
+@keyframes masked-icon-slide-hover {
+	from {
+		transform: translateX( 0 );
+	}
+
+	to {
+		transform: translateX( 0.25em );
+	}
+}
+
+@keyframes masked-icon-slide-back-hover {
+	from {
+		transform: translateX( 0 );
+	}
+
+	to {
+		transform: translateX( -0.25em );
+	}
+}
+
+@keyframes masked-icon-rotate-hover {
+	from {
+		transform: rotate( 0deg );
+	}
+
+	to {
+		transform: rotate( 45deg );
+	}
+}
+
+@keyframes masked-icon-grow-hover {
+	from {
+		transform: scale( 1 );
+	}
+
+	to {
+		transform: scale( 1.25 );
+	}
+}
+
+// And these repeat for as long as the pointer stays.
+@keyframes masked-icon-spin-hover {
+	from {
+		transform: rotate( 0deg );
+	}
+
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+@keyframes masked-icon-bounce-hover {
 	0%,
 	100% {
 		transform: translateY( 0 );
@@ -262,7 +326,7 @@ img.wp-block-masked-icon-icon__inline.is-original {
 	}
 }
 
-@keyframes masked-icon-wiggle {
+@keyframes masked-icon-wiggle-hover {
 	0%,
 	100% {
 		transform: rotate( 0deg );
@@ -304,50 +368,47 @@ img.wp-block-masked-icon-icon__inline.is-original {
 // `is-icon-animated` on its own means the slide, which is both the default and what posts saved
 // before the animation list existed carry - so nothing that already exists has to be re-saved.
 // Every other hover animation adds `is-icon-anim-*` next to it and is one class more specific.
+//
+// The slide moves the icon away from the text, so which way depends on the side it is on - which
+// here is simply which pseudo-element exists.
 .wp-block-button.has-masked-icon.is-icon-animated {
-	@include masked-icon-animated {
-		transition: transform var( --masked-icon-hover-duration, 0.2s ) ease;
-	}
-
-	// The slide moves the icon away from the text, so which way depends on the side it is on -
-	// which here is simply which pseudo-element exists.
 	.wp-block-button__link:hover::after {
-		transform: translateX( 0.25em );
+		animation: masked-icon-slide-hover var( --masked-icon-hover-duration, 0.2s ) ease forwards;
 	}
 
 	.wp-block-button__link:hover::before {
-		transform: translateX( -0.25em );
+		animation: masked-icon-slide-back-hover var( --masked-icon-hover-duration, 0.2s ) ease
+			forwards;
 	}
 }
 
 .wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-rotate {
 	@include masked-icon-hovered {
-		transform: rotate( 45deg );
-	}
-}
-
-.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin {
-	@include masked-icon-hovered {
-		transform: rotate( 360deg );
-		transition-duration: var( --masked-icon-hover-duration, 0.5s );
+		animation: masked-icon-rotate-hover var( --masked-icon-hover-duration, 0.2s ) ease forwards;
 	}
 }
 
 .wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-grow {
 	@include masked-icon-hovered {
-		transform: scale( 1.25 );
+		animation: masked-icon-grow-hover var( --masked-icon-hover-duration, 0.2s ) ease forwards;
+	}
+}
+
+.wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-spin {
+	@include masked-icon-hovered {
+		animation: masked-icon-spin-hover var( --masked-icon-hover-duration, 0.6s ) linear infinite;
 	}
 }
 
 .wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-bounce {
 	@include masked-icon-hovered {
-		animation: masked-icon-bounce var( --masked-icon-hover-duration, 0.6s ) ease infinite;
+		animation: masked-icon-bounce-hover var( --masked-icon-hover-duration, 0.6s ) ease infinite;
 	}
 }
 
 .wp-block-button.has-masked-icon.is-icon-animated.is-icon-anim-wiggle {
 	@include masked-icon-hovered {
-		animation: masked-icon-wiggle var( --masked-icon-hover-duration, 0.4s ) ease infinite;
+		animation: masked-icon-wiggle-hover var( --masked-icon-hover-duration, 0.4s ) ease infinite;
 	}
 }
 
@@ -360,13 +421,13 @@ img.wp-block-masked-icon-icon__inline.is-original {
 @media ( prefers-reduced-motion: reduce ) {
 	.wp-block-button.has-masked-icon {
 		@include masked-icon-animated {
-			transition: none !important;
 			animation: none !important;
+			transform: none !important;
 		}
 
 		@include masked-icon-hovered {
-			transform: none !important;
 			animation: none !important;
+			transform: none !important;
 		}
 	}
 }
