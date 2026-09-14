@@ -59,10 +59,31 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 	 */
 	public static function markup_provider(): array {
 		return array(
-			'inline icon in a paragraph' => array( self::INLINE_MARKUP ),
-			'icon block'                 => array( self::ICON_MARKUP ),
-			'button with icon'           => array( self::BUTTON_MARKUP ),
-			'decorative icon'            => array(
+			'inline icon in a paragraph'          => array( self::INLINE_MARKUP ),
+			'inline icon with a palette colour'   => array(
+				'<!-- wp:paragraph --><p>Read more <img ' .
+				'class="wp-block-masked-icon-icon__inline has-accent-3-color has-text-color" ' .
+				'src="https://example.com/arrow.png" alt="Next" ' .
+				'style="--masked-icon-image:url(https://example.com/arrow.png);--masked-icon-size:1.5em"> here</p>' .
+				'<!-- /wp:paragraph -->',
+			),
+			'inline icon with a custom colour'    => array(
+				'<!-- wp:paragraph --><p>Read more <img ' .
+				'class="wp-block-masked-icon-icon__inline has-text-color" ' .
+				'src="https://example.com/arrow.png" alt="" ' .
+				'style="--masked-icon-image:url(https://example.com/arrow.png);color:#d00000"> here</p>' .
+				'<!-- /wp:paragraph -->',
+			),
+			'inline icon keeping its own colours' => array(
+				'<!-- wp:paragraph --><p>Our <img ' .
+				'class="wp-block-masked-icon-icon__inline is-original" ' .
+				'src="https://example.com/logo.png" alt="Logo" ' .
+				'style="--masked-icon-image:url(https://example.com/logo.png)"> logo</p>' .
+				'<!-- /wp:paragraph -->',
+			),
+			'icon block'                          => array( self::ICON_MARKUP ),
+			'button with icon'                    => array( self::BUTTON_MARKUP ),
+			'decorative icon'                     => array(
 				'<!-- wp:masked-icon/icon {"url":"https://example.com/star.svg"} -->' .
 				'<div class="wp-block-masked-icon-icon"><span class="wp-block-masked-icon-icon__mark" style="--masked-icon-image:url(https://example.com/star.svg);--masked-icon-size:1em" aria-hidden="true"></span></div>' .
 				'<!-- /wp:masked-icon/icon -->',

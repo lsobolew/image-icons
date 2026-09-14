@@ -74,6 +74,17 @@ img.wp-block-masked-icon-icon__inline {
 	@include masked-icon-surface;
 }
 
+// "Keep the original colours" for an inline icon: the file is drawn as itself instead of masked.
+// The box stays exactly as it was, so the size and the proportions are unaffected - and the image
+// is no longer pushed out of view, because now it is the point.
+img.wp-block-masked-icon-icon__inline.is-original {
+	background-color: transparent;
+	mask-image: none;
+	-webkit-mask-image: none;
+	object-fit: contain;
+	object-position: center;
+}
+
 .wp-block-masked-icon-icon__link {
 	// A linked icon should not pick up the theme's underline.
 	text-decoration: none;

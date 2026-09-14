@@ -273,6 +273,182 @@ test.describe( `Masked Icon (${ THEME })`, () => {
 		expect( result.text ).toBe( 'Read more  and then some' );
 	} );
 
+	test( 'selecting an inline icon activates its toolbar button and opens its settings', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The behaviour the native highlight format has and this one was missing: with the caret on
+		// an icon the toolbar recognises it, so the button edits that icon instead of inserting
+		// another one. It comes from isObjectActive, which the editor only passes to a format that
+		// asks for it.
+		const inline =
+			`Read more <img class="wp-block-masked-icon-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--masked-icon-image:url(${ PIXEL })">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: inline },
+		} );
+
+		// The object has to be selected, not merely next to the caret: getActiveObject wants
+		// start + 1 === end. The icon is the last thing in the paragraph, so End then Shift+Left
+		// selects exactly it - and unlike clicking the image, that does not fight the
+		// contenteditable parent for the pointer event.
+		await editor.canvas
+			.getByRole( 'document', { name: 'Block: Paragraph' } )
+			.click();
+		await page.keyboard.press( 'End' );
+		await page.keyboard.press( 'Shift+ArrowLeft' );
+
+		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
+
+		const item = page.getByRole( 'menuitem', { name: 'Masked icon' } );
+
+		await expect( item ).toBeVisible();
+		// Inside the overflow menu core renders isActive as a class rather than aria-pressed - the
+		// same signal its own formats get there, so this is what "the toolbar noticed" looks like.
+		await expect( item ).toHaveClass( /is-active/ );
+
+		await item.click();
+
+		// The settings open on the icon rather than the media library.
+		await expect(
+			page.getByRole( 'textbox', { name: 'Alternative text' } )
+		).toBeVisible();
+		await expect( page.getByRole( 'button', { name: 'Replace image' } ) ).toBeVisible();
+	} );
+
+	test( 'the inline settings survive a round trip through the editor', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// Everything an inline icon carries is encoded into a style attribute and a class list, so
+		// the thing that can quietly break is the parsing: settings that write correctly but read
+		// back wrong turn into settings that reset themselves the second time somebody edits.
+		await admin.createNewPost();
+		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: 'Read more' } } );
+
+		const roundTrip = await page.evaluate( ( pixel ) => {
+			const richText = ( window as any ).wp.richText;
+
+			let value = richText.create( { html: 'Read more ' } );
+			value = { ...value, start: value.text.length, end: value.text.length };
+
+			const written = {
+				src: pixel,
+				alt: 'Next page',
+				style: `--masked-icon-image:url(${ pixel });--masked-icon-size:1.5em;color:#d00000`,
+				className: 'has-text-color',
+			};
+
+			value = richText.insertObject( value, {
+				type: 'masked-icon/inline',
+				attributes: written,
+			} );
+
+			// Serialise the way the editor saves, then parse it the way it loads.
+			const html = richText.toHTMLString( { value } );
+			const reloaded = richText.create( { html } );
+			const object = reloaded.replacements.find( Boolean );
+
+			return { html, written, read: object ? object.attributes : null };
+		}, PIXEL );
+
+		expect( roundTrip.read, roundTrip.html ).not.toBeNull();
+		// The format's own class is stripped on parse and re-added on serialise, so what comes back
+		// is our own classes only.
+		expect( roundTrip.read.className ).toBe( 'has-text-color' );
+		expect( roundTrip.read.alt ).toBe( 'Next page' );
+		expect( roundTrip.read.style ).toContain( '--masked-icon-size:1.5em' );
+		expect( roundTrip.read.style ).toContain( 'color:#d00000' );
+		expect( roundTrip.html ).toContain( 'wp-block-masked-icon-icon__inline' );
+	} );
+
+	test( 'an inline icon takes a chosen colour and its own size', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The paragraph is one colour and the icon another, which is the whole point of letting an
+		// icon carry a colour: without one it follows the text, with one it does not.
+		const inline =
+			`Read more <img class="wp-block-masked-icon-icon__inline has-text-color" ` +
+			`src="${ PIXEL }" alt="Next" ` +
+			`style="--masked-icon-image:url(${ PIXEL });--masked-icon-size:2em;color:#0000d0">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'core/paragraph',
+			attributes: { content: inline, style: { color: { text: '#d00000' } } },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const icon = page.locator( '.wp-block-masked-icon-icon__inline' );
+
+		const computed = await icon.evaluate( ( element ) => {
+			const style = window.getComputedStyle( element );
+			const parent = window.getComputedStyle( element.parentElement as HTMLElement );
+
+			return {
+				background: style.backgroundColor,
+				parentColour: parent.color,
+				height: parseFloat( style.height ),
+				fontSize: parseFloat( parent.fontSize ),
+				alt: element.getAttribute( 'alt' ),
+			};
+		} );
+
+		// currentColor now resolves to the icon's own colour, not the paragraph's.
+		expect( computed.background ).toBe( 'rgb(0, 0, 208)' );
+		expect( computed.parentColour ).toBe( 'rgb(208, 0, 0)' );
+		expect( computed.height ).toBeCloseTo( computed.fontSize * 2, 0 );
+		expect( computed.alt ).toBe( 'Next' );
+	} );
+
+	test( 'an inline icon keeping its own colours drops the mask', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		const inline =
+			`Logo <img class="wp-block-masked-icon-icon__inline is-original" src="${ WIDE_PIXEL }" ` +
+			`alt="Our logo" style="--masked-icon-image:url(${ WIDE_PIXEL })">`;
+
+		await admin.createNewPost();
+		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const computed = await page
+			.locator( '.wp-block-masked-icon-icon__inline' )
+			.evaluate( ( element ) => {
+				const style = window.getComputedStyle( element );
+				const box = element.getBoundingClientRect();
+
+				return {
+					mask: style.maskImage || style.webkitMaskImage,
+					background: style.backgroundColor,
+					objectPosition: style.objectPosition,
+					ratio: box.width / box.height,
+				};
+			} );
+
+		expect( computed.mask ).toBe( 'none' );
+		expect( computed.background ).toBe( 'rgba(0, 0, 0, 0)' );
+		// The image is shown rather than pushed out of view...
+		expect( computed.objectPosition ).toBe( '50% 50%' );
+		// ...and the box is still the shape of the file.
+		expect( computed.ratio ).toBeCloseTo( 2, 1 );
+	} );
+
 	test( 'an inline icon keeps the proportions of the image it masks', async ( {
 		admin,
 		editor,
