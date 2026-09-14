@@ -15,41 +15,76 @@ Turn any image in your media library into a single-colour icon that follows your
 Image Icons renders an image as a CSS mask instead of as a picture. The shape comes from the file,
 the colour comes from your text. Change the text colour and the icon changes with it.
 
-That means one arrow file works on a dark button, a light background and a coloured heading,
-without exporting three versions of it.
+One arrow file then works on a dark button, a light background and a coloured heading, without
+exporting three versions of it.
 
-**Any image, not just SVG.** PNG, SVG and WebP all work, because only the shape is used. A plain
-black PNG becomes an icon in whatever colour you set.
+**You do not need an icon set.** Most icon plugins hand you somebody else's library and stop there.
+This one uses the images you already have. Drop your own arrow, your own logo mark, a shape a
+designer sent you - anything in the media library becomes an icon that matches your palette.
 
-**Icons inside your text.** Select the toolbar's icon button while writing and drop an icon into a
-sentence: "Read more →". It sits on the baseline, scales with the font size and takes the colour of
-the text around it, the way a glyph would.
+= Three places to put one =
 
-**Sizes with your text.** The default size is `1em`, so the icon scales with the font size around
-it.
+**In a sentence.** Pick the icon button in the editor toolbar and drop an icon into running text:
+"Read more →". It scales with the font size, sits where you tell it to against the line, and takes
+the colour of the words around it, the way a glyph would. Select it again and its settings open on
+the icon itself - swap the image, resize it, set alternative text, or give it a colour of its own
+from your theme palette.
 
-**Adds an icon to the native Button block.** This plugin does not replace the WordPress Button with
-its own. It extends the one you already use, so block styles, colour settings, theme.json styling,
-the width controls and link handling all keep working. An optional hover animation nudges the icon
-away from the label, and it respects reduced-motion preferences.
+**On a button.** The native WordPress Button block gains an **Icon** panel. The plugin does not
+replace the Button with one of its own, so block styles, colour settings, theme.json styling, the
+width controls and link handling all keep working exactly as before. Choose the side, the size and
+the gap; the icon takes the button's proportions from the file, so a tall or wide mark is not
+squashed into a square.
 
-**No JavaScript on the front end.** The icon is CSS - a mask, a custom property and `currentColor`.
+**On its own.** A dedicated block for an icon that stands by itself, with size, fit and an optional
+link.
+
+= Animation, when it earns its place =
+
+Two independent settings, because they do different jobs.
+
+An **idle animation** runs on its own to draw the eye - bounce, wiggle, pulse or spin - and you set
+how often it plays. The movement is packed into the start of each interval and the icon rests for
+the remainder, so "every four seconds" means an occasional flick of attention rather than something
+that never stops moving.
+
+A **hover animation** plays while somebody is on the button and takes over from the idle one:
+slide, rotate, spin, grow, bounce or wiggle, at a speed you choose. It runs for keyboard users too,
+when the button is focused, so the affordance is not reserved for people using a mouse.
+
+Both are pure CSS, and both stop entirely for anybody whose system asks for reduced motion.
+
+= It works for your authors, not only for administrators =
+
+This is the part that usually goes wrong elsewhere.
+
+WordPress strips `mask-image` from inline styles for every user without the `unfiltered_html`
+capability - that is authors and contributors on a single site, and everybody except the super
+admin on multisite. A plugin that writes the mask straight into the markup therefore works
+perfectly while you build the site and breaks for the people who actually write the posts, often
+only noticed on a client's site weeks later.
+
+Image Icons carries the mask in a CSS custom property, which survives the filtering, and resolves
+it in its own stylesheet. The test suite asserts it on every release, including a test that fails
+if anyone moves a mask declaration back into the markup.
+
+= Details that matter =
+
+* **Any image the site accepts.** PNG, WebP, AVIF, GIF and more - the editor shows the list your
+  site actually allows, rather than promising formats it will refuse. Transparency is what defines
+  the shape, so a file with a transparent background gives the best result.
+* **Keep the original colours** when you want the file drawn as it is - a brand mark, say - while
+  the size, placement and animation carry on working.
+* **Sizes in em, rem, px or vw**, defaulting to `em` so an icon beside text scales with that text.
+* **No JavaScript on the front end.** The icon is a mask, a custom property and `currentColor`.
+* **Nothing left behind.** The plugin stores a single option and removes it when you delete it.
 
 = Accessibility =
 
-An icon with a label is announced to screen readers. Leave the label empty and the icon is marked
-decorative and skipped, which is what you want when it sits next to text that already says the same
-thing.
-
-= Works for every editor, not just administrators =
-
-WordPress strips `mask-image` from inline styles for users without the `unfiltered_html`
-capability - authors and contributors on a single site, and everyone except the super admin on
-multisite. Plugins that write the mask directly into the markup therefore break for exactly those
-users, and often only on a client's site.
-
-Image Icons carries the mask in a CSS custom property, which survives that filtering, and resolves
-it in its stylesheet. The plugin's test suite asserts this on every release.
+An icon with alternative text is announced to screen readers. Leave it empty and the icon is
+marked decorative and skipped, which is what you want when it sits beside text that already says
+the same thing. Animations respect `prefers-reduced-motion`, and hover effects are reachable from
+the keyboard.
 
 == Installation ==
 
@@ -60,36 +95,58 @@ it in its stylesheet. The plugin's test suite asserts this on every release.
 
 == Frequently Asked Questions ==
 
+= Do I need Font Awesome or another icon set? =
+
+No, and that is rather the point. Image Icons works with what is already in your media library, so
+you can use your own marks and keep your own visual identity instead of adopting a library
+everybody else is using too.
+
 = Why does my icon come out all one colour? =
 
-That is the point. The image is used as a mask, so only its shape matters. The colour comes from
-the text colour, which you can set with the usual colour controls.
+Because the image is used as a mask: only its shape is read, and the colour comes from the text.
+That is what lets one file work anywhere. If you want the file drawn in its own colours instead,
+switch on **Keep the original colours**.
 
 = Can I use a multi-coloured logo? =
 
-Not as a masked icon - it will be flattened to a single colour. Use the Image block for artwork
-that needs its own colours.
+As a mask it will be flattened to a single colour. Either turn on **Keep the original colours**, or
+use the Image block for artwork that needs its own palette.
 
 = Does it work with SVG? =
 
-Yes. WordPress does not allow SVG uploads by default; if you enable them with another plugin, SVG
-files work here like any other image.
+Yes, if your site accepts SVG uploads. WordPress refuses them by default, because an SVG is markup
+and can carry a script. A plugin that adds SVG support safely - by sanitising the file on upload -
+makes them available here automatically, and the editor's own list of formats updates to match.
+
+= Will an animation annoy my visitors? =
+
+It can, which is why idle animation is off by default and its interval is yours to set. Anybody
+whose system asks for reduced motion sees no animation at all.
+
+= Does it slow the site down? =
+
+There is no front-end JavaScript, and the stylesheet loads only on pages that actually contain an
+icon or one of the blocks that can hold one.
 
 = Will the icon still show on old browsers? =
 
-CSS masks are supported by every current browser. Very old browsers fall back to no icon rather
-than to a broken layout.
+CSS masks are supported by every current browser. A browser too old for them shows no icon rather
+than a broken layout.
 
 == Screenshots ==
 
-1. A Image Icons block inheriting the text colour.
-2. The Icon panel added to the native Button block.
+1. One icon file, four text colours. The shape comes from the image and the colour from the text.
+2. An icon dropped into a sentence, with its settings open on the icon itself.
+3. The Icon panel on the native WordPress Button block.
+4. Idle and hover animations, with their own timings.
+5. The same mark drawn in its own colours, with "Keep the original colours" switched on.
 
 == Changelog ==
 
 = 0.1.0 =
-* First release: the Image Icons block, inline icons inside text, and an icon option for the core
-  Button block.
+* First release: inline icons in any rich text, an Icon panel on the native Button block, and a
+  block for an icon on its own. Idle and hover animations, colour from the theme palette, and a
+  mask that survives KSES for authors and contributors.
 
 == Upgrade Notice ==
 

@@ -55,7 +55,6 @@ final class Upgrader {
 		}
 
 		update_option( Activator::VERSION_OPTION, IMAGE_ICONS_VERSION );
-		update_option( Activator::FLUSH_FLAG, '1' );
 
 		/**
 		 * Fires after the plugin has been upgraded.
@@ -64,21 +63,5 @@ final class Upgrader {
 		 * @param string $to   New version.
 		 */
 		do_action( 'imageicons_upgraded', $stored, IMAGE_ICONS_VERSION );
-	}
-
-	/**
-	 * Flushes the rewrite rules once, after an activation or an upgrade.
-	 *
-	 * Called on `wp_loaded`, that is AFTER the whole `init` cycle. Flushing earlier would rebuild
-	 * the rules before modules register their post types, and custom post type archives would 404
-	 * until someone re-saved the permalink settings by hand.
-	 */
-	public static function maybe_flush_rewrite(): void {
-		if ( '1' !== (string) get_option( Activator::FLUSH_FLAG, '' ) ) {
-			return;
-		}
-
-		delete_option( Activator::FLUSH_FLAG );
-		flush_rewrite_rules( false );
 	}
 }

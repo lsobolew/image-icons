@@ -12,9 +12,11 @@ namespace Sobolewski\ImageIcons\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Sets up the initial state. Note that modules are not registered yet at activation time, so
- * instead of rebuilding the rewrite rules right away we leave a flag - `Upgrader` flushes them on
- * the next `wp_loaded`, once the custom post types have been declared.
+ * Records the version the data was written by, and nothing else.
+ *
+ * There is deliberately no rewrite flush and no option seeded here: this plugin registers no post
+ * types, taxonomies or rewrite rules, so there is nothing to rebuild, and it reads no settings, so
+ * an options row would be written and never looked at again.
  */
 final class Activator {
 
@@ -22,11 +24,6 @@ final class Activator {
 	 * Option holding the data schema version.
 	 */
 	const VERSION_OPTION = 'image_icons_version';
-
-	/**
-	 * Flag requesting a rewrite rules flush.
-	 */
-	const FLUSH_FLAG = 'image_icons_flush_rewrite';
 
 	/**
 	 * Called by register_activation_hook.
@@ -51,12 +48,7 @@ final class Activator {
 	 * Initializes a single site.
 	 */
 	private static function activate_single_site(): void {
-		if ( false === get_option( Settings::OPTION, false ) ) {
-			add_option( Settings::OPTION, Settings::defaults() );
-		}
-
 		update_option( self::VERSION_OPTION, IMAGE_ICONS_VERSION );
-		update_option( self::FLUSH_FLAG, '1' );
 	}
 
 	/**

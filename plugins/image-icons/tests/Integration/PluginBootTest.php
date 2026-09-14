@@ -9,7 +9,6 @@ declare( strict_types=1 );
 
 namespace Sobolewski\ImageIcons\Tests\Integration;
 
-use Sobolewski\ImageIcons\Core\Api;
 use Sobolewski\ImageIcons\Core\Module;
 use Sobolewski\ImageIcons\Core\Plugin;
 use WP_UnitTestCase;
@@ -69,12 +68,5 @@ final class PluginBootTest extends WP_UnitTestCase {
 
 		$this->assertTrue( $module->registered );
 		$this->assertSame( $module, Plugin::instance()->module( 'test-addon' ) );
-	}
-
-	/**
-	 * The API version is valid semver.
-	 */
-	public function test_api_version_is_semver(): void {
-		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', Api::version() );
 	}
 }

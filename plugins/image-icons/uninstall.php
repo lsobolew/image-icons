@@ -17,11 +17,10 @@ defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
  * Removes the plugin data from a single site.
  */
 function image_icons_uninstall_site(): void {
-	delete_option( 'image_icons_settings' );
+	// The only row the plugin ever writes. Icons themselves live in post content and in the media
+	// library, and are deliberately left alone: deleting somebody's images and emptying their
+	// posts because they removed a plugin would be indefensible.
 	delete_option( 'image_icons_version' );
-	delete_option( 'image_icons_flush_rewrite' );
-
-	// Custom post type entries are kept on purpose - silently deleting user content is a bad default.
 }
 
 if ( is_multisite() ) {

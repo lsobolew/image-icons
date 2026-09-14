@@ -2,8 +2,7 @@
 /**
  * Modules loaded by the plugin.
  *
- * Order only matters when a module assumes another one is present (here the blocks and REST
- * modules use constants from the content-type module, but they also work without it).
+ * Order matters only when one module assumes another is already registered.
  *
  * This file is managed by `./bin/wpx feature add|remove`.
  *

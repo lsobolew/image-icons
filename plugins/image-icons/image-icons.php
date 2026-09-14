@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Image Icons
  * Plugin URI:        https://github.com/lsobolew/image-icons
- * Description:       Turn any image into a colourable icon that follows your text colour.
+ * Description:       Turn any image into a single-colour icon that follows your text colour, in text, on a button, or on its own.
  * Version:           0.1.0
  * Requires at least: 6.6
  * Requires PHP:      7.4
@@ -50,8 +50,8 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 register_activation_hook( __FILE__, array( Core\Activator::class, 'activate' ) );
 register_deactivation_hook( __FILE__, array( Core\Deactivator::class, 'deactivate' ) );
 
-// Boot on `plugins_loaded` rather than at file load: add-ons (such as the Pro edition) are loaded
-// after this plugin and need a chance to hook `imageicons_register_modules` before it fires.
+// Boot on `plugins_loaded` rather than at file load: an add-on is loaded after this plugin and
+// needs a chance to hook `imageicons_register_modules` before it fires.
 add_action(
 	'plugins_loaded',
 	static function () {

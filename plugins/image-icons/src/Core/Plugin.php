@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin core: container, module registry, boot.
+ * Plugin core: module registry and boot.
  *
  * @package Sobolewski\ImageIcons
  */
@@ -12,8 +12,10 @@ namespace Sobolewski\ImageIcons\Core;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The single entry point. Loads the module list, lets it be filtered (this is how the Pro
- * edition plugs in) and registers every module.
+ * The single entry point: loads the module list, lets it be filtered, and registers every module.
+ *
+ * The filter and the `imageicons_register_modules` action are the extension surface - an add-on
+ * can add a module of its own without this plugin knowing anything about it.
  */
 final class Plugin {
 
@@ -23,13 +25,6 @@ final class Plugin {
 	 * @var Plugin|null
 	 */
 	private static $instance = null;
-
-	/**
-	 * Service container.
-	 *
-	 * @var Container
-	 */
-	private $container;
 
 	/**
 	 * Registered modules, keyed by id.
@@ -49,7 +44,6 @@ final class Plugin {
 	 * Private constructor - use instance().
 	 */
 	private function __construct() {
-		$this->container = new Container();
 	}
 
 	/**
@@ -61,13 +55,6 @@ final class Plugin {
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * The plugin service container.
-	 */
-	public function container(): Container {
-		return $this->container;
 	}
 
 	/**
@@ -98,7 +85,7 @@ final class Plugin {
 	/**
 	 * Adds a module to the registry and registers its hooks.
 	 *
-	 * Public on purpose: this is how Pro edition modules join in on `imageicons_register_modules`.
+	 * Public on purpose: this is how an add-on joins in on `imageicons_register_modules`.
 	 *
 	 * @param Module $module Module to register.
 	 */
@@ -123,11 +110,7 @@ final class Plugin {
 
 		$this->booted = true;
 
-		$this->register_services();
-
-		add_action( 'init', array( $this->container->get( 'i18n' ), 'load' ), 0 );
 		add_action( 'init', array( Upgrader::class, 'maybe_upgrade' ), 5 );
-		add_action( 'wp_loaded', array( Upgrader::class, 'maybe_flush_rewrite' ), 100 );
 
 		/**
 		 * Filters the list of module classes.
@@ -149,7 +132,7 @@ final class Plugin {
 		}
 
 		/**
-		 * Fires when add-ons may register their own modules (used by the Pro edition).
+		 * Fires when add-ons may register their own modules.
 		 *
 		 * @param Plugin $plugin Plugin instance.
 		 */
@@ -178,24 +161,5 @@ final class Plugin {
 		$classes = require $file;
 
 		return is_array( $classes ) ? $classes : array();
-	}
-
-	/**
-	 * Services shared between modules.
-	 */
-	private function register_services(): void {
-		$this->container->set(
-			'i18n',
-			static function () {
-				return new I18n();
-			}
-		);
-
-		$this->container->set(
-			'assets',
-			static function () {
-				return new Assets();
-			}
-		);
 	}
 }
