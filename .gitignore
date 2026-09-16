@@ -13,6 +13,10 @@ vendor/
 # Build output
 plugins/*/build/
 plugins/*/languages/*.mo
+# The translation template is generated into the package by `wpx build`, from the staged copy of
+# the plugin. Committing one would be committing a snapshot that goes stale the moment a string
+# changes, and nobody would be able to tell by looking at it.
+plugins/*/languages/*.pot
 .phpunit.result.cache
 .phpcs.cache
 

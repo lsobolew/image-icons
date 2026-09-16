@@ -47,6 +47,32 @@ final class RequirementsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The notice is built at render time, not at check time.
+	 *
+	 * The check runs while the plugin file is being included, before `after_setup_theme`. A
+	 * translation function called that early makes WordPress load the text domain just in time
+	 * and report `_doing_it_wrong`, so the message has to be assembled later - which is what this
+	 * asserts by producing one without any deprecation or doing-it-wrong notice being raised.
+	 */
+	public function test_the_notice_is_translated_without_translating_too_early(): void {
+		$reflection = new \ReflectionClass( Requirements::class );
+		$failed     = $reflection->getProperty( 'failed' );
+		$failed->setAccessible( true );
+		$failed->setValue( null, 'php' );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		ob_start();
+		Requirements::render_notice();
+		$output = (string) ob_get_clean();
+
+		$failed->setValue( null, '' );
+
+		$this->assertStringContainsString( 'requires PHP', $output );
+		$this->assertStringContainsString( IMAGE_ICONS_MIN_PHP, $output );
+	}
+
+	/**
 	 * Nothing is printed to a visitor who could not act on it anyway.
 	 */
 	public function test_notice_is_not_shown_to_users_who_cannot_activate_plugins(): void {

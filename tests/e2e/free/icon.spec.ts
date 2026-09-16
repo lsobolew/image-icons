@@ -152,9 +152,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Learn more',
-						maskedIconUrl: PIXEL,
-						maskedIconPosition: 'after',
-						maskedIconAnimate: true,
+						imageIconsUrl: PIXEL,
+						imageIconsPosition: 'after',
+						imageIconsAnimate: true,
 					},
 				},
 			],
@@ -688,13 +688,13 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Wide',
-						maskedIconUrl: WIDE_PIXEL,
-						maskedIconRatio: '2/1',
+						imageIconsUrl: WIDE_PIXEL,
+						imageIconsRatio: '2/1',
 					},
 				},
 				{
 					name: 'core/button',
-					attributes: { text: 'Unmeasured', maskedIconUrl: WIDE_PIXEL },
+					attributes: { text: 'Unmeasured', imageIconsUrl: WIDE_PIXEL },
 				},
 			],
 		} );
@@ -743,10 +743,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: inline,
-						maskedIconUrl: PIXEL,
-						maskedIconSize: '3em',
-						maskedIconGap: '3em',
-						maskedIconRatio: '1/1',
+						imageIconsUrl: PIXEL,
+						imageIconsSize: '3em',
+						imageIconsGap: '3em',
+						imageIconsRatio: '1/1',
 					},
 				},
 			],
@@ -795,7 +795,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			innerBlocks: [
 				{
 					name: 'core/button',
-					attributes: { text: 'Centred', maskedIconUrl: PIXEL, maskedIconSize: '3em' },
+					attributes: { text: 'Centred', imageIconsUrl: PIXEL, imageIconsSize: '3em' },
 				},
 			],
 		} );
@@ -845,8 +845,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Tall',
-						maskedIconUrl: PIXEL,
-						maskedIconSize: '3em',
+						imageIconsUrl: PIXEL,
+						imageIconsSize: '3em',
 					},
 				},
 			],
@@ -890,11 +890,11 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Branded',
-						maskedIconUrl: WIDE_PIXEL,
-						maskedIconSize: '2em',
-						maskedIconRatio: '2/1',
-						maskedIconOriginal: true,
-						maskedIconAnimation: 'rotate',
+						imageIconsUrl: WIDE_PIXEL,
+						imageIconsSize: '2em',
+						imageIconsRatio: '2/1',
+						imageIconsOriginal: true,
+						imageIconsAnimation: 'rotate',
 					},
 				},
 			],
@@ -957,11 +957,11 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Notice me',
-						maskedIconUrl: PIXEL,
-						maskedIconIdle: 'wiggle',
-						maskedIconIdleInterval: 4,
-						maskedIconAnimation: 'spin',
-						maskedIconDuration: 0.3,
+						imageIconsUrl: PIXEL,
+						imageIconsIdle: 'wiggle',
+						imageIconsIdleInterval: 4,
+						imageIconsAnimation: 'spin',
+						imageIconsDuration: 0.3,
 					},
 				},
 			],
@@ -1025,8 +1025,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					attributes: {
 						text: 'Reachable',
 						url: '#somewhere',
-						maskedIconUrl: PIXEL,
-						maskedIconAnimation: 'grow',
+						imageIconsUrl: PIXEL,
+						imageIconsAnimation: 'grow',
 					},
 				},
 			],
@@ -1091,9 +1091,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Both',
-						maskedIconUrl: PIXEL,
-						maskedIconIdle: 'wiggle',
-						maskedIconAnimation: 'grow',
+						imageIconsUrl: PIXEL,
+						imageIconsIdle: 'wiggle',
+						imageIconsAnimation: 'grow',
 					},
 				},
 			],
@@ -1127,8 +1127,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Spinner',
-						maskedIconUrl: PIXEL,
-						maskedIconAnimation: 'spin',
+						imageIconsUrl: PIXEL,
+						imageIconsAnimation: 'spin',
 					},
 				},
 			],
@@ -1155,8 +1155,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Refresh',
-						maskedIconUrl: PIXEL,
-						maskedIconAnimation: 'rotate',
+						imageIconsUrl: PIXEL,
+						imageIconsAnimation: 'rotate',
 					},
 				},
 			],
@@ -1194,8 +1194,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Spinner',
-						maskedIconUrl: PIXEL,
-						maskedIconAnimation: 'spin',
+						imageIconsUrl: PIXEL,
+						imageIconsAnimation: 'spin',
 					},
 				},
 			],
@@ -1233,7 +1233,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		admin,
 		editor,
 	} ) => {
-		// maskedIconAnimate is what the boolean "Slide on hover" toggle wrote before the animation
+		// imageIconsAnimate is what the boolean "Slide on hover" toggle wrote before the animation
 		// list replaced it. If the class set changed, every button already in a post would come
 		// back as "this block contains unexpected content" the next time somebody opened it.
 		await admin.createNewPost();
@@ -1244,8 +1244,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Legacy',
-						maskedIconUrl: PIXEL,
-						maskedIconAnimate: true,
+						imageIconsUrl: PIXEL,
+						imageIconsAnimate: true,
 					},
 				},
 			],

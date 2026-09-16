@@ -40,20 +40,20 @@ import type { SelectOption } from '../shared/types';
 const BLOCK = 'core/button';
 
 interface ButtonIconAttributes {
-	maskedIconUrl: string;
-	maskedIconId: number;
-	maskedIconPosition: string;
-	maskedIconSize: string;
+	imageIconsUrl: string;
+	imageIconsId: number;
+	imageIconsPosition: string;
+	imageIconsSize: string;
 	/** The image's own proportions, as a CSS ratio - "800/1028". Empty when they are unknown. */
-	maskedIconRatio: string;
-	maskedIconGap: string;
-	maskedIconOriginal: boolean;
-	maskedIconIdle: string;
-	maskedIconIdleInterval: number;
-	maskedIconAnimation: string;
-	maskedIconDuration: number;
+	imageIconsRatio: string;
+	imageIconsGap: string;
+	imageIconsOriginal: boolean;
+	imageIconsIdle: string;
+	imageIconsIdleInterval: number;
+	imageIconsAnimation: string;
+	imageIconsDuration: number;
 	/** Pre-0.2 "slide on hover" toggle, still read so older buttons keep working. */
-	maskedIconAnimate: boolean;
+	imageIconsAnimate: boolean;
 }
 
 type Attributes = Partial< ButtonIconAttributes > & Record< string, unknown >;
@@ -64,18 +64,18 @@ const POSITION_OPTIONS: SelectOption[] = [
 ];
 
 const DEFAULTS: ButtonIconAttributes = {
-	maskedIconUrl: '',
-	maskedIconId: 0,
-	maskedIconPosition: 'after',
-	maskedIconSize: '1em',
-	maskedIconRatio: '',
-	maskedIconGap: '0.5em',
-	maskedIconOriginal: false,
-	maskedIconIdle: '',
-	maskedIconIdleInterval: DEFAULT_IDLE_INTERVAL,
-	maskedIconAnimation: '',
-	maskedIconDuration: DEFAULT_HOVER_DURATION,
-	maskedIconAnimate: false,
+	imageIconsUrl: '',
+	imageIconsId: 0,
+	imageIconsPosition: 'after',
+	imageIconsSize: '1em',
+	imageIconsRatio: '',
+	imageIconsGap: '0.5em',
+	imageIconsOriginal: false,
+	imageIconsIdle: '',
+	imageIconsIdleInterval: DEFAULT_IDLE_INTERVAL,
+	imageIconsAnimation: '',
+	imageIconsDuration: DEFAULT_HOVER_DURATION,
+	imageIconsAnimate: false,
 };
 
 interface SelectedMedia {
@@ -107,13 +107,13 @@ function ratioOf( media: SelectedMedia ): string {
  * Buttons saved before the list existed have the boolean instead, and it means the slide.
  */
 function animationOf( attributes: Attributes ): string {
-	const chosen = ( attributes.maskedIconAnimation as string ) || '';
+	const chosen = ( attributes.imageIconsAnimation as string ) || '';
 
 	if ( chosen ) {
 		return chosen;
 	}
 
-	return attributes.maskedIconAnimate ? 'slide' : '';
+	return attributes.imageIconsAnimate ? 'slide' : '';
 }
 
 /** Adds our attributes to the button block definition. */
@@ -129,21 +129,21 @@ addFilter(
 			...settings,
 			attributes: {
 				...( settings.attributes as Record< string, unknown > ),
-				maskedIconUrl: { type: 'string', default: DEFAULTS.maskedIconUrl },
-				maskedIconId: { type: 'number', default: DEFAULTS.maskedIconId },
-				maskedIconPosition: { type: 'string', default: DEFAULTS.maskedIconPosition },
-				maskedIconSize: { type: 'string', default: DEFAULTS.maskedIconSize },
-				maskedIconRatio: { type: 'string', default: DEFAULTS.maskedIconRatio },
-				maskedIconGap: { type: 'string', default: DEFAULTS.maskedIconGap },
-				maskedIconOriginal: { type: 'boolean', default: DEFAULTS.maskedIconOriginal },
-				maskedIconIdle: { type: 'string', default: DEFAULTS.maskedIconIdle },
-				maskedIconIdleInterval: {
+				imageIconsUrl: { type: 'string', default: DEFAULTS.imageIconsUrl },
+				imageIconsId: { type: 'number', default: DEFAULTS.imageIconsId },
+				imageIconsPosition: { type: 'string', default: DEFAULTS.imageIconsPosition },
+				imageIconsSize: { type: 'string', default: DEFAULTS.imageIconsSize },
+				imageIconsRatio: { type: 'string', default: DEFAULTS.imageIconsRatio },
+				imageIconsGap: { type: 'string', default: DEFAULTS.imageIconsGap },
+				imageIconsOriginal: { type: 'boolean', default: DEFAULTS.imageIconsOriginal },
+				imageIconsIdle: { type: 'string', default: DEFAULTS.imageIconsIdle },
+				imageIconsIdleInterval: {
 					type: 'number',
-					default: DEFAULTS.maskedIconIdleInterval,
+					default: DEFAULTS.imageIconsIdleInterval,
 				},
-				maskedIconAnimation: { type: 'string', default: DEFAULTS.maskedIconAnimation },
-				maskedIconDuration: { type: 'number', default: DEFAULTS.maskedIconDuration },
-				maskedIconAnimate: { type: 'boolean', default: DEFAULTS.maskedIconAnimate },
+				imageIconsAnimation: { type: 'string', default: DEFAULTS.imageIconsAnimation },
+				imageIconsDuration: { type: 'number', default: DEFAULTS.imageIconsDuration },
+				imageIconsAnimate: { type: 'boolean', default: DEFAULTS.imageIconsAnimate },
 			},
 		};
 	}
@@ -151,22 +151,22 @@ addFilter(
 
 /** The class names and custom properties that turn the pseudo-element into an icon. */
 function iconProps( attributes: Attributes ) {
-	const url = ( attributes.maskedIconUrl as string ) || '';
+	const url = ( attributes.imageIconsUrl as string ) || '';
 
 	if ( ! url ) {
 		return { className: '', style: {} as Record< string, string > };
 	}
 
-	const position = ( attributes.maskedIconPosition as string ) || DEFAULTS.maskedIconPosition;
+	const position = ( attributes.imageIconsPosition as string ) || DEFAULTS.imageIconsPosition;
 	const animation = animationOf( attributes );
-	const idle = ( attributes.maskedIconIdle as string ) || '';
+	const idle = ( attributes.imageIconsIdle as string ) || '';
 
 	// The slide adds no class of its own, so a button saved by an earlier version produces exactly
 	// the markup it produced then and stays valid when somebody opens the post again.
 	const className = [
 		'has-image-icons',
 		position === 'before' ? 'is-icon-before' : 'is-icon-after',
-		attributes.maskedIconOriginal ? 'is-icon-original' : '',
+		attributes.imageIconsOriginal ? 'is-icon-original' : '',
 		idle ? `is-icon-idle-${ idle }` : '',
 		animation ? 'is-icon-animated' : '',
 		animation && animation !== 'slide' ? `is-icon-anim-${ animation }` : '',
@@ -176,14 +176,14 @@ function iconProps( attributes: Attributes ) {
 
 	const style: Record< string, string > = {
 		'--image-icons-image': `url(${ encodeURI( url ) })`,
-		'--image-icons-size': ( attributes.maskedIconSize as string ) || DEFAULTS.maskedIconSize,
-		'--image-icons-gap': ( attributes.maskedIconGap as string ) || DEFAULTS.maskedIconGap,
+		'--image-icons-size': ( attributes.imageIconsSize as string ) || DEFAULTS.imageIconsSize,
+		'--image-icons-gap': ( attributes.imageIconsGap as string ) || DEFAULTS.imageIconsGap,
 	};
 
 	// Only written when the media library knew the dimensions, so a button saved before this
 	// existed - or one masked with an SVG that reports no size - keeps exactly the markup it had
 	// and falls back to the square box.
-	const ratio = ( attributes.maskedIconRatio as string ) || '';
+	const ratio = ( attributes.imageIconsRatio as string ) || '';
 
 	if ( ratio ) {
 		style[ '--image-icons-ratio' ] = ratio;
@@ -193,13 +193,13 @@ function iconProps( attributes: Attributes ) {
 	// declaration for something it does not do.
 	if ( idle ) {
 		style[ '--image-icons-idle-interval' ] = `${
-			( attributes.maskedIconIdleInterval as number ) ?? DEFAULT_IDLE_INTERVAL
+			( attributes.imageIconsIdleInterval as number ) ?? DEFAULT_IDLE_INTERVAL
 		}s`;
 	}
 
 	if ( animation ) {
 		style[ '--image-icons-hover-duration' ] = `${
-			( attributes.maskedIconDuration as number ) ?? DEFAULT_HOVER_DURATION
+			( attributes.imageIconsDuration as number ) ?? DEFAULT_HOVER_DURATION
 		}s`;
 	}
 
@@ -215,7 +215,7 @@ const withIconControls = createHigherOrderComponent(
 
 		const attributes = props.attributes as Attributes;
 		const setAttributes = props.setAttributes as ( next: Attributes ) => void;
-		const url = ( attributes.maskedIconUrl as string ) || '';
+		const url = ( attributes.imageIconsUrl as string ) || '';
 
 		return (
 			<>
@@ -228,12 +228,12 @@ const withIconControls = createHigherOrderComponent(
 							<MediaUploadCheck>
 								<MediaUpload
 									allowedTypes={ [ 'image' ] }
-									value={ attributes.maskedIconId as number }
+									value={ attributes.imageIconsId as number }
 									onSelect={ ( media: SelectedMedia ) =>
 										setAttributes( {
-											maskedIconUrl: media.url,
-											maskedIconId: media.id,
-											maskedIconRatio: ratioOf( media ),
+											imageIconsUrl: media.url,
+											imageIconsId: media.id,
+											imageIconsRatio: ratioOf( media ),
 										} )
 									}
 									render={ ( { open }: { open: () => void } ) => (
@@ -251,7 +251,7 @@ const withIconControls = createHigherOrderComponent(
 									variant="secondary"
 									isDestructive
 									onClick={ () =>
-										setAttributes( { maskedIconUrl: '', maskedIconId: 0 } )
+										setAttributes( { imageIconsUrl: '', imageIconsId: 0 } )
 									}
 								>
 									{ __( 'Remove icon', 'image-icons' ) }
@@ -266,12 +266,12 @@ const withIconControls = createHigherOrderComponent(
 								<SelectControl
 									label={ __( 'Position', 'image-icons' ) }
 									value={
-										( attributes.maskedIconPosition as string ) ||
-										DEFAULTS.maskedIconPosition
+										( attributes.imageIconsPosition as string ) ||
+										DEFAULTS.imageIconsPosition
 									}
 									options={ POSITION_OPTIONS }
 									onChange={ ( next: string ) =>
-										setAttributes( { maskedIconPosition: next } )
+										setAttributes( { imageIconsPosition: next } )
 									}
 								/>
 
@@ -279,15 +279,15 @@ const withIconControls = createHigherOrderComponent(
 									label={ __( 'Size', 'image-icons' ) }
 									units={ LENGTH_UNITS }
 									value={
-										( attributes.maskedIconSize as string ) || DEFAULTS.maskedIconSize
+										( attributes.imageIconsSize as string ) || DEFAULTS.imageIconsSize
 									}
 									onChange={ ( next?: string ) =>
 										setAttributes( {
-											maskedIconSize:
+											imageIconsSize:
 												toLength(
 													next,
-													unitOf( attributes.maskedIconSize as string )
-												) || DEFAULTS.maskedIconSize,
+													unitOf( attributes.imageIconsSize as string )
+												) || DEFAULTS.imageIconsSize,
 										} )
 									}
 								/>
@@ -296,15 +296,15 @@ const withIconControls = createHigherOrderComponent(
 									label={ __( 'Gap', 'image-icons' ) }
 									units={ LENGTH_UNITS }
 									value={
-										( attributes.maskedIconGap as string ) || DEFAULTS.maskedIconGap
+										( attributes.imageIconsGap as string ) || DEFAULTS.imageIconsGap
 									}
 									onChange={ ( next?: string ) =>
 										setAttributes( {
-											maskedIconGap:
+											imageIconsGap:
 												toLength(
 													next,
-													unitOf( attributes.maskedIconGap as string )
-												) || DEFAULTS.maskedIconGap,
+													unitOf( attributes.imageIconsGap as string )
+												) || DEFAULTS.imageIconsGap,
 										} )
 									}
 								/>
@@ -315,9 +315,9 @@ const withIconControls = createHigherOrderComponent(
 										'Draws the file as it is instead of using it as a mask, so it keeps its own colours and stops following the text - including when the button changes colour on hover. Size, position, gap and the hover animation carry on working.',
 										'image-icons'
 									) }
-									checked={ Boolean( attributes.maskedIconOriginal ) }
+									checked={ Boolean( attributes.imageIconsOriginal ) }
 									onChange={ ( next: boolean ) =>
-										setAttributes( { maskedIconOriginal: next } )
+										setAttributes( { imageIconsOriginal: next } )
 									}
 								/>
 
@@ -327,14 +327,14 @@ const withIconControls = createHigherOrderComponent(
 										'Plays on its own, to draw the eye. Use it sparingly: on the page it never stops.',
 										'image-icons'
 									) }
-									value={ ( attributes.maskedIconIdle as string ) || '' }
+									value={ ( attributes.imageIconsIdle as string ) || '' }
 									options={ IDLE_ANIMATION_OPTIONS }
 									onChange={ ( next: string ) =>
-										setAttributes( { maskedIconIdle: next } )
+										setAttributes( { imageIconsIdle: next } )
 									}
 								/>
 
-								{ Boolean( attributes.maskedIconIdle ) && (
+								{ Boolean( attributes.imageIconsIdle ) && (
 									<RangeControl
 										label={ __( 'Repeat every', 'image-icons' ) }
 										help={ __(
@@ -345,12 +345,12 @@ const withIconControls = createHigherOrderComponent(
 										max={ 10 }
 										step={ 0.5 }
 										value={
-											( attributes.maskedIconIdleInterval as number ) ??
+											( attributes.imageIconsIdleInterval as number ) ??
 											DEFAULT_IDLE_INTERVAL
 										}
 										onChange={ ( next?: number ) =>
 											setAttributes( {
-												maskedIconIdleInterval:
+												imageIconsIdleInterval:
 													next ?? DEFAULT_IDLE_INTERVAL,
 											} )
 										}
@@ -367,10 +367,10 @@ const withIconControls = createHigherOrderComponent(
 									options={ HOVER_ANIMATION_OPTIONS }
 									onChange={ ( next: string ) =>
 										setAttributes( {
-											maskedIconAnimation: next,
+											imageIconsAnimation: next,
 											// The old boolean would otherwise keep the slide alive
 											// underneath whatever was picked here.
-											maskedIconAnimate: false,
+											imageIconsAnimate: false,
 										} )
 									}
 								/>
@@ -386,12 +386,12 @@ const withIconControls = createHigherOrderComponent(
 										max={ 3 }
 										step={ 0.1 }
 										value={
-											( attributes.maskedIconDuration as number ) ??
+											( attributes.imageIconsDuration as number ) ??
 											DEFAULT_HOVER_DURATION
 										}
 										onChange={ ( next?: number ) =>
 											setAttributes( {
-												maskedIconDuration:
+												imageIconsDuration:
 													next ?? DEFAULT_HOVER_DURATION,
 											} )
 										}

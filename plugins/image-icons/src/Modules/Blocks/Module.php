@@ -76,7 +76,8 @@ final class Module implements ModuleContract {
 
 		wp_add_inline_script(
 			$handle,
-			'window.maskedIconFormats = ' . wp_json_encode( MaskFormats::available() ) . ';',
+			'window.imageIcons = window.imageIcons || {}; window.imageIcons.maskFormats = '
+				. wp_json_encode( MaskFormats::available() ) . ';',
 			'before'
 		);
 	}

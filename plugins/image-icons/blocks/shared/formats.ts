@@ -17,7 +17,16 @@ interface MaskFormats {
 
 declare global {
 	interface Window {
-		maskedIconFormats?: MaskFormats;
+		/**
+		 * One namespace for everything PHP hands the editor.
+		 *
+		 * A global per value would spread the plugin across `window` and make a collision with
+		 * another plugin a matter of luck with names; one object keeps the surface to a single
+		 * property whose name is the plugin's own.
+		 */
+		imageIcons?: {
+			maskFormats?: MaskFormats;
+		};
 	}
 }
 
@@ -62,7 +71,7 @@ function list( extensions: string[] ): string {
  * controls elsewhere would otherwise get a sentence with a hole in it.
  */
 export function formatsHelp(): string {
-	const formats = window.maskedIconFormats;
+	const formats = window.imageIcons?.maskFormats;
 
 	if ( ! formats?.transparent?.length ) {
 		return __(

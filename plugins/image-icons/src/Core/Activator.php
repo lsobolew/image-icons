@@ -61,14 +61,41 @@ final class Activator {
 			return array();
 		}
 
-		return array_map(
-			'intval',
-			get_sites(
+		return self::paged_site_ids();
+	}
+
+	/**
+	 * Every site id on the network, a page at a time.
+	 *
+	 * Asking for all of them in one query is fine on a network of five and a
+	 * way to exhaust memory or time out on a network of fifty thousand - and a plugin activated
+	 * network-wide on one of those is exactly when this runs. Paging keeps the working set to one
+	 * batch whatever the size of the network.
+	 *
+	 * @return int[]
+	 */
+	public static function paged_site_ids(): array {
+		$batch  = 200;
+		$offset = 0;
+		$ids    = array();
+
+		do {
+			$page = get_sites(
 				array(
 					'fields' => 'ids',
-					'number' => 0,
+					'number' => $batch,
+					'offset' => $offset,
 				)
-			)
-		);
+			);
+
+			foreach ( $page as $id ) {
+				$ids[] = (int) $id;
+			}
+
+			$found   = count( $page );
+			$offset += $batch;
+		} while ( $found === $batch );
+
+		return $ids;
 	}
 }

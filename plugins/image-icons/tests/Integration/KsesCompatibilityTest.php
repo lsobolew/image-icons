@@ -39,7 +39,7 @@ final class KsesCompatibilityTest extends WP_UnitTestCase {
 	 * A core Button carrying an icon, as the editor extension saves it.
 	 */
 	private const BUTTON_MARKUP = '<!-- wp:buttons --><div class="wp-block-buttons">' .
-		'<!-- wp:button {"maskedIconUrl":"https://example.com/arrow.png"} -->' .
+		'<!-- wp:button {"imageIconsUrl":"https://example.com/arrow.png"} -->' .
 		'<div class="wp-block-button has-image-icons is-icon-after" style="--image-icons-image:url(https://example.com/arrow.png);--image-icons-size:1em;--image-icons-gap:0.5em">' .
 		'<a class="wp-block-button__link wp-element-button">Learn more</a></div>' .
 		'<!-- /wp:button --></div><!-- /wp:buttons -->';

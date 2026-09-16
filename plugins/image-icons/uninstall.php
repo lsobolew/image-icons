@@ -24,18 +24,30 @@ function image_icons_uninstall_site(): void {
 }
 
 if ( is_multisite() ) {
-	$image_icons_site_ids = get_sites(
-		array(
-			'fields' => 'ids',
-			'number' => 0,
-		)
-	);
+	// A page at a time rather than `'number' => 0`: asking for every site at once is fine on a
+	// small network and a way to run out of memory on a large one. This file runs without the
+	// plugin loaded, so it cannot borrow the helper in Core\Activator and repeats the loop.
+	$image_icons_batch  = 200;
+	$image_icons_offset = 0;
 
-	foreach ( $image_icons_site_ids as $image_icons_site_id ) {
-		switch_to_blog( (int) $image_icons_site_id );
-		image_icons_uninstall_site();
-		restore_current_blog();
-	}
+	do {
+		$image_icons_site_ids = get_sites(
+			array(
+				'fields' => 'ids',
+				'number' => $image_icons_batch,
+				'offset' => $image_icons_offset,
+			)
+		);
+
+		foreach ( $image_icons_site_ids as $image_icons_site_id ) {
+			switch_to_blog( (int) $image_icons_site_id );
+			image_icons_uninstall_site();
+			restore_current_blog();
+		}
+
+		$image_icons_found   = count( $image_icons_site_ids );
+		$image_icons_offset += $image_icons_batch;
+	} while ( $image_icons_found === $image_icons_batch );
 } else {
 	image_icons_uninstall_site();
 }

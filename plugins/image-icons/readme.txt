@@ -95,11 +95,17 @@ the keyboard.
 
 == Source code ==
 
-The editor script that ships in `build/` is compiled and minified from TypeScript. The source it
-was built from, together with the build configuration, lives at
-https://github.com/lsobolew/image-icons - the block sources are under
-`plugins/image-icons/blocks/`, and `npm run build` in `plugins/image-icons/` reproduces exactly
-what is in the package.
+Everything in this plugin is human-readable except `build/icon/index.js`, which is compiled and
+minified from TypeScript.
+
+The source it was built from is at https://github.com/lsobolew/image-icons, tagged `v0.1.0` for
+this release. The block sources are in `plugins/image-icons/blocks/`, and the build is reproduced
+with:
+
+`npm ci && npm run build` in `plugins/image-icons/`
+
+That writes `build/` from `blocks/` using the configuration in the same directory - no other step,
+and nothing fetched at build time beyond the locked dependencies.
 
 == Frequently Asked Questions ==
 
