@@ -60,7 +60,22 @@ final class RequirementsTest extends WP_UnitTestCase {
 		$failed->setAccessible( true );
 		$failed->setValue( null, 'php' );
 
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		// The notice is gated on `activate_plugins`, and on multisite an administrator does not
+		// have it - plugins are a network decision there, so only the super admin does. Asking for
+		// the role rather than the capability made this pass on a single site and fail on the
+		// nightly multisite target, which is the difference the matrix exists to find.
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+
+		if ( is_multisite() ) {
+			grant_super_admin( $user_id );
+		}
+
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue(
+			current_user_can( 'activate_plugins' ),
+			'the test user has to be able to act on the notice for it to be shown one'
+		);
 
 		ob_start();
 		Requirements::render_notice();

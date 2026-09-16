@@ -19,8 +19,8 @@ jobs:
     outputs:
       targets: ${{ steps.resolve.outputs.targets }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - id: resolve
@@ -31,8 +31,8 @@ jobs:
     name: PHPCS, PHPStan, Plugin Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Start the newest WordPress
@@ -41,7 +41,7 @@ jobs:
       - run: ./bin/wpx test analyse --targets=latest
       - run: ./bin/wpx test plugin-check --targets=latest
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: static-results
           path: .wplab/results/
@@ -55,8 +55,8 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.matrix.outputs.targets) }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Install the e2e runner
@@ -76,7 +76,7 @@ jobs:
         if: failure()
         run: ./bin/wpx logs ${{ matrix.id }} --no-follow --tail=200
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: results-${{ matrix.id }}
           path: |
@@ -88,15 +88,15 @@ jobs:
     name: Build the distributables
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - run: ./bin/wpx up latest
       # --verify unpacks the zip on a real site and activates it, which catches a package that is
       # missing files long before a user downloads it.
       - run: ./bin/wpx build --edition=both --verify
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: plugin-zips
           path: dist/*.zip

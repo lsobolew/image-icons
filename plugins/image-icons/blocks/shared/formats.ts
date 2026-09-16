@@ -56,11 +56,16 @@ function list( extensions: string[] ): string {
 		return names.join( '' );
 	}
 
+	// The early return above means there are at least two, so the last one exists - but the
+	// compiler cannot see that, and an index into an array is `string | undefined` to it. The
+	// fallback costs nothing and is honest about what the type system can prove.
+	const last = names[ names.length - 1 ] ?? '';
+
 	return sprintf(
 		/* translators: 1: a comma-separated list of file formats, 2: the last file format. */
 		__( '%1$s and %2$s', 'image-icons' ),
 		names.slice( 0, -1 ).join( ', ' ),
-		names[ names.length - 1 ]
+		last
 	);
 }
 
