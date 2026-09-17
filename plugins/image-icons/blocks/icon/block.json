@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "image-icons/icon",
 	"version": "0.1.0",
-	"title": "Image Icons",
+	"title": "Image Icon",
 	"category": "media",
 	"icon": "art",
 	"description": "Render any image as a single-colour icon that follows the text colour.",

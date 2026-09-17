@@ -69,7 +69,7 @@ export default function Edit( { attributes, setAttributes }: IconEditProps ) {
 				<MediaPlaceholder
 					icon="art"
 					labels={ {
-						title: __( 'Image Icons', 'image-icons' ),
+						title: __( 'Image Icon', 'image-icons' ),
 						instructions: `${ __(
 							'Pick any image. It is used as a mask, so the icon takes the colour you set rather than the colours in the file.',
 							'image-icons'
