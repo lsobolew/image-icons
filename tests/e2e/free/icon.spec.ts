@@ -638,6 +638,113 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		expect( computed.ratio ).toBeCloseTo( 2, 1 );
 	} );
 
+	test( 'the block carries its own colour, alignment and proportions', async ( {
+		admin,
+		editor,
+		page,
+	} ) => {
+		// The standalone block used to be the odd one out: a square box with a contain/cover
+		// setting, no way to keep the file's colours, and colour only in the Styles tab. It now
+		// matches the other two - sized from the image's proportions, with its own settings.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'image-icons/icon',
+			attributes: {
+				url: WIDE_PIXEL,
+				size: '4em',
+				ratio: '2/1',
+				align: 'center',
+				customColor: '#0000d0',
+				label: 'Next',
+			},
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const measured = await page
+			.locator( '.wp-block-image-icons-icon' )
+			.evaluate( ( root ) => {
+				const mark = root.querySelector(
+					'.wp-block-image-icons-icon__mark'
+				) as HTMLElement;
+				const style = window.getComputedStyle( mark );
+				const box = mark.getBoundingClientRect();
+
+				return {
+					align: window.getComputedStyle( root ).textAlign,
+					colour: style.backgroundColor,
+					mask: style.maskImage || style.webkitMaskImage,
+					ratio: box.width / box.height,
+					label: mark.getAttribute( 'aria-label' ),
+				};
+			} );
+
+		expect( measured.align ).toBe( 'center' );
+		expect( measured.colour ).toBe( 'rgb(0, 0, 208)' );
+		expect( measured.mask ).toContain( 'url(' );
+		expect( measured.ratio ).toBeCloseTo( 2, 1 );
+		expect( measured.label ).toBe( 'Next' );
+	} );
+
+	test( 'the block can keep the image its own colours', async ( { admin, editor, page } ) => {
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'image-icons/icon',
+			attributes: { url: WIDE_PIXEL, size: '3em', ratio: '2/1', original: true },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const computed = await page
+			.locator( '.wp-block-image-icons-icon__mark' )
+			.evaluate( ( element ) => {
+				const style = window.getComputedStyle( element );
+
+				return {
+					mask: style.maskImage || style.webkitMaskImage,
+					background: style.backgroundColor,
+					image: style.backgroundImage,
+				};
+			} );
+
+		expect( computed.mask ).toBe( 'none' );
+		expect( computed.background ).toBe( 'rgba(0, 0, 0, 0)' );
+		expect( computed.image ).toContain( 'url(' );
+	} );
+
+	test( 'a block without that setting is still masked', async ( { admin, editor, page } ) => {
+		// The rule that draws the file as itself was first written as a nested `&.is-original
+		// &__mark`, which Sass expands without the modifier - so it applied to every icon and
+		// quietly turned the masking off everywhere. This is the assertion that catches that.
+		await admin.createNewPost();
+		await editor.insertBlock( {
+			name: 'image-icons/icon',
+			attributes: { url: PIXEL, size: '2em' },
+		} );
+
+		const postId = await editor.publishPost();
+
+		await page.goto( `/?p=${ postId }` );
+
+		const computed = await page
+			.locator( '.wp-block-image-icons-icon__mark' )
+			.evaluate( ( element ) => {
+				const style = window.getComputedStyle( element );
+
+				return {
+					mask: style.maskImage || style.webkitMaskImage,
+					background: style.backgroundColor,
+				};
+			} );
+
+		expect( computed.mask ).toContain( 'url(' );
+		expect( computed.background ).not.toBe( 'rgba(0, 0, 0, 0)' );
+	} );
+
 	test( 'an inline icon keeps the proportions of the image it masks', async ( {
 		admin,
 		editor,

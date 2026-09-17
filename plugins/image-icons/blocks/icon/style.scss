@@ -24,12 +24,12 @@
 	background-color: currentColor;
 
 	mask-image: var( --image-icons-image );
-	mask-size: var( --image-icons-fit, contain );
+	mask-size: contain;
 	mask-repeat: no-repeat;
 	mask-position: center;
 
 	-webkit-mask-image: var( --image-icons-image );
-	-webkit-mask-size: var( --image-icons-fit, contain );
+	-webkit-mask-size: contain;
 	-webkit-mask-repeat: no-repeat;
 	-webkit-mask-position: center;
 }
@@ -45,11 +45,33 @@
 	&__mark {
 		display: inline-block;
 		vertical-align: middle;
-		width: var( --image-icons-size, 1em );
-		height: var( --image-icons-size, 1em );
 		flex: none;
+		// Sized from the height, with the width following the file's own proportions - the same
+		// way the inline icon and the button icon are sized. The mark is an empty span with no
+		// image to be measured from, so the ratio is stored when the image is picked; without one
+		// it falls back to a square, which is what every icon here used to be. That square is the
+		// reason this block once needed a contain/cover setting: there is nothing to letterbox or
+		// crop once the box is the shape of the image.
+		height: var( --image-icons-size, 1em );
+		width: auto;
+		aspect-ratio: var( --image-icons-ratio, 1 );
 
 		@include image-icons-surface;
+	}
+
+	// "Keep the original colours": the file is drawn as itself rather than used as a mask.
+	//
+	// Written out rather than nested as `&.is-original &__mark`: Sass expands that to a selector
+	// without the modifier, so the rule silently applied to every icon.
+	&.is-original .wp-block-image-icons-icon__mark {
+		background-color: transparent;
+		background-image: var( --image-icons-image );
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: center;
+
+		mask-image: none;
+		-webkit-mask-image: none;
 	}
 }
 
@@ -70,7 +92,6 @@ img.wp-block-image-icons-icon__inline {
 	// element itself, and an inline style beats this rule, so the element's own value still wins.
 	--image-icons-image: none;
 	--image-icons-size: 1em;
-	--image-icons-fit: contain;
 
 	display: inline-block;
 	vertical-align: var( --image-icons-align, middle );
@@ -99,6 +120,23 @@ img.wp-block-image-icons-icon__inline.is-original {
 .wp-block-image-icons-icon__link {
 	// A linked icon should not pick up the theme's underline.
 	text-decoration: none;
+}
+
+// Horizontal placement. The block root is block-level and the mark inside it is inline, so this is
+// what `text-align` was made for - and `has-text-align-*` is the class core already uses for it,
+// which means a theme styling those styles this too.
+.wp-block-image-icons-icon {
+	&.has-text-align-left {
+		text-align: left;
+	}
+
+	&.has-text-align-center {
+		text-align: center;
+	}
+
+	&.has-text-align-right {
+		text-align: right;
+	}
 }
 
 // An icon added to a core Button, rendered as a pseudo-element so the native button markup,
@@ -148,7 +186,7 @@ img.wp-block-image-icons-icon__inline.is-original {
 .wp-block-button.has-image-icons.is-icon-original.is-icon-before .wp-block-button__link::before {
 	background-color: transparent;
 	background-image: var( --image-icons-image );
-	background-size: var( --image-icons-fit, contain );
+	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
 

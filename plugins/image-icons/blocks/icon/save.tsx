@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 
-import { maskStyle } from './style-props';
+import { maskStyle, maskClasses } from './style-props';
 import type { IconSaveProps } from './types';
 
 /**
@@ -10,7 +10,8 @@ import type { IconSaveProps } from './types';
  * The extra element is not decoration. A block's root participates in the theme's layout, and an
  * `inline-block` root escapes a constrained layout entirely - the icon ends up pinned to the left
  * edge of the viewport instead of sitting where the content column starts. A block-level wrapper
- * behaves, and the span inside stays inline so the icon keeps its baseline and its `1em` sizing.
+ * behaves, and the span inside stays inline so the icon keeps its baseline and its sizing. It is
+ * also what makes alignment work: the wrapper is what `text-align` applies to.
  */
 export default function save( { attributes }: IconSaveProps ) {
 	const { url, label, href, linkTarget, rel } = attributes;
@@ -33,8 +34,10 @@ export default function save( { attributes }: IconSaveProps ) {
 		/>
 	);
 
+	const blockProps = useBlockProps.save( { className: maskClasses( attributes ) } );
+
 	return (
-		<div { ...useBlockProps.save() }>
+		<div { ...blockProps }>
 			{ href ? (
 				<a
 					className="wp-block-image-icons-icon__link"

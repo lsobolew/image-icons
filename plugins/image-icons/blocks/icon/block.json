@@ -14,7 +14,11 @@
 		"mediaId": { "type": "number", "default": 0 },
 		"label": { "type": "string", "default": "" },
 		"size": { "type": "string", "default": "1em" },
-		"fit": { "type": "string", "default": "contain" },
+		"ratio": { "type": "string", "default": "" },
+		"align": { "type": "string", "default": "" },
+		"original": { "type": "boolean", "default": false },
+		"presetColor": { "type": "string", "default": "" },
+		"customColor": { "type": "string", "default": "" },
 		"href": { "type": "string", "default": "" },
 		"linkTarget": { "type": "string", "default": "" },
 		"rel": { "type": "string", "default": "" }
@@ -22,11 +26,6 @@
 	"supports": {
 		"html": false,
 		"anchor": true,
-		"color": {
-			"text": true,
-			"background": false,
-			"gradients": false
-		},
 		"spacing": {
 			"margin": true
 		}

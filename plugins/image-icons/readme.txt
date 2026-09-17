@@ -36,8 +36,10 @@ width controls and link handling all keep working exactly as before. Choose the 
 the gap; the icon takes the button's proportions from the file, so a tall or wide mark is not
 squashed into a square.
 
-**On its own.** A dedicated block for an icon that stands by itself, with size, fit and an optional
-link.
+**On its own.** A dedicated block for an icon that stands by itself: size, colour from the theme
+palette, left/centre/right placement, an optional link, and the same option to keep the file's own
+colours. Useful when the icon is the point rather than an ornament on something else - centred
+above a heading, say.
 
 = Animation, when it earns its place =
 
