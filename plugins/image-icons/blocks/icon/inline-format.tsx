@@ -293,7 +293,7 @@ function InlineIcon( {
 			{ isObjectActive || editing ? (
 				<RichTextToolbarButton
 					icon="art"
-					title={ __( 'Masked icon', 'image-icons' ) }
+					title={ __( 'Image Icon', 'image-icons' ) }
 					isActive
 					onClick={ () =>
 						setEditing( {
@@ -310,7 +310,7 @@ function InlineIcon( {
 						render={ ( { open }: { open: () => void } ) => (
 							<RichTextToolbarButton
 								icon="art"
-								title={ __( 'Masked icon', 'image-icons' ) }
+								title={ __( 'Image Icon', 'image-icons' ) }
 								onClick={ open }
 							/>
 						) }
@@ -331,7 +331,7 @@ function InlineIcon( {
 }
 
 registerFormat( NAME, {
-	title: __( 'Masked icon', 'image-icons' ),
+	title: __( 'Image Icon', 'image-icons' ),
 	tagName: 'img',
 	className: 'wp-block-image-icons-icon__inline',
 	// A void inline element: it carries no text of its own, so it is inserted rather than wrapped

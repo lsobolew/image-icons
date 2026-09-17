@@ -325,7 +325,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
 
-		const item = page.getByRole( 'menuitem', { name: 'Masked icon' } );
+		const item = page.getByRole( 'menuitem', { name: 'Image Icon' } );
 
 		await expect( item ).toBeVisible();
 		// Inside the overflow menu core renders isActive as a class rather than aria-pressed - the
@@ -364,7 +364,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.keyboard.press( 'Shift+ArrowLeft' );
 
 		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
-		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+		await page.getByRole( 'menuitem', { name: 'Image Icon' } ).click();
 
 		const alt = page.getByRole( 'textbox', { name: 'Alternative text' } );
 		const size = page.getByRole( 'spinbutton', { name: 'Size' } );
@@ -404,7 +404,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.keyboard.press( 'End' );
 
 		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
-		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+		await page.getByRole( 'menuitem', { name: 'Image Icon' } ).click();
 
 		// The media library opens first; picking an image is the start of placing an icon.
 		const media = page.getByRole( 'dialog' );
@@ -538,7 +538,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.keyboard.press( 'End' );
 		await page.keyboard.press( 'Shift+ArrowLeft' );
 		await page.getByRole( 'button', { name: 'More', exact: true } ).click();
-		await page.getByRole( 'menuitem', { name: 'Masked icon' } ).click();
+		await page.getByRole( 'menuitem', { name: 'Image Icon' } ).click();
 
 		// Touch something else entirely. The colour is not being edited - it only has to survive
 		// the read-modify-write that editing anything performs.
