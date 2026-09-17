@@ -1,4 +1,4 @@
-=== Image Icons - Icon Block, Inline Icons and Button Icons ===
+=== Image Icons ===
 Contributors: lsobolew
 Tags: icon, icons, button, block, svg
 Requires at least: 6.6
