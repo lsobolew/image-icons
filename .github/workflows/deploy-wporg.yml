@@ -32,6 +32,6 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-          SLUG: image-icons
-          BUILD_DIR: .wplab/build/image-icons
+          SLUG: sobol-image-icons
+          BUILD_DIR: .wplab/build/sobol-image-icons
           ASSETS_DIR: .wordpress-org

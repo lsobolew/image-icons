@@ -1,0 +1,499 @@
+// Front-end styles for the icon, and for the icon added to a core Button.
+//
+// The mask URL never appears in a style attribute - it arrives as the custom property
+// --sobol-image-icons-image, and this stylesheet is what turns it into a mask. That indirection is not
+// cosmetic: WordPress strips `mask-image` from inline styles for every user without the
+// unfiltered_html capability (on multisite that is everyone except the super admin), while custom
+// properties survive. Writing mask-image inline would work for the plugin author and silently
+// break for their users.
+
+// --sobol-image-icons-align sets how an inline icon sits against the text it is written into, as a
+// plain vertical-align keyword: middle, text-bottom or text-top.
+//
+// It applies to the inline icon and to nothing else. An icon on a button or in a block of its own
+// has no surrounding text to sit against - it is the only thing on its line - so there is nothing
+// for the setting to mean there, and both are centred outright.
+//
+// Earlier versions used -0.125em for all three. That number is a convention borrowed from icon
+// fonts - an eighth of an em is roughly the distance from a font's baseline to the bottom of its
+// descenders, so it makes a square icon look like it is sitting on the baseline. It is an
+// empirical fudge that suits body text at ordinary sizes and drifts as soon as the icon is much
+// larger than the text, which is exactly when alignment starts to matter.
+
+@mixin sobol-image-icons-surface {
+	background-color: currentColor;
+
+	mask-image: var( --sobol-image-icons-image );
+	mask-size: contain;
+	mask-repeat: no-repeat;
+	mask-position: center;
+
+	-webkit-mask-image: var( --sobol-image-icons-image );
+	-webkit-mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+}
+
+// WordPress builds this class from the full block name, so `sobol-image-icons/icon` becomes
+// `wp-block-sobol-image-icons-icon` rather than the shorter name one might expect.
+//
+// The root stays a normal block-level element: an inline-block root escapes a theme's constrained
+// layout and the icon lands against the viewport edge instead of the content column.
+.wp-block-sobol-image-icons-icon {
+	line-height: 1;
+
+	&__mark {
+		display: inline-block;
+		vertical-align: middle;
+		flex: none;
+		// Sized from the height, with the width following the file's own proportions - the same
+		// way the inline icon and the button icon are sized. The mark is an empty span with no
+		// image to be measured from, so the ratio is stored when the image is picked; without one
+		// it falls back to a square, which is what every icon here used to be. That square is the
+		// reason this block once needed a contain/cover setting: there is nothing to letterbox or
+		// crop once the box is the shape of the image.
+		height: var( --sobol-image-icons-size, 1em );
+		width: auto;
+		aspect-ratio: var( --sobol-image-icons-ratio, 1 );
+
+		@include sobol-image-icons-surface;
+	}
+
+	// "Keep the original colours": the file is drawn as itself rather than used as a mask.
+	//
+	// Written out rather than nested as `&.is-original &__mark`: Sass expands that to a selector
+	// without the modifier, so the rule silently applied to every icon.
+	&.is-original .wp-block-sobol-image-icons-icon__mark {
+		background-color: transparent;
+		background-image: var( --sobol-image-icons-image );
+		background-size: contain;
+		background-repeat: no-repeat;
+		background-position: center;
+
+		mask-image: none;
+		-webkit-mask-image: none;
+	}
+}
+
+// The inline icon, inserted into text by the rich-text format.
+//
+// It is an <img> because rich-text serialises object formats without a closing tag, which is only
+// valid HTML for a void element - inline-format.tsx explains that at length.
+//
+// Its src is the mask image itself, which is what makes the box the right shape: set the height
+// and the browser derives the width from the file's own proportions, so a tall or wide icon is
+// never squashed into a square. The pixels themselves must not show - the icon is meant to be a
+// currentColor silhouette, not the artwork - and replaced content is clipped to the content box,
+// so pushing the image far outside it hides it while the box, and its proportions, stay.
+img.wp-block-sobol-image-icons-icon__inline {
+	// An inline icon can sit inside something that already has an icon of its own - a button, most
+	// obviously - and custom properties inherit. Without this reset it would be masked, sized and
+	// shaped by the host's icon rather than its own. Only --sobol-image-icons-image is written on the
+	// element itself, and an inline style beats this rule, so the element's own value still wins.
+	--sobol-image-icons-image: none;
+	--sobol-image-icons-size: 1em;
+
+	display: inline-block;
+	vertical-align: var( --sobol-image-icons-align, middle );
+	height: var( --sobol-image-icons-size, 1em );
+	width: auto;
+	// Themes set `img { max-width: 100%; height: auto }`; the class out-specifies it, but saying
+	// so here keeps the intent obvious to whoever reads this next.
+	max-width: none;
+	object-fit: none;
+	object-position: -9999px -9999px;
+
+	@include sobol-image-icons-surface;
+}
+
+// "Keep the original colours" for an inline icon: the file is drawn as itself instead of masked.
+// The box stays exactly as it was, so the size and the proportions are unaffected - and the image
+// is no longer pushed out of view, because now it is the point.
+img.wp-block-sobol-image-icons-icon__inline.is-original {
+	background-color: transparent;
+	mask-image: none;
+	-webkit-mask-image: none;
+	object-fit: contain;
+	object-position: center;
+}
+
+.wp-block-sobol-image-icons-icon__link {
+	// A linked icon should not pick up the theme's underline.
+	text-decoration: none;
+}
+
+// Horizontal placement. The block root is block-level and the mark inside it is inline, so this is
+// what `text-align` was made for - and `has-text-align-*` is the class core already uses for it,
+// which means a theme styling those styles this too.
+.wp-block-sobol-image-icons-icon {
+	&.has-text-align-left {
+		text-align: left;
+	}
+
+	&.has-text-align-center {
+		text-align: center;
+	}
+
+	&.has-text-align-right {
+		text-align: right;
+	}
+}
+
+// An icon added to a core Button, rendered as a pseudo-element so the native button markup,
+// styles and colours are left exactly as WordPress produced them.
+//
+// Laid out in the ordinary text flow, not by making the link a flex container. Flex would turn
+// everything inside the button into a flex item - the label, a bold run, and an inline masked icon
+// somebody put in the text - spacing them all by the icon gap and lining them up by the icon's
+// rules. That is exactly the kind of change to the native button this plugin exists not to make.
+// A margin does the same job for the one element that needs it.
+@mixin sobol-image-icons-pseudo {
+	content: "";
+	display: inline-block;
+	// Centred on the middle of the label rather than sat on its baseline. It matters as soon as
+	// the icon is taller than the text: baseline alignment would leave the icon sticking up and
+	// the label pushed to the bottom of the button.
+	vertical-align: middle;
+	// A pseudo-element has no image of its own to be measured from, so the proportions arrive as a
+	// custom property written when the icon was picked. Without one this is a square and `contain`
+	// letterboxes a tall or wide icon inside it - correct, but padded.
+	height: var( --sobol-image-icons-size, 1em );
+	width: auto;
+	aspect-ratio: var( --sobol-image-icons-ratio, 1 );
+
+	@include sobol-image-icons-surface;
+}
+
+.wp-block-button.has-sobol-image-icons:not( .is-icon-before ) .wp-block-button__link::after {
+	@include sobol-image-icons-pseudo;
+
+	margin-inline-start: var( --sobol-image-icons-gap, 0.5em );
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-before .wp-block-button__link::before {
+	@include sobol-image-icons-pseudo;
+
+	margin-inline-end: var( --sobol-image-icons-gap, 0.5em );
+}
+
+// "Keep the original colours": the file is drawn as itself rather than used as a mask. Everything
+// else about the icon - size, proportions, side, gap, animation - is untouched, because the only
+// thing this switch is meant to turn off is the tint.
+//
+// The selectors repeat the side condition from the rules above so they are plainly one class more
+// specific, rather than equally specific and winning only because they come later in the file.
+.wp-block-button.has-sobol-image-icons.is-icon-original:not( .is-icon-before ) .wp-block-button__link::after,
+.wp-block-button.has-sobol-image-icons.is-icon-original.is-icon-before .wp-block-button__link::before {
+	background-color: transparent;
+	background-image: var( --sobol-image-icons-image );
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+
+	mask-image: none;
+	-webkit-mask-image: none;
+}
+
+// Animations for the button icon.
+//
+// There are two independent slots. The idle one runs on its own to draw the eye; the hover one
+// runs while the pointer is on the button. Hover rules carry a pseudo-class the idle ones do not,
+// so hover wins on specificity without any help - one animation hands over to the other.
+//
+// The timing of each is a custom property, because the two slots want opposite things from it.
+// On hover a duration is a speed: the motion fills the cycle, and a shorter cycle is a livelier
+// icon. Idle, a duration is an interval: the -idle keyframes pack all their movement into the
+// first fifth of the cycle and hold still for the rest, so a longer duration means the icon
+// twitches less often rather than more slowly. That is the difference between something that
+// catches the eye occasionally and something that never stops moving.
+//
+// ## Why every hover animation is a keyframe animation, and none of them is a transition
+//
+// Transitions are the obvious tool for "grow a bit while hovered", and they were used here first.
+// Two measurements killed that:
+//
+//   - Transitioning `transform` to `rotate(360deg)` animates nothing at all. A full turn is the
+//     identity matrix, and once both ends are decomposed there is nothing between them to
+//     interpolate - so the spin sat perfectly still.
+//   - A transition cannot start from a value an animation is producing. With an idle animation
+//     running, cancelling it on hover made the icon jump straight to the hover value rather than
+//     travel there.
+//
+// Keyframes have neither problem: an animation replaces an animation cleanly, and a rotation
+// expressed as keyframes really rotates. The cost is that leaving the button ends the animation
+// rather than easing back out of it - worth paying for movement that actually happens.
+//
+// ## Why not core's own block states
+//
+// WordPress 7.1 does give an individual button real state styles: the inspector has a state
+// switcher, `style[':hover']` on the block is honoured, and the front end gets a generated
+// `.wp-states-<hash>` class with the rules under it. It is a genuine per-block mechanism, not a
+// Global Styles one.
+//
+// It cannot carry this, for three reasons. Those styles are compiled by
+// wp_style_engine_get_styles(), which understands colour, typography, spacing, borders and
+// shadows and silently drops everything else - an `animation` declaration and a custom property
+// both vanish. The whole file is @since 7.1, while this plugin supports 6.6. And the state
+// switcher's current value lives behind @wordpress/private-apis, which is locked to core
+// packages, so a plugin's own panel cannot even read which state the user is looking at.
+
+@mixin sobol-image-icons-animated {
+	.wp-block-button__link::after,
+	.wp-block-button__link::before {
+		@content;
+	}
+}
+
+// The animation plays for a pointer and for a keyboard alike.
+//
+// :focus-visible rather than :focus, because :focus also fires when the button is clicked - the
+// animation would then start on the click and keep running after the pointer had gone, which is
+// not what anybody meant by a hover effect. :focus-visible fires when the browser judges that
+// focus ought to be shown, which in practice means somebody arrived by keyboard.
+//
+// It is a separate rule rather than another selector in the list above, and that is not a style
+// preference: a browser that does not recognise a selector throws away the whole rule it appears
+// in. Putting :focus-visible beside :hover would cost the hover animation too, on exactly the old
+// browsers that needed the fallback.
+@mixin sobol-image-icons-hovered {
+	.wp-block-button__link:hover::after,
+	.wp-block-button__link:hover::before {
+		@content;
+	}
+
+	.wp-block-button__link:focus-visible::after,
+	.wp-block-button__link:focus-visible::before {
+		@content;
+	}
+}
+
+// Idle: motion packed into the head of the cycle, stillness for the rest.
+@keyframes sobol-image-icons-wiggle-idle {
+	0%,
+	20%,
+	100% {
+		transform: rotate( 0deg );
+	}
+
+	5% {
+		transform: rotate( -12deg );
+	}
+
+	15% {
+		transform: rotate( 12deg );
+	}
+}
+
+@keyframes sobol-image-icons-bounce-idle {
+	0%,
+	20%,
+	100% {
+		transform: translateY( 0 );
+	}
+
+	10% {
+		transform: translateY( -0.25em );
+	}
+}
+
+@keyframes sobol-image-icons-spin-idle {
+	0% {
+		transform: rotate( 0deg );
+	}
+
+	20%,
+	100% {
+		transform: rotate( 360deg );
+	}
+}
+
+@keyframes sobol-image-icons-pulse-idle {
+	0%,
+	20%,
+	100% {
+		transform: scale( 1 );
+	}
+
+	10% {
+		transform: scale( 1.2 );
+	}
+}
+
+// Hover: these run once and hold, so the icon travels to its hover position and stays there.
+@keyframes sobol-image-icons-slide-hover {
+	from {
+		transform: translateX( 0 );
+	}
+
+	to {
+		transform: translateX( 0.25em );
+	}
+}
+
+@keyframes sobol-image-icons-slide-back-hover {
+	from {
+		transform: translateX( 0 );
+	}
+
+	to {
+		transform: translateX( -0.25em );
+	}
+}
+
+@keyframes sobol-image-icons-rotate-hover {
+	from {
+		transform: rotate( 0deg );
+	}
+
+	to {
+		transform: rotate( 45deg );
+	}
+}
+
+@keyframes sobol-image-icons-grow-hover {
+	from {
+		transform: scale( 1 );
+	}
+
+	to {
+		transform: scale( 1.25 );
+	}
+}
+
+// And these repeat for as long as the pointer stays.
+@keyframes sobol-image-icons-spin-hover {
+	from {
+		transform: rotate( 0deg );
+	}
+
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+@keyframes sobol-image-icons-bounce-hover {
+	0%,
+	100% {
+		transform: translateY( 0 );
+	}
+
+	50% {
+		transform: translateY( -0.25em );
+	}
+}
+
+@keyframes sobol-image-icons-wiggle-hover {
+	0%,
+	100% {
+		transform: rotate( 0deg );
+	}
+
+	25% {
+		transform: rotate( -12deg );
+	}
+
+	75% {
+		transform: rotate( 12deg );
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-idle-bounce {
+	@include sobol-image-icons-animated {
+		animation: sobol-image-icons-bounce-idle var( --sobol-image-icons-idle-interval, 3s ) ease infinite;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-idle-wiggle {
+	@include sobol-image-icons-animated {
+		animation: sobol-image-icons-wiggle-idle var( --sobol-image-icons-idle-interval, 3s ) ease infinite;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-idle-spin {
+	@include sobol-image-icons-animated {
+		animation: sobol-image-icons-spin-idle var( --sobol-image-icons-idle-interval, 3s ) ease infinite;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-idle-pulse {
+	@include sobol-image-icons-animated {
+		animation: sobol-image-icons-pulse-idle var( --sobol-image-icons-idle-interval, 3s ) ease infinite;
+	}
+}
+
+// `is-icon-animated` on its own means the slide, which is both the default and what posts saved
+// before the animation list existed carry - so nothing that already exists has to be re-saved.
+// Every other hover animation adds `is-icon-anim-*` next to it and is one class more specific.
+//
+// The slide moves the icon away from the text, so which way depends on the side it is on - which
+// here is simply which pseudo-element exists.
+.wp-block-button.has-sobol-image-icons.is-icon-animated {
+	.wp-block-button__link:hover::after {
+		animation: sobol-image-icons-slide-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease forwards;
+	}
+
+	.wp-block-button__link:hover::before {
+		animation: sobol-image-icons-slide-back-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease
+			forwards;
+	}
+
+	// Kept apart from the :hover rules above for the reason given at sobol-image-icons-hovered.
+	.wp-block-button__link:focus-visible::after {
+		animation: sobol-image-icons-slide-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease forwards;
+	}
+
+	.wp-block-button__link:focus-visible::before {
+		animation: sobol-image-icons-slide-back-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease
+			forwards;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-animated.is-icon-anim-rotate {
+	@include sobol-image-icons-hovered {
+		animation: sobol-image-icons-rotate-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease forwards;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-animated.is-icon-anim-grow {
+	@include sobol-image-icons-hovered {
+		animation: sobol-image-icons-grow-hover var( --sobol-image-icons-hover-duration, 0.2s ) ease forwards;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-animated.is-icon-anim-spin {
+	@include sobol-image-icons-hovered {
+		animation: sobol-image-icons-spin-hover var( --sobol-image-icons-hover-duration, 0.6s ) linear infinite;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-animated.is-icon-anim-bounce {
+	@include sobol-image-icons-hovered {
+		animation: sobol-image-icons-bounce-hover var( --sobol-image-icons-hover-duration, 0.6s ) ease infinite;
+	}
+}
+
+.wp-block-button.has-sobol-image-icons.is-icon-animated.is-icon-anim-wiggle {
+	@include sobol-image-icons-hovered {
+		animation: sobol-image-icons-wiggle-hover var( --sobol-image-icons-hover-duration, 0.4s ) ease infinite;
+	}
+}
+
+// Motion is a preference, not a decoration the site gets to override. An idle animation is the
+// worse offender of the two: it runs whether or not anybody asked for it.
+//
+// !important is the right tool here rather than a specificity hack: this has to beat every
+// animation rule above it, and adding classes to the selector until it does would have to be
+// redone the next time somebody adds an animation.
+@media ( prefers-reduced-motion: reduce ) {
+	.wp-block-button.has-sobol-image-icons {
+		@include sobol-image-icons-animated {
+			animation: none !important;
+			transform: none !important;
+		}
+
+		@include sobol-image-icons-hovered {
+			animation: none !important;
+			transform: none !important;
+		}
+	}
+}

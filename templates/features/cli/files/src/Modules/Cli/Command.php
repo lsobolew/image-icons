@@ -40,8 +40,8 @@ final class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp image-icons info
-	 *     wp image-icons info --format=json
+	 *     wp sobol-image-icons info
+	 *     wp sobol-image-icons info --format=json
 	 *
 	 * @param array<int, string>    $args       Positional arguments.
 	 * @param array<string, string> $assoc_args Named arguments.
@@ -88,7 +88,7 @@ final class Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp image-icons seed --count=20
+	 *     wp sobol-image-icons seed --count=20
 	 *
 	 * @param array<int, string>    $args       Positional arguments.
 	 * @param array<string, string> $assoc_args Named arguments.

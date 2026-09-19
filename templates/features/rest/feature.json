@@ -10,5 +10,5 @@
 		"tests/Integration/RestItemsTest.php"
 	],
 	"npmDependencies": [],
-	"notes": "Also removes the imageicons_rest_item extension point that the Pro edition uses."
+	"notes": "Also removes the sobolimageicons_rest_item extension point that the Pro edition uses."
 }

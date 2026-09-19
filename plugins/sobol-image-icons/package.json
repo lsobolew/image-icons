@@ -1,0 +1,33 @@
+{
+	"name": "sobol-image-icons",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Editor assets for the Sobol Image Icons plugin.",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "node build.mjs",
+		"dev": "node build.mjs --watch",
+		"types": "tsc --noEmit",
+		"lint:js": "eslint blocks",
+		"format": "prettier --write \"blocks/**/*.{ts,tsx,scss}\""
+	},
+	"devDependencies": {
+		"@types/react": "^18.3.0",
+		"@types/wordpress__block-editor": "^11.5.0",
+		"@types/wordpress__blocks": "^12.5.0",
+		"@wordpress/block-editor": "^17.1.0",
+		"@wordpress/blocks": "^16.0.0",
+		"@wordpress/components": "^40.1.0",
+		"@wordpress/compose": "^8.8.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.55.0",
+		"@wordpress/element": "^8.7.0",
+		"@wordpress/hooks": "^4.55.0",
+		"@wordpress/i18n": "^6.28.0",
+		"@wordpress/rich-text": "^7.55.0",
+		"@wordpress/server-side-render": "^6.31.0",
+		"sass": "^1.104.1",
+		"typescript": "^7.0.2",
+		"vite": "^7.3.6"
+	}
+}

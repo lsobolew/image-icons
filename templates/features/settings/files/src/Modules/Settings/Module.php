@@ -26,7 +26,7 @@ final class Module implements ModuleContract {
 	/**
 	 * Admin page slug.
 	 */
-	const PAGE_SLUG = 'image-icons';
+	const PAGE_SLUG = 'sobol-image-icons';
 
 	/**
 	 * Capability required to manage the settings.
@@ -62,7 +62,7 @@ final class Module implements ModuleContract {
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_filter( 'plugin_action_links_' . IMAGE_ICONS_BASENAME, array( $this, 'add_action_link' ) );
+		add_filter( 'plugin_action_links_' . SOBOL_IMAGE_ICONS_BASENAME, array( $this, 'add_action_link' ) );
 	}
 
 	/**
@@ -70,8 +70,8 @@ final class Module implements ModuleContract {
 	 */
 	public function add_menu_page(): void {
 		add_options_page(
-			__( 'Image Icons', 'image-icons' ),
-			__( 'Image Icons', 'image-icons' ),
+			__( 'Sobol Image Icons', 'sobol-image-icons' ),
+			__( 'Sobol Image Icons', 'sobol-image-icons' ),
 			self::CAPABILITY,
 			self::PAGE_SLUG,
 			array( $this, 'render_page' )
@@ -91,7 +91,7 @@ final class Module implements ModuleContract {
 		$settings_link = sprintf(
 			'<a href="%s">%s</a>',
 			esc_url( admin_url( 'options-general.php?page=' . self::PAGE_SLUG ) ),
-			esc_html__( 'Settings', 'image-icons' )
+			esc_html__( 'Settings', 'sobol-image-icons' )
 		);
 
 		array_unshift( $links, $settings_link );
@@ -115,47 +115,47 @@ final class Module implements ModuleContract {
 		);
 
 		add_settings_section(
-			'image_icons_general',
-			__( 'General settings', 'image-icons' ),
+			'sobol_image_icons_general',
+			__( 'General settings', 'sobol-image-icons' ),
 			static function () {
-				echo '<p>' . esc_html__( 'Basic plugin configuration.', 'image-icons' ) . '</p>';
+				echo '<p>' . esc_html__( 'Basic plugin configuration.', 'sobol-image-icons' ) . '</p>';
 			},
 			self::PAGE_SLUG
 		);
 
 		add_settings_field(
 			'enabled',
-			__( 'Enable functionality', 'image-icons' ),
+			__( 'Enable functionality', 'sobol-image-icons' ),
 			array( $this, 'render_checkbox' ),
 			self::PAGE_SLUG,
-			'image_icons_general',
+			'sobol_image_icons_general',
 			array(
 				'key'         => 'enabled',
-				'description' => __( 'Global on/off switch for the plugin.', 'image-icons' ),
+				'description' => __( 'Global on/off switch for the plugin.', 'sobol-image-icons' ),
 			)
 		);
 
 		add_settings_field(
 			'items_per_page',
-			__( 'Items per page', 'image-icons' ),
+			__( 'Items per page', 'sobol-image-icons' ),
 			array( $this, 'render_number' ),
 			self::PAGE_SLUG,
-			'image_icons_general',
+			'sobol_image_icons_general',
 			array(
 				'key'         => 'items_per_page',
-				'description' => __( 'How many items to show in lists and in the REST API.', 'image-icons' ),
+				'description' => __( 'How many items to show in lists and in the REST API.', 'sobol-image-icons' ),
 			)
 		);
 
 		add_settings_field(
 			'api_label',
-			__( 'API label', 'image-icons' ),
+			__( 'API label', 'sobol-image-icons' ),
 			array( $this, 'render_text' ),
 			self::PAGE_SLUG,
-			'image_icons_general',
+			'sobol_image_icons_general',
 			array(
 				'key'         => 'api_label',
-				'description' => __( 'Free-form text returned by the REST endpoint.', 'image-icons' ),
+				'description' => __( 'Free-form text returned by the REST endpoint.', 'sobol-image-icons' ),
 			)
 		);
 	}
@@ -219,11 +219,11 @@ final class Module implements ModuleContract {
 		// Belt and braces: WordPress checks the capability when adding the page, but the callback
 		// can also be reached directly.
 		if ( ! current_user_can( self::CAPABILITY ) ) {
-			wp_die( esc_html__( 'You are not allowed to access this page.', 'image-icons' ) );
+			wp_die( esc_html__( 'You are not allowed to access this page.', 'sobol-image-icons' ) );
 		}
 
 		?>
-		<div class="wrap" id="image-icons-settings">
+		<div class="wrap" id="sobol-image-icons-settings">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<form action="options.php" method="post">
 				<?php

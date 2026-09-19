@@ -21,9 +21,9 @@ registerBlockType( metadata.name, {
 		return (
 			<div { ...blockProps }>
 				<InspectorControls>
-					<PanelBody title={ __( 'List settings', 'image-icons' ) }>
+					<PanelBody title={ __( 'List settings', 'sobol-image-icons' ) }>
 						<RangeControl
-							label={ __( 'Number of items', 'image-icons' ) }
+							label={ __( 'Number of items', 'sobol-image-icons' ) }
 							value={ attributes.limit }
 							onChange={ ( limit ) => setAttributes( { limit } ) }
 							min={ 1 }

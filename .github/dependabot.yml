@@ -22,7 +22,7 @@
 version: 2
 updates:
   - package-ecosystem: composer
-    directory: /plugins/image-icons
+    directory: /plugins/sobol-image-icons
     schedule:
       interval: monthly
     rebase-strategy: disabled
@@ -44,7 +44,7 @@ updates:
           - "*"
 
   - package-ecosystem: npm
-    directory: /plugins/image-icons
+    directory: /plugins/sobol-image-icons
     schedule:
       interval: monthly
     rebase-strategy: disabled

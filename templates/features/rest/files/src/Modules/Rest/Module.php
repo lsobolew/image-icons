@@ -22,7 +22,7 @@ final class Module implements ModuleContract {
 	/**
 	 * REST namespace.
 	 */
-	const NAMESPACE_V1 = 'image-icons/v1';
+	const NAMESPACE_V1 = 'sobol-image-icons/v1';
 
 	/**
 	 * Plugin instance.

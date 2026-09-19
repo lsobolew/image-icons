@@ -15,24 +15,24 @@ use Sobolewski\ImageIcons\Core\Plugin;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers the "imageicons_item" post type, its taxonomy and a REST-visible meta field.
+ * Registers the "sobolimageicons_item" post type, its taxonomy and a REST-visible meta field.
  */
 final class Module implements ModuleContract {
 
 	/**
 	 * Post type name (20 characters max).
 	 */
-	const POST_TYPE = 'imageicons_item';
+	const POST_TYPE = 'sobolimageicons_item';
 
 	/**
 	 * Taxonomy name.
 	 */
-	const TAXONOMY = 'imageicons_item_type';
+	const TAXONOMY = 'sobolimageicons_item_type';
 
 	/**
 	 * Meta key. The leading underscore hides it from the custom fields box.
 	 */
-	const META_PRIORITY = '_imageicons_priority';
+	const META_PRIORITY = '_sobolimageicons_priority';
 
 	/**
 	 * Plugin instance.
@@ -74,12 +74,12 @@ final class Module implements ModuleContract {
 			self::POST_TYPE,
 			array(
 				'labels'       => array(
-					'name'          => __( 'Items', 'image-icons' ),
-					'singular_name' => __( 'Item', 'image-icons' ),
-					'add_new_item'  => __( 'Add item', 'image-icons' ),
-					'edit_item'     => __( 'Edit item', 'image-icons' ),
-					'search_items'  => __( 'Search items', 'image-icons' ),
-					'not_found'     => __( 'No items found.', 'image-icons' ),
+					'name'          => __( 'Items', 'sobol-image-icons' ),
+					'singular_name' => __( 'Item', 'sobol-image-icons' ),
+					'add_new_item'  => __( 'Add item', 'sobol-image-icons' ),
+					'edit_item'     => __( 'Edit item', 'sobol-image-icons' ),
+					'search_items'  => __( 'Search items', 'sobol-image-icons' ),
+					'not_found'     => __( 'No items found.', 'sobol-image-icons' ),
 				),
 				'public'       => true,
 				'has_archive'  => true,
@@ -109,8 +109,8 @@ final class Module implements ModuleContract {
 			array( self::POST_TYPE ),
 			array(
 				'labels'            => array(
-					'name'          => __( 'Item types', 'image-icons' ),
-					'singular_name' => __( 'Item type', 'image-icons' ),
+					'name'          => __( 'Item types', 'sobol-image-icons' ),
+					'singular_name' => __( 'Item type', 'sobol-image-icons' ),
 				),
 				'public'            => true,
 				'hierarchical'      => true,
@@ -133,7 +133,7 @@ final class Module implements ModuleContract {
 			self::META_PRIORITY,
 			array(
 				'type'              => 'integer',
-				'description'       => __( 'Item priority used when ordering lists.', 'image-icons' ),
+				'description'       => __( 'Item priority used when ordering lists.', 'sobol-image-icons' ),
 				'single'            => true,
 				'default'           => 0,
 				'show_in_rest'      => true,

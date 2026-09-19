@@ -10,5 +10,5 @@ belongs here instead.
 | `assets-src/` | not published: scenes, working files, raw recordings |
 
 Screenshot numbering follows the order of the `== Screenshots ==` list in
-`plugins/image-icons/readme.txt`. Change one and the other has to change with it, or the captions
-describe the wrong pictures.
+`plugins/sobol-image-icons/readme.txt`. Change one and the other has to change with it, or the
+captions describe the wrong pictures.

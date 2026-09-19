@@ -1,0 +1,67 @@
+<?php
+/**
+ * Migrations between plugin versions.
+ *
+ * @package Sobolewski\ImageIcons
+ */
+
+declare( strict_types=1 );
+
+namespace Sobolewski\ImageIcons\Core;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Compares the version stored in the database with the version in code and runs the missing
+ * migrations.
+ *
+ * Add migrations to MIGRATIONS: the key is the version the migration belongs to. Each one runs
+ * exactly once, in ascending order.
+ */
+final class Upgrader {
+
+	/**
+	 * Migrations to run, keyed by the version they belong to.
+	 *
+	 * A method rather than a constant on purpose: a declared return type keeps static analysis
+	 * meaningful while the list is still empty, and it leaves room for conditional migrations.
+	 *
+	 * Example:
+	 *   '0.2.0' => array( self::class, 'migrate_0_2_0' ),
+	 *
+	 * @return array<string, callable>
+	 */
+	private static function migrations(): array {
+		return array();
+	}
+
+	/**
+	 * Runs the migrations when the stored version lags behind the code.
+	 */
+	public static function maybe_upgrade(): void {
+		$stored = (string) get_option( Activator::VERSION_OPTION, '0.0.0' );
+
+		if ( version_compare( $stored, SOBOL_IMAGE_ICONS_VERSION, '>=' ) ) {
+			return;
+		}
+
+		$migrations = self::migrations();
+		uksort( $migrations, 'version_compare' );
+
+		foreach ( $migrations as $version => $callback ) {
+			if ( version_compare( $stored, (string) $version, '<' ) && is_callable( $callback ) ) {
+				call_user_func( $callback, $stored );
+			}
+		}
+
+		update_option( Activator::VERSION_OPTION, SOBOL_IMAGE_ICONS_VERSION );
+
+		/**
+		 * Fires after the plugin has been upgraded.
+		 *
+		 * @param string $from Previous version.
+		 * @param string $to   New version.
+		 */
+		do_action( 'sobolimageicons_upgraded', $stored, SOBOL_IMAGE_ICONS_VERSION );
+	}
+}

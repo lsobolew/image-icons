@@ -1,5 +1,5 @@
 /**
- * End-to-end tests for the Image Icons block and the core Button extension.
+ * End-to-end tests for the Sobol Image Icons block and the core Button extension.
  *
  * The assertions deliberately go past "the element is there" and read the computed style, because
  * the whole plugin is a bet that a CSS mask driven by custom properties survives all the way from
@@ -72,25 +72,25 @@ async function iconAnimations( link: Locator ) {
 	);
 }
 
-test.describe( `Image Icons (${ THEME })`, () => {
+test.describe( `Sobol Image Icons (${ THEME })`, () => {
 	test( 'renders as a mask that takes the text colour', async ( { admin, editor, page } ) => {
 		const errors = watchConsole( page );
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'image-icons/icon',
+			name: 'sobol-image-icons/icon',
 			attributes: { url: PIXEL, size: '2em', label: 'Next' },
 		} );
 
 		await expect(
-			editor.canvas.locator( '[data-type="image-icons/icon"]' )
+			editor.canvas.locator( '[data-type="sobol-image-icons/icon"]' )
 		).toBeVisible();
 
 		const postId = await editor.publishPost();
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-image-icons-icon__mark' );
+		const icon = page.locator( '.wp-block-sobol-image-icons-icon__mark' );
 
 		await expect( icon ).toBeVisible();
 		await expect( icon ).toHaveAttribute( 'aria-label', 'Next' );
@@ -123,7 +123,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 	} ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'image-icons/icon',
+			name: 'sobol-image-icons/icon',
 			attributes: { url: PIXEL },
 		} );
 
@@ -131,7 +131,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-image-icons-icon__mark' );
+		const icon = page.locator( '.wp-block-sobol-image-icons-icon__mark' );
 
 		await expect( icon ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( icon ).not.toHaveAttribute( 'role', 'img' );
@@ -152,9 +152,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Learn more',
-						imageIconsUrl: PIXEL,
-						imageIconsPosition: 'after',
-						imageIconsAnimate: true,
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsPosition: 'after',
+						sobolImageIconsAnimate: true,
 					},
 				},
 			],
@@ -167,7 +167,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// Scoped to the post: a block theme may well render buttons in its header or footer.
 		const button = page.locator( '.entry-content .wp-block-button, main .wp-block-button' ).first();
 
-		await expect( button ).toHaveClass( /has-image-icons/ );
+		await expect( button ).toHaveClass( /has-sobol-image-icons/ );
 		await expect( button ).toHaveClass( /is-icon-after/ );
 		await expect(
 			page.locator( 'a.wp-block-button__link' ).filter( { hasText: 'Learn more' } )
@@ -203,8 +203,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		// What the rich-text format stores: a void element inside someone else's paragraph.
 		const inline =
-			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-sobol-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--sobol-image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -216,7 +216,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-image-icons-icon__inline' );
+		const icon = page.locator( '.wp-block-sobol-image-icons-icon__inline' );
 
 		await expect( icon ).toBeVisible();
 
@@ -264,10 +264,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			value = { ...value, start: value.text.length, end: value.text.length };
 
 			value = richText.insertObject( value, {
-				type: 'image-icons/inline',
+				type: 'sobol-image-icons/inline',
 				attributes: {
 					src: pixel,
-					style: `--image-icons-image:url(${ pixel })`,
+					style: `--sobol-image-icons-image:url(${ pixel })`,
 					alt: '',
 				},
 			} );
@@ -278,7 +278,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			const holder = document.createElement( 'div' );
 			holder.innerHTML = html;
 
-			const icon = holder.querySelector( '.wp-block-image-icons-icon__inline' );
+			const icon = holder.querySelector( '.wp-block-sobol-image-icons-icon__inline' );
 
 			return {
 				html,
@@ -304,8 +304,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// another one. It comes from isObjectActive, which the editor only passes to a format that
 		// asks for it.
 		const inline =
-			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-sobol-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--sobol-image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -350,8 +350,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// selected and read its values straight out of the selection - and writing to the document
 		// momentarily takes the selection off the object.
 		const inline =
-			`Read more <img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" ` +
-			`alt="" style="--image-icons-image:url(${ PIXEL })">`;
+			`Read more <img class="wp-block-sobol-image-icons-icon__inline" src="${ PIXEL }" ` +
+			`alt="" style="--sobol-image-icons-image:url(${ PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -386,7 +386,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		const content = await editor.getEditedPostContent();
 
 		expect( content ).toContain( 'alt="Next page"' );
-		expect( content ).toMatch( /--image-icons-size:2[a-z%]+/ );
+		expect( content ).toMatch( /--sobol-image-icons-size:2[a-z%]+/ );
 	} );
 
 	test( 'inserting an inline icon opens its settings straight away', async ( {
@@ -416,9 +416,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// text-top and text-bottom put the icon's edges on the text's, which is a measurable
 		// difference as soon as the icon is taller than the line.
 		const icon = ( align: string ) =>
-			`<img class="wp-block-image-icons-icon__inline" src="${ PIXEL }" alt="" ` +
-			`style="--image-icons-image:url(${ PIXEL });--image-icons-size:2em` +
-			`${ align ? `;--image-icons-align:${ align }` : '' }">`;
+			`<img class="wp-block-sobol-image-icons-icon__inline" src="${ PIXEL }" alt="" ` +
+			`style="--sobol-image-icons-image:url(${ PIXEL });--sobol-image-icons-size:2em` +
+			`${ align ? `;--sobol-image-icons-align:${ align }` : '' }">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -442,7 +442,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// what defines the line box and every alignment would report the same offset from the top
 		// of the paragraph. What actually differs is where the icon sits relative to the words.
 		const offsets = await page
-			.locator( '.wp-block-image-icons-icon__inline' )
+			.locator( '.wp-block-sobol-image-icons-icon__inline' )
 			.evaluateAll( ( icons ) =>
 				icons.map( ( element ) => {
 					const box = element.getBoundingClientRect();
@@ -489,12 +489,12 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			const written = {
 				src: pixel,
 				alt: 'Next page',
-				style: `--image-icons-image:url(${ pixel });--image-icons-size:1.5em;color:#d00000`,
+				style: `--sobol-image-icons-image:url(${ pixel });--sobol-image-icons-size:1.5em;color:#d00000`,
 				className: 'has-text-color',
 			};
 
 			value = richText.insertObject( value, {
-				type: 'image-icons/inline',
+				type: 'sobol-image-icons/inline',
 				attributes: written,
 			} );
 
@@ -511,9 +511,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// is our own classes only.
 		expect( roundTrip.read.className ).toBe( 'has-text-color' );
 		expect( roundTrip.read.alt ).toBe( 'Next page' );
-		expect( roundTrip.read.style ).toContain( '--image-icons-size:1.5em' );
+		expect( roundTrip.read.style ).toContain( '--sobol-image-icons-size:1.5em' );
 		expect( roundTrip.read.style ).toContain( 'color:#d00000' );
-		expect( roundTrip.html ).toContain( 'wp-block-image-icons-icon__inline' );
+		expect( roundTrip.html ).toContain( 'wp-block-sobol-image-icons-icon__inline' );
 	} );
 
 	test( 'a custom colour survives being read back and written again', async ( {
@@ -527,9 +527,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// dropped the colour declaration. A palette colour never showed the fault, because there
 		// the real class is read first - which is why this uses a custom one.
 		const inline =
-			`Read more <img class="wp-block-image-icons-icon__inline has-text-color" ` +
+			`Read more <img class="wp-block-sobol-image-icons-icon__inline has-text-color" ` +
 			`src="${ PIXEL }" alt="" ` +
-			`style="--image-icons-image:url(${ PIXEL });color:#d00000">`;
+			`style="--sobol-image-icons-image:url(${ PIXEL });color:#d00000">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
@@ -564,9 +564,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// The paragraph is one colour and the icon another, which is the whole point of letting an
 		// icon carry a colour: without one it follows the text, with one it does not.
 		const inline =
-			`Read more <img class="wp-block-image-icons-icon__inline has-text-color" ` +
+			`Read more <img class="wp-block-sobol-image-icons-icon__inline has-text-color" ` +
 			`src="${ PIXEL }" alt="Next" ` +
-			`style="--image-icons-image:url(${ PIXEL });--image-icons-size:2em;color:#0000d0">`;
+			`style="--sobol-image-icons-image:url(${ PIXEL });--sobol-image-icons-size:2em;color:#0000d0">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -578,7 +578,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const icon = page.locator( '.wp-block-image-icons-icon__inline' );
+		const icon = page.locator( '.wp-block-sobol-image-icons-icon__inline' );
 
 		const computed = await icon.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element );
@@ -606,8 +606,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		page,
 	} ) => {
 		const inline =
-			`Logo <img class="wp-block-image-icons-icon__inline is-original" src="${ WIDE_PIXEL }" ` +
-			`alt="Our logo" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
+			`Logo <img class="wp-block-sobol-image-icons-icon__inline is-original" src="${ WIDE_PIXEL }" ` +
+			`alt="Our logo" style="--sobol-image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( { name: 'core/paragraph', attributes: { content: inline } } );
@@ -617,7 +617,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const computed = await page
-			.locator( '.wp-block-image-icons-icon__inline' )
+			.locator( '.wp-block-sobol-image-icons-icon__inline' )
 			.evaluate( ( element ) => {
 				const style = window.getComputedStyle( element );
 				const box = element.getBoundingClientRect();
@@ -648,7 +648,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// matches the other two - sized from the image's proportions, with its own settings.
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'image-icons/icon',
+			name: 'sobol-image-icons/icon',
 			attributes: {
 				url: WIDE_PIXEL,
 				size: '4em',
@@ -664,10 +664,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const measured = await page
-			.locator( '.wp-block-image-icons-icon' )
+			.locator( '.wp-block-sobol-image-icons-icon' )
 			.evaluate( ( root ) => {
 				const mark = root.querySelector(
-					'.wp-block-image-icons-icon__mark'
+					'.wp-block-sobol-image-icons-icon__mark'
 				) as HTMLElement;
 				const style = window.getComputedStyle( mark );
 				const box = mark.getBoundingClientRect();
@@ -691,7 +691,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 	test( 'the block can keep the image its own colours', async ( { admin, editor, page } ) => {
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'image-icons/icon',
+			name: 'sobol-image-icons/icon',
 			attributes: { url: WIDE_PIXEL, size: '3em', ratio: '2/1', original: true },
 		} );
 
@@ -700,7 +700,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const computed = await page
-			.locator( '.wp-block-image-icons-icon__mark' )
+			.locator( '.wp-block-sobol-image-icons-icon__mark' )
 			.evaluate( ( element ) => {
 				const style = window.getComputedStyle( element );
 
@@ -722,7 +722,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// quietly turned the masking off everywhere. This is the assertion that catches that.
 		await admin.createNewPost();
 		await editor.insertBlock( {
-			name: 'image-icons/icon',
+			name: 'sobol-image-icons/icon',
 			attributes: { url: PIXEL, size: '2em' },
 		} );
 
@@ -731,7 +731,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const computed = await page
-			.locator( '.wp-block-image-icons-icon__mark' )
+			.locator( '.wp-block-sobol-image-icons-icon__mark' )
 			.evaluate( ( element ) => {
 				const style = window.getComputedStyle( element );
 
@@ -753,8 +753,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// The icon carries the mask as its own src precisely so the browser can size it from the
 		// file. A box built out of padding would be square and letterbox everything else.
 		const inline =
-			`Wide <img class="wp-block-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
-			`alt="" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
+			`Wide <img class="wp-block-sobol-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--sobol-image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -767,7 +767,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const box = await page
-			.locator( '.wp-block-image-icons-icon__inline' )
+			.locator( '.wp-block-sobol-image-icons-icon__inline' )
 			.evaluate( ( element ) => {
 				const rect = element.getBoundingClientRect();
 
@@ -795,13 +795,13 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Wide',
-						imageIconsUrl: WIDE_PIXEL,
-						imageIconsRatio: '2/1',
+						sobolImageIconsUrl: WIDE_PIXEL,
+						sobolImageIconsRatio: '2/1',
 					},
 				},
 				{
 					name: 'core/button',
-					attributes: { text: 'Unmeasured', imageIconsUrl: WIDE_PIXEL },
+					attributes: { text: 'Unmeasured', sobolImageIconsUrl: WIDE_PIXEL },
 				},
 			],
 		} );
@@ -811,7 +811,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const boxes = await page
-			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
+			.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' )
 			.evaluateAll( ( links ) =>
 				links.map( ( link ) => {
 					const style = window.getComputedStyle( link, '::after' );
@@ -839,8 +839,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// made the label and the inline icon flex items spaced by the icon gap. Both are ways of
 		// letting the pseudo-element's settings escape onto content that is not the pseudo-element.
 		const inline =
-			`Buy <img class="wp-block-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
-			`alt="" style="--image-icons-image:url(${ WIDE_PIXEL })">`;
+			`Buy <img class="wp-block-sobol-image-icons-icon__inline" src="${ WIDE_PIXEL }" ` +
+			`alt="" style="--sobol-image-icons-image:url(${ WIDE_PIXEL })">`;
 
 		await admin.createNewPost();
 		await editor.insertBlock( {
@@ -850,10 +850,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: inline,
-						imageIconsUrl: PIXEL,
-						imageIconsSize: '3em',
-						imageIconsGap: '3em',
-						imageIconsRatio: '1/1',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsSize: '3em',
+						sobolImageIconsGap: '3em',
+						sobolImageIconsRatio: '1/1',
 					},
 				},
 			],
@@ -864,10 +864,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const measured = await page
-			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
+			.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' )
 			.evaluate( ( link ) => {
 				const icon = link.querySelector(
-					'.wp-block-image-icons-icon__inline'
+					'.wp-block-sobol-image-icons-icon__inline'
 				) as HTMLElement;
 				const box = icon.getBoundingClientRect();
 				const after = window.getComputedStyle( link, '::after' );
@@ -902,7 +902,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			innerBlocks: [
 				{
 					name: 'core/button',
-					attributes: { text: 'Centred', imageIconsUrl: PIXEL, imageIconsSize: '3em' },
+					attributes: { text: 'Centred', sobolImageIconsUrl: PIXEL, sobolImageIconsSize: '3em' },
 				},
 			],
 		} );
@@ -925,10 +925,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const alignment = await page
-			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
+			.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' )
 			.evaluate( ( element ) => {
 				// Set the property the inline icon uses, to prove the button does not read it.
-				element.style.setProperty( '--image-icons-align', 'text-top' );
+				element.style.setProperty( '--sobol-image-icons-align', 'text-top' );
 
 				return window.getComputedStyle( element, '::after' ).verticalAlign;
 			} );
@@ -952,8 +952,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Tall',
-						imageIconsUrl: PIXEL,
-						imageIconsSize: '3em',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsSize: '3em',
 					},
 				},
 			],
@@ -964,7 +964,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await page.goto( `/?p=${ postId }` );
 
 		const offset = await page
-			.locator( '.wp-block-button.has-image-icons .wp-block-button__link' )
+			.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' )
 			.evaluate( ( link ) => {
 				const range = document.createRange();
 				range.selectNodeContents( link.firstChild as Node );
@@ -997,11 +997,11 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Branded',
-						imageIconsUrl: WIDE_PIXEL,
-						imageIconsSize: '2em',
-						imageIconsRatio: '2/1',
-						imageIconsOriginal: true,
-						imageIconsAnimation: 'rotate',
+						sobolImageIconsUrl: WIDE_PIXEL,
+						sobolImageIconsSize: '2em',
+						sobolImageIconsRatio: '2/1',
+						sobolImageIconsOriginal: true,
+						sobolImageIconsAnimation: 'rotate',
 					},
 				},
 			],
@@ -1011,7 +1011,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		const icon = await link.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element, '::after' );
@@ -1043,7 +1043,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 				message: 'an icon keeping its own colours stopped animating',
 			} )
 			.toEqual( [
-				{ name: 'image-icons-rotate-hover', playState: 'running', pseudo: '::after' },
+				{ name: 'sobol-image-icons-rotate-hover', playState: 'running', pseudo: '::after' },
 			] );
 	} );
 
@@ -1064,11 +1064,11 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Notice me',
-						imageIconsUrl: PIXEL,
-						imageIconsIdle: 'wiggle',
-						imageIconsIdleInterval: 4,
-						imageIconsAnimation: 'spin',
-						imageIconsDuration: 0.3,
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsIdle: 'wiggle',
+						sobolImageIconsIdleInterval: 4,
+						sobolImageIconsAnimation: 'spin',
+						sobolImageIconsDuration: 0.3,
 					},
 				},
 			],
@@ -1078,14 +1078,14 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		expect( content ).toContain( 'is-icon-idle-wiggle' );
 		expect( content ).toContain( 'is-icon-anim-spin' );
-		expect( content ).toContain( '--image-icons-idle-interval:4s' );
-		expect( content ).toContain( '--image-icons-hover-duration:0.3s' );
+		expect( content ).toContain( '--sobol-image-icons-idle-interval:4s' );
+		expect( content ).toContain( '--sobol-image-icons-hover-duration:0.3s' );
 
 		const postId = await editor.publishPost();
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		const idle = await link.evaluate( ( element ) => {
 			const style = window.getComputedStyle( element, '::after' );
@@ -1094,14 +1094,14 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		} );
 
 		// Idle runs on its own, at the interval that was set.
-		expect( idle.name ).toBe( 'image-icons-wiggle-idle' );
+		expect( idle.name ).toBe( 'sobol-image-icons-wiggle-idle' );
 		expect( idle.duration ).toBe( '4s' );
 
 		await link.hover();
 
 		// Hover takes over: a different animation, at its own duration.
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'image-icons-spin-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'sobol-image-icons-spin-hover', playState: 'running', pseudo: '::after' },
 		] );
 
 		const hovered = await link.evaluate(
@@ -1132,8 +1132,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					attributes: {
 						text: 'Reachable',
 						url: '#somewhere',
-						imageIconsUrl: PIXEL,
-						imageIconsAnimation: 'grow',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsAnimation: 'grow',
 					},
 				},
 			],
@@ -1143,7 +1143,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		expect( await iconAnimations( link ) ).toEqual( [] );
 
@@ -1177,7 +1177,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		await expect( link ).toBeFocused();
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'image-icons-grow-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'sobol-image-icons-grow-hover', playState: 'running', pseudo: '::after' },
 		] );
 	} );
 
@@ -1198,9 +1198,9 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Both',
-						imageIconsUrl: PIXEL,
-						imageIconsIdle: 'wiggle',
-						imageIconsAnimation: 'grow',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsIdle: 'wiggle',
+						sobolImageIconsAnimation: 'grow',
 					},
 				},
 			],
@@ -1210,10 +1210,10 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'image-icons-wiggle-idle', playState: 'running', pseudo: '::after' },
+			{ name: 'sobol-image-icons-wiggle-idle', playState: 'running', pseudo: '::after' },
 		] );
 
 		await link.hover();
@@ -1221,7 +1221,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		// Exactly one animation, and it is the hover one - the idle has stood down rather than
 		// both of them fighting over transform.
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'image-icons-grow-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'sobol-image-icons-grow-hover', playState: 'running', pseudo: '::after' },
 		] );
 	} );
 
@@ -1234,8 +1234,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Spinner',
-						imageIconsUrl: PIXEL,
-						imageIconsAnimation: 'spin',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsAnimation: 'spin',
 					},
 				},
 			],
@@ -1262,8 +1262,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Refresh',
-						imageIconsUrl: PIXEL,
-						imageIconsAnimation: 'rotate',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsAnimation: 'rotate',
 					},
 				},
 			],
@@ -1273,7 +1273,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		expect( await iconAnimations( link ) ).toEqual( [] );
 
@@ -1281,7 +1281,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
 			{
-				name: 'image-icons-rotate-hover',
+				name: 'sobol-image-icons-rotate-hover',
 				playState: 'running',
 				pseudo: '::after',
 			},
@@ -1301,8 +1301,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Spinner',
-						imageIconsUrl: PIXEL,
-						imageIconsAnimation: 'spin',
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsAnimation: 'spin',
 					},
 				},
 			],
@@ -1312,12 +1312,12 @@ test.describe( `Image Icons (${ THEME })`, () => {
 
 		await page.goto( `/?p=${ postId }` );
 
-		const link = page.locator( '.wp-block-button.has-image-icons .wp-block-button__link' );
+		const link = page.locator( '.wp-block-button.has-sobol-image-icons .wp-block-button__link' );
 
 		await link.hover();
 
 		await expect.poll( () => iconAnimations( link ) ).toEqual( [
-			{ name: 'image-icons-spin-hover', playState: 'running', pseudo: '::after' },
+			{ name: 'sobol-image-icons-spin-hover', playState: 'running', pseudo: '::after' },
 		] );
 
 		const advanced = await link.evaluate( async ( element ) => {
@@ -1340,7 +1340,7 @@ test.describe( `Image Icons (${ THEME })`, () => {
 		admin,
 		editor,
 	} ) => {
-		// imageIconsAnimate is what the boolean "Slide on hover" toggle wrote before the animation
+		// sobolImageIconsAnimate is what the boolean "Slide on hover" toggle wrote before the animation
 		// list replaced it. If the class set changed, every button already in a post would come
 		// back as "this block contains unexpected content" the next time somebody opened it.
 		await admin.createNewPost();
@@ -1351,8 +1351,8 @@ test.describe( `Image Icons (${ THEME })`, () => {
 					name: 'core/button',
 					attributes: {
 						text: 'Legacy',
-						imageIconsUrl: PIXEL,
-						imageIconsAnimate: true,
+						sobolImageIconsUrl: PIXEL,
+						sobolImageIconsAnimate: true,
 					},
 				},
 			],
@@ -1384,6 +1384,6 @@ test.describe( `Image Icons (${ THEME })`, () => {
 			.first();
 
 		await expect( button ).toBeVisible();
-		await expect( button ).not.toHaveClass( /has-image-icons/ );
+		await expect( button ).not.toHaveClass( /has-sobol-image-icons/ );
 	} );
 } );

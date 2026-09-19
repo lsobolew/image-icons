@@ -1,4 +1,4 @@
-# Image Icons
+# Sobol Image Icons
 
 Turn any image into a colourable icon that follows your text colour.
 
@@ -35,9 +35,9 @@ capability: authors and contributors on a single site, and **everyone except the
 multisite**. Writing the mask into the markup therefore works for the plugin author, who is an
 administrator on their own machine, and silently breaks for a client's editor.
 
-Image Icons puts the mask in a CSS custom property, which survives that filtering, and resolves it
-in its stylesheet. `plugins/image-icons/tests/Integration/KsesCompatibilityTest.php` asserts it -
-including a test that fails if anyone moves a mask declaration back into the markup.
+Sobol Image Icons puts the mask in a CSS custom property, which survives that filtering, and
+resolves it in its stylesheet. `plugins/sobol-image-icons/tests/Integration/KsesCompatibilityTest.php`
+asserts it - including a test that fails if anyone moves a mask declaration back into the markup.
 
 ## Where things are
 
@@ -45,8 +45,8 @@ This repository is the plugin plus the environment it is built in.
 
 | Path | |
 |---|---|
-| `plugins/image-icons/` | **the plugin** - everything that ships |
-| `plugins/image-icons/blocks/` | TypeScript sources for the editor script that ships minified in `build/` |
+| `plugins/sobol-image-icons/` | **the plugin** - everything that ships |
+| `plugins/sobol-image-icons/blocks/` | TypeScript sources for the editor script that ships minified in `build/` |
 | `tests/e2e/` | Playwright specs, run against several WordPress versions and themes |
 | `bin/`, `cli/`, `env/`, `dashboard/` | the development environment, not part of the plugin |
 
@@ -57,7 +57,7 @@ with the repository. Docker and Node are the only requirements - PHP runs in con
 
 ```bash
 npm install
-npm --prefix plugins/image-icons install
+npm --prefix plugins/sobol-image-icons install
 ./bin/wpx up latest          # WordPress on http://localhost:8191
 ./bin/wpx dev                # rebuild the block on every change
 ./bin/wpx test               # unit, integration and end-to-end

@@ -22,7 +22,7 @@ use WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The /image-icons/v1/items endpoints.
+ * The /sobol-image-icons/v1/items endpoints.
  */
 final class ItemsController extends WP_REST_Controller {
 
@@ -64,7 +64,7 @@ final class ItemsController extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'get_item_permissions_check' ),
 					'args'                => array(
 						'id' => array(
-							'description' => __( 'Item identifier.', 'image-icons' ),
+							'description' => __( 'Item identifier.', 'sobol-image-icons' ),
 							'type'        => 'integer',
 							'required'    => true,
 						),
@@ -85,8 +85,8 @@ final class ItemsController extends WP_REST_Controller {
 	public function get_items_permissions_check( $request ) {
 		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error(
-				'image_icons_rest_forbidden',
-				__( 'You are not allowed to read items.', 'image-icons' ),
+				'sobol_image_icons_rest_forbidden',
+				__( 'You are not allowed to read items.', 'sobol-image-icons' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -155,8 +155,8 @@ final class ItemsController extends WP_REST_Controller {
 
 		if ( ! $post instanceof WP_Post || ContentType::POST_TYPE !== $post->post_type ) {
 			return new WP_Error(
-				'image_icons_rest_not_found',
-				__( 'Item not found.', 'image-icons' ),
+				'sobol_image_icons_rest_not_found',
+				__( 'Item not found.', 'sobol-image-icons' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -189,7 +189,7 @@ final class ItemsController extends WP_REST_Controller {
 		 * @param WP_Post              $item    Source post.
 		 * @param WP_REST_Request      $request Request object.
 		 */
-		$data = apply_filters( 'imageicons_rest_item', $data, $item, $request );
+		$data = apply_filters( 'sobolimageicons_rest_item', $data, $item, $request );
 
 		return rest_ensure_response( $data );
 	}
@@ -206,38 +206,38 @@ final class ItemsController extends WP_REST_Controller {
 
 		$this->schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'image-icons-item',
+			'title'      => 'sobol-image-icons-item',
 			'type'       => 'object',
 			'properties' => array(
 				'id'       => array(
-					'description' => __( 'Item identifier.', 'image-icons' ),
+					'description' => __( 'Item identifier.', 'sobol-image-icons' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 					'readonly'    => true,
 				),
 				'title'    => array(
-					'description' => __( 'Item title.', 'image-icons' ),
+					'description' => __( 'Item title.', 'sobol-image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'excerpt'  => array(
-					'description' => __( 'Item excerpt.', 'image-icons' ),
+					'description' => __( 'Item excerpt.', 'sobol-image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
 				'link'     => array(
-					'description' => __( 'Item URL.', 'image-icons' ),
+					'description' => __( 'Item URL.', 'sobol-image-icons' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 					'context'     => array( 'view' ),
 				),
 				'priority' => array(
-					'description' => __( 'Item priority.', 'image-icons' ),
+					'description' => __( 'Item priority.', 'sobol-image-icons' ),
 					'type'        => 'integer',
 					'context'     => array( 'view' ),
 				),
 				'label'    => array(
-					'description' => __( 'Label taken from the plugin settings.', 'image-icons' ),
+					'description' => __( 'Label taken from the plugin settings.', 'sobol-image-icons' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 				),
@@ -255,14 +255,14 @@ final class ItemsController extends WP_REST_Controller {
 	public function get_collection_params(): array {
 		return array(
 			'page'     => array(
-				'description'       => __( 'Result page number.', 'image-icons' ),
+				'description'       => __( 'Result page number.', 'sobol-image-icons' ),
 				'type'              => 'integer',
 				'default'           => 1,
 				'minimum'           => 1,
 				'sanitize_callback' => 'absint',
 			),
 			'per_page' => array(
-				'description'       => __( 'Number of items per page.', 'image-icons' ),
+				'description'       => __( 'Number of items per page.', 'sobol-image-icons' ),
 				'type'              => 'integer',
 				'minimum'           => 1,
 				'maximum'           => 100,

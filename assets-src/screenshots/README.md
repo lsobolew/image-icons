@@ -14,7 +14,7 @@ asset - no cropping, and the same result every time one is re-taken after a desi
    ```bash
    cd ../../wordpress-playground
    ICON=http://localhost:8080/wp-content/uploads/2026/09/arrow-icon.svg
-   sed "s|ICON_URL|$ICON|g" ../wordpress-plugins/image-icons/.wporg/screenshots/1-one-file-every-colour.html \
+   sed "s|ICON_URL|$ICON|g" ../wordpress-plugins/sobol-image-icons/assets-src/screenshots/1-one-file-every-colour.html \
      | docker compose exec -T cli sh -c 'cat > /var/www/html/shot.html && chown 33:33 /var/www/html/shot.html'
    ```
 

@@ -51,6 +51,6 @@ final class Module implements ModuleContract {
 			return;
 		}
 
-		WP_CLI::add_command( 'image-icons', Command::class );
+		WP_CLI::add_command( 'sobol-image-icons', Command::class );
 	}
 }

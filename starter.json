@@ -1,26 +1,26 @@
 {
 	"$schema": "./docs/starter.schema.json",
-	"name": "Image Icons",
-	"slug": "image-icons",
+	"name": "Sobol Image Icons",
+	"slug": "sobol-image-icons",
 	"namespace": "Sobolewski\\ImageIcons",
-	"constantPrefix": "IMAGE_ICONS",
-	"hookPrefix": "imageicons",
-	"textDomain": "image-icons",
+	"constantPrefix": "SOBOL_IMAGE_ICONS",
+	"hookPrefix": "sobolimageicons",
+	"textDomain": "sobol-image-icons",
 	"description": "Turn any image into a colorable icon: PNG, SVG or WebP rendered as a CSS mask that inherits the text colour.",
 	"author": "Lukasz Sobolewski",
 	"authorUri": "https://github.com/lsobolew",
-	"pluginUri": "https://github.com/lsobolew/image-icons",
+	"pluginUri": "https://github.com/lsobolew/sobol-image-icons",
 	"license": "GPL-2.0-or-later",
 	"requiresWp": "6.6",
 	"requiresPhp": "7.4",
 	"editions": {
 		"free": {
-			"dir": "image-icons",
+			"dir": "sobol-image-icons",
 			"enabled": true,
 			"wporg": true
 		},
 		"pro": {
-			"dir": "image-icons-pro",
+			"dir": "sobol-image-icons-pro",
 			"enabled": false,
 			"wporg": false
 		}
